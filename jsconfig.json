@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "node16",
+    "checkJs": true
+  },
+  "exclude": ["node_modules"]
+}
