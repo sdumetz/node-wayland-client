@@ -24,7 +24,12 @@ export default class Display extends EventEmitter{
    * 
    * @param filepath path to the XML/JSON file to load
    */
+  async load(interfaces :any[]):Promise<void>;
   async load(filepath :string):Promise<void>;
+
+
+  /**Binds an interface by name */
+  async bind(iname:string, version?:string):Promise<Interface>;
 
   /**
    * Shortcut to wl_display.sync() : ensure all pending requests are handled before returning
