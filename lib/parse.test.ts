@@ -1,3 +1,4 @@
+import { InterfaceElement } from "./elements.js";
 import { parseArg, parseEnums, parseInterface, parseRequest } from "./parse.js";
 import {expect} from "chai";
 
@@ -89,7 +90,7 @@ describe("parsers", function(){
     };
 
     it("parse simple interface", function(){
-      const itf = parseInterface(def);
+      const itf = parseInterface(def as any);
       expect(itf).to.be.an("object");
       expect(itf).to.have.property("name", "wl_callback");
       expect(itf).to.have.property("version").a("number").equal(1);

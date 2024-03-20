@@ -1,49 +1,36 @@
 'use strict';
 import { endianness } from "os";
+import { ArgumentDefinition } from "./definitions.js";
+
 
 const en = endianness();
 
+
+
 /**
  * read an uint32 using native system's endianess
- * @param {Buffer} b 
- * @param {number} offset 
- * @returns {number}
  */
-export const readUInt = (b, offset)=> ((en == "LE")? b.readUInt32LE : b.readUInt32BE).call(b, offset);
+export const readUInt = (b :Buffer, offset :number) :number => ((en == "LE")? b.readUInt32LE : b.readUInt32BE).call(b, offset);
 
 /**
  * write an uint32 using native system's endianess
- * @param {Buffer} b 
- * @param {number} value
- * @param {number} offset 
- * @returns {number}
  */
-export const writeUInt = (b, value, offset)=> ((en == "LE")? b.writeUInt32LE : b.writeUInt32BE).call(b, value, offset);
+export const writeUInt = (b :Buffer, value :number, offset :number) :number => ((en == "LE")? b.writeUInt32LE : b.writeUInt32BE).call(b, value, offset);
 
 /**
  * read an int32 using native system's endianess
- * @param {Buffer} b 
- * @param {number} offset 
- * @returns {number}
  */
-export const readInt = (b, offset)=> ((en == "LE")? b.readInt32LE : b.readInt32BE).call(b, offset);
+export const readInt = (b :Buffer, offset :number)=> ((en == "LE")? b.readInt32LE : b.readInt32BE).call(b, offset);
 
 /**
  * write an int32 using native system's endianess
- * @param {Buffer} b 
- * @param {number} value
- * @param {number} offset 
- * @returns {number}
  */
-export const writeInt = (b, value, offset)=> ((en == "LE")? b.writeInt32LE : b.writeInt32BE).call(b, value, offset);
+export const writeInt = (b :Buffer, value :number, offset :number) :number => ((en == "LE")? b.writeInt32LE : b.writeInt32BE).call(b, value, offset);
+
 /**
  * write a 24.8 fixed point value.
- * @param {Buffer} b 
- * @param {number} value 
- * @param {number} offset 
- * @returns {number}
  */
-export function writeFixed(b, value, offset){
+export function writeFixed(b :Buffer, value :number, offset :number) :number{
   const fixed = Math.round(value * 256);
   const sign = ((fixed < 0) ? 0x80000000 : 0);
   return writeInt(b, sign | Math.abs(fixed), offset);
@@ -51,11 +38,8 @@ export function writeFixed(b, value, offset){
 
 /**
  * Read a 24.8 fixed point value.
- * @param {Buffer} b 
- * @param {number} offset 
- * @returns {number} return a float
  */
-export function readFixed(b, offset){
+export function readFixed(b :Buffer, offset :number) :number{
   const fixed = readInt(b, offset);
   const sign = fixed & (1 << 31);
   const num = fixed & ~(1 << 31);
@@ -64,11 +48,8 @@ export function readFixed(b, offset){
 
 /**
  * 
- * @param {any} args 
- * @param {*} def 
- * @returns 
  */
-export function format_args(args, def){
+export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
   if(args.length != def.length) throw new Error(`Bad number of arguments (${args.length}, expected ${def.length}).`);
 
   let argLengths = def.map(({type, name}, index)=>{
@@ -129,8 +110,10 @@ export function format_args(args, def){
   }
   return b;
 }
-
-export function get_args(b, defs){
+/**
+ * @returns the parsed values with correct types. Better types might be inferred
+ */
+export function get_args(b :Buffer, defs :ArgumentDefinition[]) :any[]{
   const values = [];
   let offset = 0;
 

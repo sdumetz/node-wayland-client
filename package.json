@@ -2,12 +2,15 @@
   "name": "wayland-client",
   "version": "1.0.0",
   "description": "pure javascript client implementation of the wayland protocol",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "test": "mocha",
-    "prepare": "node convert.js protocol"
+    "prepare": "node convert.js internal",
+    "prepack": "npm run build",
+    "build": "tsc -b ."
   },
   "bin": {
     "convert-xml": "convert.js"
@@ -24,21 +27,25 @@
   "engines": {
     "node": ">=16"
   },
-  "files":[
-    "lib",
-    "!lib/**/*.test.js",
+  "files": [
+    "dist",
+    "!dist/**/*.test.js",
+    "!dist/**/*.test.d.ts",
     "convert.js",
-    "index.js",
-    "index.d.ts",
-    "protocol/*.json"
+    "protocol/*.json",
+    "protocol/*.d.ts"
   ],
   "optionalDependencies": {
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.13",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.30",
     "chai": "^4.3.10",
     "handlebars": "^4.7.8",
     "mocha": "^10.2.0",
+    "typescript": "^5.4.2",
     "xml-js": "^1.6.11"
   }
 }

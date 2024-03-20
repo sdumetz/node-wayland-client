@@ -10,9 +10,8 @@ import Display from "./display.js";
 const thisDir = path.dirname(fileURLToPath(import.meta.url));
 
 describe("class Display", function(){
-  /** @type {import("node:net").Socket} */
   // @ts-ignore
-  const sMock = {
+  const sMock :Socket = {
     // @ts-ignore
     on(){},
   };
