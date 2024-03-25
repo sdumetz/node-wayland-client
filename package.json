@@ -20,7 +20,7 @@
   "mocha": {
     "recursive": true,
     "spec": [
-      "lib/**/*.test.js"
+      "dist/**/*.test.js"
     ]
   },
   "engines": {
@@ -29,6 +29,7 @@
   "files": [
     "dist",
     "!dist/**/*.test.js",
+    "!dist/**/*.test.js.map",
     "!dist/**/*.test.d.ts",
     "convert.js",
     "protocol/*.json",

@@ -3,44 +3,44 @@ import { endianness } from "os";
 import { ArgumentDefinition } from "./definitions.js";
 
 
-const en = endianness();
+const os_en = endianness();
 
 
 
 /**
  * read an uint32 using native system's endianess
  */
-export const readUInt = (b :Buffer, offset :number) :number => ((en == "LE")? b.readUInt32LE : b.readUInt32BE).call(b, offset);
+export const readUInt = (b :Buffer, offset :number, en:"LE"|"BE" = os_en) :number => ((en == "LE")? b.readUInt32LE : b.readUInt32BE).call(b, offset);
 
 /**
  * write an uint32 using native system's endianess
  */
-export const writeUInt = (b :Buffer, value :number, offset :number) :number => ((en == "LE")? b.writeUInt32LE : b.writeUInt32BE).call(b, value, offset);
+export const writeUInt = (b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number => ((en == "LE")? b.writeUInt32LE : b.writeUInt32BE).call(b, value, offset);
 
 /**
  * read an int32 using native system's endianess
  */
-export const readInt = (b :Buffer, offset :number)=> ((en == "LE")? b.readInt32LE : b.readInt32BE).call(b, offset);
+export const readInt = (b :Buffer, offset :number, en:"LE"|"BE" = os_en)=> ((en == "LE")? b.readInt32LE : b.readInt32BE).call(b, offset);
 
 /**
  * write an int32 using native system's endianess
  */
-export const writeInt = (b :Buffer, value :number, offset :number) :number => ((en == "LE")? b.writeInt32LE : b.writeInt32BE).call(b, value, offset);
+export const writeInt = (b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number => ((en == "LE")? b.writeInt32LE : b.writeInt32BE).call(b, value, offset);
 
 /**
  * write a 24.8 fixed point value.
  */
-export function writeFixed(b :Buffer, value :number, offset :number) :number{
+export function writeFixed(b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number{
   const fixed = Math.round(value * 256);
   const sign = ((fixed < 0) ? 0x80000000 : 0);
-  return writeInt(b, sign | Math.abs(fixed), offset);
+  return writeInt(b, sign | Math.abs(fixed), offset, en);
 }
 
 /**
  * Read a 24.8 fixed point value.
  */
-export function readFixed(b :Buffer, offset :number) :number{
-  const fixed = readInt(b, offset);
+export function readFixed(b :Buffer, offset :number, en:"LE"|"BE" = os_en) :number{
+  const fixed = readInt(b, offset, en);
   const sign = fixed & (1 << 31);
   const num = fixed & ~(1 << 31);
 	return (sign? -1:1) * num / 256;
@@ -82,6 +82,7 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
     switch(type){
       case "object":
         if(typeof arg == "object" && typeof arg?.id === "number") arg = arg.id;
+      case "enum":
       case "new_id":
       case "uint":
         if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`);
@@ -90,8 +91,11 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
         offset += 4;
         break;
       case "fixed":
+        if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`)
+        if( Number.isNaN(arg) || arg < 0) throw new Error(`Invalid ${type} value: ${arg}`);
         writeFixed(b, arg, offset);
         offset += 4;
+        break;
       case "int":
         if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`)
         if(Number.isNaN(arg)) throw new Error("Invalid int value: "+ arg);
@@ -104,13 +108,15 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
         b.write(arg+'\x00', offset + 4, "utf-8");
         offset += argLengths[i]; //account for 32bits padding when necessary
         break;
-      default:
+      /* c8 ignore next 2*/
+      default: /* Will never get called unless we missed some case in lengths pre-parsing */
         throw new Error(`Unsupported request argument type : ${type}`);
     }
   }
   return b;
 }
 /**
+ * Parses a buffer into an array of values, using the arguments definition.
  * @returns the parsed values with correct types. Better types might be inferred
  */
 export function get_args(b :Buffer, defs :ArgumentDefinition[]) :any[]{

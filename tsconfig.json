@@ -10,9 +10,11 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node16",
     "declaration": true,
+    "sourceMap": true,
     
     "types": ["node", "mocha", "chai"],
+    "rootDir": "./lib",
     "outDir": "./dist",
   },
-  "include": ["./lib/**/*", "index.ts"]
+  "include": ["./lib/**/*", "lib/index.ts"]
 }

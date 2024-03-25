@@ -1,10 +1,12 @@
 # Wayland client library
 
-low-level wayland client implementation in pure modern (nodejs 16+) javascript.
+low-level wayland client implementation in modern (nodejs 16+) javascript.
 
-No dependencies, no high level abstractions.
+No runtime dependencies, no high level abstractions either.
 
 It should be able to manage any wayland protocol extension out there (see [the popular ones](https://wayland.app/protocols/)). However it might require a lot of glue code to do anything useful.
+
+It lacks support for any kind of shared-memory features, due to bad support for it in nodejs even with native addons. Additionally it doesn't support file descriptor borrowing which is the mechanism used to share buffers between clients and servers.
 
 ## Installation
 
@@ -12,13 +14,14 @@ It should be able to manage any wayland protocol extension out there (see [the p
 npm install wayland-client
 ```
 
-If you wish to parse XML protocol files, you will need to install the `xml-js` package or provide your own parser.
+If you wish to parse XML protocol files at runtime, you will need to install the `xml-js` package or provide your own parser.
 
-Protocol files can also be provided pre-compiled as JSON files. See `convert.js` for an example.
+Protocol files can also be provided pre-compiled as JSON files. See `convert.js` for an example. This has the added benefit of generating static typings definitions for this protocol.
 
 ## Usage
 
 ### Bind a global
+
 ```js
 import open_display from "wayland-client";
 const wl_display = await open_display();
@@ -28,20 +31,47 @@ let wlr_output = await display.bind("zwlr_output_manager_v1");
 
  > See the `examples` folder.
 
+### Use the interface
+
+What happens next depends on the protocol used. The best thing is to make use of the generated types definitions. [wayland protocols documentation](https://wayland.app/protocols/) is also a good resource to get started.
+
+One major use case is to listen to some events until the server is done sending data. To do this, the base Wl_interface class offers an aggregation primitive:
+
+```js
+  await display.load(path.join(thisDir, "protocol", "wlr_output_management_unstable_v1.xml"));
+  let wlr_output = await display.bind("zwlr_output_manager_v1");
+  const end_aggregate = wlr_output.aggregate();
+  const [serial] = await once(wlr_output, "done");
+  let {head: heads} = end_aggregate();
+```
+
+It's a bit cumbersome to use but way better than manually wiring every events recursively.
+
 ### compile a protocol file
 
 ```sh
 npx convert-xml protocol/xdg_shell.xml
 ```
-Will create a `protocol/xdg_shell.json` file that can be loaded faster and without the `xml-js` dependency.
+Will create a `protocol/xdg_shell.json` file that can be loaded faster and without the `xml-js` dependency and a `protocol/xdg_shell.d.ts` file that will provide types documentation for the `xdg_shell` interface. Interface names are capitalized in types declaration ( `xdg_shell -> Xdg_shell`).
+
+
 
 ## API
 
 **Note on types**
 
-This module has ts declaration files. However since it uses mostly a generic **Interface** class, it isn't really useful to discover wayland usage.
+This module has ts declaration files. The base **Wl_interface** class has a generic signature of low-level common features.  To have robust static typings, it is best to pre-parse protocol files : This will export a `json` file that cand be loaded with lower overhead and a `d.ts` file that holds types declarations for this protocol.
 
-### class Display()
+`Wl_display.bind(...)` can then be caracterized with the interface name as a generic parameter.
+
+```ts
+  let wlr_output = await display.bind<Zwlr_output_manager_v1>("zwlr_output_manager_v1");
+```
+
+This interface inherits from the base `Wl_interface` class and will have all the methods and events defined from the protocol file, with proper arguments types.
+
+
+### class Wl_display()
 
 #### async load(interface_name: string)
 
@@ -55,12 +85,25 @@ Use pre-compiled JSON files if speed is really important : parsing is ~10x faste
 
 Binds a global interface. It's the starting point of any interaction with the wayland server.
 
-### class Interface()
+### class Wl_interface()
 
-#### inspect()
+#### inspect() :string
 
 Outputs a string describing all events and requests provided by this interface.
 
+
+#### aggregate() :()=>AggregateResult
+
+Returns a function to be called once the aggregation should finish.
+
+This function returns an object that contains all event data received since `aggregate()` was called. Unfortunately this is very much generic and intended for low-level use. Knowing an interface implementation will almost always allow for a better result type to be inferred.
+
+
+#### async drain(until :Promise<any> = this.display.sync()):Promise<AggregateResult>
+
+Wrapper around `Wl_interface.aggregate()` that waits for a promise to resolve before returning the result.
+
+By default it will listen to `Wl_display.sync()` but the event to wait for is generally specified per-interface in the protocol documentation.
 
 ## Troubleshooting
 
@@ -78,7 +121,7 @@ xml-js is required to import protocol extensions
 
 protocol errors happen asynchronously so it's sometimes hard to know where they come from.
 
-They are always fatal and `Display` should no longer be used after a protocol error. It's not necessary to close or cleanup anything after such an error.
+They are always fatal and `Wl_display` should no longer be used after a protocol error. It's not necessary to close or cleanup anything after such an error.
 
 
 # Ressources
@@ -94,3 +137,5 @@ Contributions are welcomed.
 If you found something that definitely won't work, pelase submit an issue.
 
 Higher-level features should generally be implemented in a separate user-facing package, but I'm open for suggestion if you think some helpers might get used across a wide range of interfaces.
+
+a POC for supporting shared memory and FD borrowing through a native addon would be welcomed.

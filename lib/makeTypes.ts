@@ -1,10 +1,10 @@
-import { EnumDefinition, EventDefinition, InterfaceDefinition, RequestDefinition, isCallbackArgument, isInterfaceArgument } from "./definitions.js";
+import { ArgumentDefinition, EnumDefinition, EventDefinition, InterfaceDefinition, RequestDefinition, isCallbackArgument, isInterfaceArgument } from "./definitions.js";
 
 
 
 export default function makeTypes(interfaces:InterfaceDefinition[], internal = false){
   return ""
-  + `import Interface from "${internal?"../lib/interface.js":"wayland-client"}";\n`
+  + `import ${internal?"Wl_interface":"{ Wl_interface }"} from "${internal?"../lib/interface.js":"wayland-client"}";\n`
   + `import {
     wl_new_id,
     wl_uint,
@@ -30,11 +30,11 @@ function nameToClass(name :string){
 }
 
 export const genInterface = ({name, version, description, summary, requests, events, enums} :InterfaceDefinition)=>`
-/**
+/**${summary? `\n * @summary ${summary}`:""}
  * ${comment(description)}
- * @summary ${summary}
  */
-export interface ${nameToClass(name)} extends Interface{
+export interface ${nameToClass(name)} extends Wl_interface{
+  name: "${name}";
   version: ${version};
   enums:{
     ${indent(Object.entries(enums??{}).map(([name, en])=>genEnum(name, en)).join(",\n"), 4)}
@@ -46,13 +46,21 @@ export interface ${nameToClass(name)} extends Interface{
 `;
 
 
-const genEvent = ({name, description, summary, args} :EventDefinition)=>`
-/**
+
+const genEvent = ({name, description, summary, args} :EventDefinition)=>{
+  const first_arg = args[0];
+  let params = [];
+  if(first_arg && isInterfaceArgument(first_arg)){
+    args = args.slice(1);
+    params.push(`${first_arg.name}: ${nameToClass(first_arg.interface)}`);
+  }
+  params.push(...args.map(a=> `${a.name}: wl_${a.type}`));
+  return `
+/**${summary? `\n * @summary ${summary}`:""}
  * ${comment(description)}
- * @summary ${summary}
  */
-on(eventName: "${name}", listener: (${args.map(a=> `${a.name}: wl_${a.type}`).join(", ")})=>void): this;
-`;
+on(eventName: "${name}", listener: (${params.join(", ")})=>void): this;
+`};
 
 
 
@@ -67,9 +75,8 @@ const genRequest = ({name, description, summary, args} :RequestDefinition)=>{
     returnType = nameToClass(first_arg.interface);
   }
   return `
-/**
+/**${summary? `\n * @summary ${summary}`:""}
  * ${comment(description)}
- * @summary ${summary}
  * ${args.map(a=> `@param ${a.name} ${a.summary}`).join("\n * ")}
  */
 ${name} (${args.map(a=> `${a.name}: wl_${a.type}`).join(", ")}) :Promise<${returnType}>;
@@ -80,7 +87,7 @@ const genEnum = (name :string, en :EnumDefinition) :string =>`
 ${name}: [
   ${en.map(({name, value, summary})=>`
   /**
-   * @summary ${summary}
+   *${summary? ` @summary ${summary}`:""}
    */
   {
     name: "${name}",

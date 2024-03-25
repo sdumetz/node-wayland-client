@@ -47,7 +47,7 @@ export interface CallbackArgument extends InterfaceArgument{
 }
 
 export function isInterfaceArgument(arg: ArgumentDefinition): arg is InterfaceArgument{
-  return arg.type == "new_id"; 
+  return arg?.type == "new_id"; 
 }
 
 export function isCallbackArgument(arg :ArgumentDefinition): arg is CallbackArgument{

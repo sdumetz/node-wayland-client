@@ -1,5 +1,5 @@
 
-import { format_args, readUInt, readFixed, writeFixed, writeUInt } from "./args.js";
+import { format_args, readUInt, readFixed, writeFixed, writeUInt, readInt, get_args, writeInt } from "./args.js";
 import { expect } from "chai";
 import { ArgumentDefinition, ArgumentType } from "./definitions.js";
 
@@ -9,8 +9,7 @@ describe("Buffer read/write", function(){
     const b = Buffer.alloc(4);
     expect(readUInt(b, 0)).to.equal(0);
   });
-
-  describe("fixed-points", function(){
+  describe("read / write fixed-points", function(){
     this.bail();
     [
       //Those hex values and correspondances were verified through wayland queries dump 
@@ -30,21 +29,56 @@ describe("Buffer read/write", function(){
     });
 
   });
+
+  ["LE", "BE"].forEach((en)=>{
+    it(`works in ${en == "LE"? "Little":"Big"} Endian systems`, function(){
+      let b = Buffer.alloc(4);
+      writeUInt(b, 1, 0, en as any);
+      expect(readUInt(b, 0, en as any)).to.equal(1);
+
+      
+      writeInt(b, -1, 0, en as any);
+      expect(readInt(b, 0, en as any)).to.equal(-1);
+
+      writeFixed(b, 1.5, 0, en as any);
+      expect(readFixed(b, 0, en as any)).to.equal(1.5);
+    });
+  });
+
 });
 
 describe("format_args()", function() {
-  it("should throw an error if the number of arguments is incorrect", function() {
+  it("throws if the number of arguments is incorrect", function() {
     const args = [1, 2, 3];
     const def :ArgumentDefinition[] = [{ name: "arg1", type: "uint" }, { name: "arg2", type: "uint" }];
     expect(() => format_args(args, def)).to.throw(Error, "Bad number of arguments (3, expected 2).");
   });
+  
+  it("throws if argument type is unknown or unsupported", function(){
+    expect(()=>format_args([1], [{ name: "arg1", type: "foo" } as any])).to.throw(`Unsupported request argument type : foo`);
+    //fd exists but is not supported
+    expect(()=>format_args([1], [{ name: "arg1", type: "fd" } as any])).to.throw(`Unsupported request argument type : fd`);
+  });
+
 
   it("encodes uint arguments", function() {
     const args = [1, 2];
     const def :ArgumentDefinition[] = [{ name: "arg1", type: "uint" }, { name: "arg2", type: "uint" }];
     const buffer = format_args(args, def);
     expect(buffer.length).to.equal(8);
+    expect(readUInt(buffer, 0)).to.equal(1);
+    expect(readUInt(buffer, 4)).to.equal(2);
   });
+
+  it("encodes int arguments", function() {
+    const args = [-1, 1];
+    const def :ArgumentDefinition[] = [{ name: "arg1", type: "int" }, { name: "arg2", type: "int" }];
+    const buffer = format_args(args, def);
+    expect(buffer.length).to.equal(8);
+    expect(readInt(buffer, 0)).to.equal(-1);
+    expect(readInt(buffer, 4)).to.equal(1);
+  });
+
 
   it("encodes new_id arguments", function() {
     const args = [3];
@@ -62,10 +96,27 @@ describe("format_args()", function() {
     expect(readUInt(buffer, 0)).to.equal(3);
   });
 
+  it("encodes enum argument", function(){
+    const args = [3];
+    const def :ArgumentDefinition[] = [{ name: "arg1", type: "enum" }];
+    const buffer = format_args(args, def);
+    expect(buffer.length).to.equal(4);
+    expect(readUInt(buffer, 0)).to.equal(3);
+  });
+
+  it("encodes fixed argument", function(){
+    const args = [3.5];
+    const def :ArgumentDefinition[] = [{ name: "arg1", type: "fixed" }];
+    const buffer = format_args(args, def);
+    expect(buffer.length).to.equal(4);
+    expect(readFixed(buffer, 0)).to.equal(3.5);
+  });
+
   [
     "int",
     "uint",
     "fixed",
+    "enum",
     "string"
   ].forEach((type)=>{
     [undefined, null, {}].forEach((arg)=>{
@@ -95,13 +146,14 @@ describe("format_args()", function() {
     expect(format_args([itfMock], def).toString("hex")).to.equal("03000000");
   });
 
-
-  it("thow an error if NaN", function() {
-    const args = [Number.NaN];
-    const def :ArgumentDefinition[] = [{ name: "arg1", type: "new_id" }];
-    expect(()=>format_args(args, def)).to.throw("Invalid new_id value: NaN");
+  ["int", "uint", "object", "enum", "fixed"].forEach((type)=>{
+    it(`thow an error if ${type} is NaN`, function() {
+      const args = [Number.NaN];
+      const def :ArgumentDefinition[] = [{ name: "arg1", type: type as any }];
+      expect(()=>format_args(args, def)).to.throw(`Invalid ${type} value: NaN`);
+    });
   });
-
+  
   it("prefixes byteLength to strings", function() {
     const args = ["he"];
     const def :ArgumentDefinition[] = [{ name: "arg1", type: "string" }];
@@ -126,3 +178,35 @@ describe("format_args()", function() {
   });
   
 });
+
+
+describe("get_args()", function(){
+  ["uint", "int", "object", "new_id", "enum"].forEach((type)=>{
+    it(`get ${type} argument`, function(){
+      const b = Buffer.alloc(4);
+      writeUInt(b, 1, 0);
+      expect(get_args(b, [{ name: "arg1", type: type as any }])).to.deep.equal([1]);
+    });
+  });
+
+  it(`get string argument`, function(){
+    const b = format_args(["hello world"], [{ name: "arg1", type: "string" }])
+    expect(get_args(b, [{ name: "arg1", type: "string" }])).to.deep.equal(["hello world"]);
+  });
+
+  it(`get fixed argument`, function(){
+    const b = Buffer.alloc(4);
+    writeFixed(b, 1.5, 0);
+    expect(get_args(b, [{ name: "arg1", type: "fixed" }])).to.deep.equal([1.5]);
+  });
+
+  it("throws on bad definition", function(){
+    expect(()=> get_args(Buffer.alloc(4), [{ name: "arg1", type: "foo" } as any])).to.throw("Unsupported event argument type : foo");
+  });
+
+  it("pads strings length only if necessary", function(){
+    const b = format_args(["size 8 s"], [{ name: "arg1", type: "string" }])
+    expect(get_args(b, [{ name: "arg1", type: "string" }])).to.deep.equal(["size 8 s"]);
+
+  });
+})

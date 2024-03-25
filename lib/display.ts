@@ -10,7 +10,7 @@ import { Wl_display, Wl_registry } from "../protocol/wayland.js";
 
 import { writeUInt, readUInt, format_args } from "./args.js";
 
-import Interface from "./interface.js";
+import Wl_interface from "./interface.js";
 import { parseInterface } from "./parse.js";
 import { EnumReduction, InterfaceDefinition, RequestDefinition, wl_object } from "./definitions.js";
 import { ElementCompact } from "xml-js";
@@ -24,7 +24,7 @@ export default class Display extends EventEmitter{
   #last_id = 1;
   #interfaces = new Map<string, InterfaceDefinition>();
   #globals = new Map<string, number>();
-  #objects = new Map<wl_object, Interface>();
+  #objects = new Map<wl_object, Wl_interface>();
   #s :Socket;
 
   constructor(s :Socket){
@@ -47,7 +47,7 @@ export default class Display extends EventEmitter{
      * Patch wl_registry.bind to match special case :
      * It's first argument is split into 3.
      */
-    (this.#interfaces.get("wl_registry") as any as Interface).requests[0].args = [
+    (this.#interfaces.get("wl_registry") as any as Wl_interface).requests[0].args = [
       {
         "name": "id",
         "type": "uint",
@@ -94,7 +94,7 @@ export default class Display extends EventEmitter{
       this.#globals.set(iName, id); //Globals are stored here because their definition might not be loaded yet.
     });
     /** 
-     * @FIXME handle "global_remove"
+     * @todo handle "global_remove"
      */
     const cb = await wl_display.sync();
     //await once(this.#s, "data");
@@ -104,10 +104,10 @@ export default class Display extends EventEmitter{
 
   /**
    * Return the first found available ID
-   * @fixme wayland protocol specifies IDs should be compacted, we do not do this.
+   * @todo wayland protocol specifies IDs should be compacted, we do not do this.
    * @returns {number} an available ID
    */
-  nextId() :number{
+  protected nextId() :number{
     while(this.#objects.has(++this.#last_id)){
       //FIXME handle max client ID 0xfeffffff
     }
@@ -122,7 +122,10 @@ export default class Display extends EventEmitter{
     return this.#objects.get(2) as Wl_registry;
   }
 
-  onData = (d :Buffer)=>{
+  /**
+   * Handles data received from the socket. It split individual messages and delegates parsing to `Display.onMessage()`
+   */
+  protected onData = (d :Buffer)=>{
     while(d.length){
       let id = readUInt(d, 0);
       let length = (readUInt(d, 4)>>16);
@@ -133,7 +136,10 @@ export default class Display extends EventEmitter{
     }
   }
 
-  onMessage(id :number, evcode :number, msg :Buffer){
+  /**
+   * top-level message parsing and dispatching
+   */
+  protected onMessage(id :number, evcode :number, msg :Buffer){
     const target = this.#objects.get(id);
     if(!target) return this.emit("warning", "No interface with id "+id);
     const event = target.events[evcode];
@@ -169,31 +175,33 @@ export default class Display extends EventEmitter{
   }
 
   /**
-   * Binds an interface. see wl_registry.bind in wayland.xml
-   * @returns {Promise<Interface>}
+   * Binds a global. see the [Wayland handbook](https://wayland-book.com/registry/binding.html) to learn how this works.
+   * @see Wl_registry.bind()
    */
-  async bind(iname :string, version?:number) :Promise<Interface>{
+  async bind<T extends Wl_interface = Wl_interface>(iname :T["name"], version?:T["version"]) :Promise<T>{
     const def = this.getDefinition(iname);
     const gid = this.#globals.get(iname);
     if(!gid) throw new Error(` No global named ${iname}. Available globals : ${[...this.#globals.keys()].join(", ")}`);
     if(typeof version !== "undefined" && version != def.version){
       console.warn(`Version mismatch: user requests ${iname} v${version}, but v${def.version} is defined`);
     }
-    const itf = this.createInterface(iname);
+    const itf = this.createInterface<T>(iname);
     //console.log(`Bind globals#${iname}(${gid}) to id: ${itf.id}`);
-    // @ts-ignore : bind is (intentionally) ill-defined in the protocol file
+
+    // @ts-ignore : bind is (intentionally) ill-defined in the protocol file, this reflects here.
     await this.wl_registry.bind(gid, def.name, def.version, itf.id);
-    //FIXME : wait for wl_display.sync() while catching errors to handle protocol errors here instead of in Display.error
-    // This is not very high priority because protocol errors are fatal anyways
+
+    //FIXME : We might want to wait for wl_display.sync() while catching errors to handle protocol errors here instead of in Display.error
+    // This is not very high priority because protocol errors are fatal anyways and this would slow us down.
     return  itf;
   }
 
 
   /**
-   * Create a new interface, allocating it's ID automatically
-   * @param name 
+   * Create a new interface, allocating it's ID automatically.
+   * @internal It is normally not used directly, but through Display.bind that creates globals, then through the globals' requests that will call it as needed
    */
-  createInterface<T extends Interface = Interface>(name :string) :T{
+  createInterface<T extends Wl_interface = Wl_interface>(name :string) :T{
     let id = this.nextId();
     return this.registerInterface(id, name);
   }
@@ -203,15 +211,20 @@ export default class Display extends EventEmitter{
  * Instanciate a server-created interface.
  * Like Display.createInterface but do not allocate an ID
  * Used internally and for server-created objects
+ * @internal there is normally no use case for a user to call this directly
  */
-  registerInterface<T extends Interface = Interface>(id :number, name :string) :T{
+  registerInterface<T extends Wl_interface = Wl_interface>(id :number, name :string) :T{
     const def = typeof name ==="string"?this.#interfaces.get(name): name;
     /* @ts-ignore */
-    let itf = new Interface(this, id, def);
+    let itf = new Wl_interface(this, id, def);
     this.#objects.set(id, itf);
     return itf as T;
   }
 
+  /**
+   * Unreferences an object ID
+   * Typically after it has been destroyed
+   */
   deleteId(id :number){
     this.#objects.delete(id);
     //FIXME recalculate next ID to densely pack IDs
@@ -220,7 +233,7 @@ export default class Display extends EventEmitter{
   /**
    * 
    */
-  getObject(iName :string) :Interface|undefined{
+  getObject(iName :string) :Wl_interface|undefined{
     for(let obj of this.#objects.values()){
       if(obj.name == iName) return obj;
     }

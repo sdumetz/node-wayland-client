@@ -8,23 +8,19 @@ import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition
 
 
 interface AggregateResult{
+  id: number;
   [e :string]: number|string|boolean|AggregateResult|number[]|string[]|AggregateResult[];
 }
 
-interface InterfaceAdapter{
-  [r:string]:(...args :any[])=>Promise<Interface>;
-}
-
-declare function isAdapter(itf:unknown): asserts itf is InterfaceAdapter;
 
 
-export default class Interface extends EventEmitter{
-  #d: Display;
+export default class Wl_interface extends EventEmitter{
+  protected readonly display: Display;
   /** Interface name */
-  name: string;
+  public readonly name: string;
   /** Interface version number */
-  version: number;
-  id: number;
+  public readonly version: number;
+  public readonly id: number;
   public readonly events: EventDefinition[];
   public readonly requests: RequestDefinition[];
   public readonly enums: Record<string, EnumDefinition>;
@@ -33,7 +29,7 @@ export default class Interface extends EventEmitter{
 
   constructor(d:Display, id :number, {name, version, requests, events, enums}  :InterfaceDefinition){
     super();
-    this.#d = d;
+    this.display = d;
     this.id = id;
     this.name = name;
     this.version = version
@@ -41,40 +37,44 @@ export default class Interface extends EventEmitter{
     this.events = events;
     this.requests = requests;
     this.enums = enums;
-    isAdapter(this);
     for (let [opcode, op] of requests.entries()){
       const first_arg = op.args[0];
       if(isCallbackArgument(first_arg)){
         //Make a special case for wl_callback
         (this as any)[op.name] = async (...args :any[])=>{
-          let wl_callback =  this.#d.createInterface(first_arg.interface);
-          await this.#d.request(this.id, opcode, op, wl_callback.id, ...args);
+          let wl_callback =  this.display.createInterface(first_arg.interface);
+          await this.display.request(this.id, opcode, op, wl_callback.id, ...args);
           await once(wl_callback, "done");
-          this.#d.deleteId(wl_callback.id);
+          this.display.deleteId(wl_callback.id);
         }
       }else if(isInterfaceArgument(first_arg)){
         //Another special case for interface creation : first argument is a new_id that should be allocated on the spot
         (this as any)[op.name] = async (...args :any[])=>{
           //console.log("Open new interface: "+first_arg.interface);
-          let itf =  this.#d.createInterface(first_arg.interface);
+          let itf =  this.display.createInterface(first_arg.interface);
           try{
-            await this.#d.request(this.id, opcode, op, itf.id, ...args);
+            await this.display.request(this.id, opcode, op, itf.id, ...args);
           }catch(e:any){
             //Only throws for bad arguments, protocol errors are asynchronous.
-            this.#d.deleteId(itf.id);
+            this.display.deleteId(itf.id);
             throw new Error(`${this.name}.${op.name}(${op.args.map(({name})=>name).join(", ")}) failed: ${e.message}`);
           }
           return itf;
         }
       }else{
-        (this as any)[op.name] = this.#d.request.bind(this.#d, this.id, opcode, op);
+        (this as any)[op.name] = this.display.request.bind(this.display, this.id, opcode, op);
       }
     }
   }
 
+  /**
+   * Emits an error event on this interface if it has any error listeners.
+   * Otherwise emit a (fatal) error on the client display interface.
+   * Unless otherwise specified, all errors might be considered fatal.
+   */
   emitError(e:Error|any){
     if(this.listenerCount("error") ==0){
-      return this.#d.emit("error", e);
+      return this.display.emit("error", e);
     }else{
       return this.emit("error", e);
     }
@@ -97,7 +97,7 @@ export default class Interface extends EventEmitter{
           console.warn("Found an interface creation event that had more than one argument. This is unexpected.")
         }
         const [id] = values;
-        let itf = this.#d.registerInterface(id, event.args[0].interface);
+        let itf = this.display.registerInterface(id, event.args[0].interface);
         return this.emit(event.name, itf);
       }else{
         return this.emit(event.name, ...values);
@@ -128,8 +128,21 @@ export default class Interface extends EventEmitter{
   }
 
   /**
-   * @FIXME might be more efficient to listen only once instead of attaching a listener for each event.
-   *        However performance should be tested before assuming anything.
+   * Low level catch-all method to aggregate all events
+   * received by this interface over a period of time
+   * into a single object.
+   * 
+   * Higher-level functions are generally to be preferred because it is error-prone to have to manually cancel aggeration.
+   * 
+   * Usage :
+   * ```javascript
+   *    let end = itf.aggregate();
+   *    await once("done", itf);
+   *    let infos = end();
+   * ```
+   * 
+   * @todo might be more efficient to listen only once instead of attaching a listener for each event.
+   *       However performance should be tested before assuming anything.
    */
   aggregate() :()=>AggregateResult{
     let infos :AggregateResult = {id: this.id};
@@ -137,7 +150,7 @@ export default class Interface extends EventEmitter{
     for (let {name} of this.events){
       let listener = (...args: any[])=>{
         const res = (infos[name] ??= []) as any[];
-        if(args[0] instanceof Interface){
+        if(args[0] instanceof Wl_interface){
           const end = args[0].aggregate();
           cancellations.push(()=>{
             res.push(end());
@@ -153,7 +166,7 @@ export default class Interface extends EventEmitter{
       this.on(name, listener);
       cancellations.push(()=>this.off(name, listener));
     }
-    return function end_drain(){
+    return function end_aggregate(){
       cancellations.forEach((c)=>c());
       for(let key in infos){
         if((infos[key] as any).length == 1) infos[key] = (infos[key] as any)[0];
@@ -162,9 +175,17 @@ export default class Interface extends EventEmitter{
     };
   }
 
-  async drain(){
+  /**
+   * Wrapper around `Wl_interface.aggregate()` that waits for a promise (defaults to `Display.sync()`) to end data aggregation
+   */
+  async drain(until :Promise<any> = this.display.sync()):Promise<AggregateResult>{
     const end_drain = this.aggregate();
-    await this.#d.sync();
+    try{
+      await until;
+    }catch(e){
+      end_drain();
+      throw e;
+    }
     return end_drain();
   };
 }
