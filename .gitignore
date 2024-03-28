@@ -1,6 +1,3 @@
 node_modules/
 
 dist/
-
-protocol/*.json
-protocol/*.d.ts

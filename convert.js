@@ -4,8 +4,8 @@ import fs from "fs/promises";
 import path from "path";
 
 import {xml2js} from "xml-js";
-import { parseInterface } from "./dist/lib/parse.js";
-import makeTypes from "./dist/lib/makeTypes.js";
+import { parseInterface } from "./dist/parse.js";
+import makeTypes from "./dist/makeTypes.js";
 
 let [src] = process.argv.slice(-1);
 let internal = false;
