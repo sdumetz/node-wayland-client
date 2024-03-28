@@ -11,10 +11,37 @@ export interface InterfaceDefinition{
 
 export interface RequestDefinition{
   name: string;
+  type ?:string;
   description: string;
   summary: string;
   args: ArgumentDefinition[];
 }
+
+export interface CallbackRequest extends RequestDefinition{
+  args: [CallbackArgument, ...ArgumentDefinition[]];
+}
+
+export function isCallbackRequest(req: RequestDefinition): req is CallbackRequest{
+  return req?.args?.length > 0 && isCallbackArgument(req.args[0]);
+}
+
+export interface InterfaceCreationRequest extends RequestDefinition{
+  args: [InterfaceArgument, ...ArgumentDefinition[]];
+}
+
+export function isInterfaceCreationRequest(req: RequestDefinition): req is InterfaceCreationRequest{
+  return req?.args?.length > 0 && isInterfaceArgument(req.args[0]);
+}
+
+export interface DestructorRequest extends RequestDefinition{
+  type: "destructor";
+}
+
+export function isDestructorRequest(req: RequestDefinition): req is DestructorRequest{
+  return req?.type == "destructor";
+}
+
+
 
 export interface EventDefinition{
   name: string;

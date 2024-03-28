@@ -31,4 +31,8 @@ describe("class Wl_interface", function(){
   it.skip("wraps requests errors", function(){
 
   });
+
+  it.skip("handles destructor requests", function(){
+    //Object gets deleted from Display's interfaces registry
+  })
 })

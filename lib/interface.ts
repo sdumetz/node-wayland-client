@@ -3,7 +3,7 @@ import {EventEmitter, once} from "node:events";
 
 import { get_args } from "./args.js";
 import Display from "./display.js";
-import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition, isInterfaceArgument, isCallbackArgument as isCallbackArgument } from "./definitions.js";
+import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition, isInterfaceArgument, isCallbackArgument as isCallbackArgument, isCallbackRequest, isInterfaceCreationRequest, isDestructorRequest } from "./definitions.js";
 
 
 
@@ -38,8 +38,8 @@ export default class Wl_interface extends EventEmitter{
     this.requests = requests;
     this.enums = enums;
     for (let [opcode, op] of requests.entries()){
-      const first_arg = op.args[0];
-      if(isCallbackArgument(first_arg)){
+      if(isCallbackRequest(op)){
+        const first_arg = op.args[0];
         //Make a special case for wl_callback
         (this as any)[op.name] = async (...args :any[])=>{
           let wl_callback =  this.display.createInterface(first_arg.interface);
@@ -47,7 +47,8 @@ export default class Wl_interface extends EventEmitter{
           await once(wl_callback, "done");
           this.display.deleteId(wl_callback.id);
         }
-      }else if(isInterfaceArgument(first_arg)){
+      }else if(isInterfaceCreationRequest(op)){
+        const first_arg = op.args[0];
         //Another special case for interface creation : first argument is a new_id that should be allocated on the spot
         (this as any)[op.name] = async (...args :any[])=>{
           //console.log("Open new interface: "+first_arg.interface);
@@ -60,6 +61,11 @@ export default class Wl_interface extends EventEmitter{
             throw new Error(`${this.name}.${op.name}(${op.args.map(({name})=>name).join(", ")}) failed: ${e.message}`);
           }
           return itf;
+        }
+      }else if(isDestructorRequest(op)){
+        (this as any)[op.name] = async (...args :any[]) =>{
+          this.display.deleteId(this.id);
+          await this.display.request(this.id, opcode, op, ...args);
         }
       }else{
         (this as any)[op.name] = this.display.request.bind(this.display, this.id, opcode, op);
