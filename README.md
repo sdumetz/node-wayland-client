@@ -8,6 +8,8 @@ It should be able to manage any wayland protocol extension out there (see [the p
 
 It lacks support for any kind of shared-memory features, due to bad support for it in nodejs even with native addons. Additionally it doesn't support file descriptor borrowing which is the mechanism used to share buffers between clients and servers.
 
+Examples of a good use case might be [zwp_idle_inhibit_manager](https://wayland.app/protocols/idle-inhibit-unstable-v1), [zwlr_output_manager](https://wayland.app/protocols/wlr-output-management-unstable-v1) or managing virtual inputs, like [zwlr_virtual_pointer](https://wayland.app/protocols/wlr-virtual-pointer-unstable-v1). Some other interfaces that do not require shared memory or file descriptor borrowing should also work fine.
+
 ## Installation
 
 ```sh
@@ -115,7 +117,7 @@ Generally, it's `/run/user/$(id -u)/`.
 
 ### [ERR_MODULE_NOT_FOUND]: Cannot find package 'xml-js'
 
-xml-js is required to import protocol extensions
+xml-js is required to import protocol extensions from XML files.
 
 ### Protocol errors
 
