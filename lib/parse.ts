@@ -67,10 +67,10 @@ export function parseEnums(enums :ElementCompact | ElementCompact[]){
     let {_attributes:{name}, entry} = en;
     out[name] = to_a(entry, (e:ElementCompact) :EnumValue=>{
       if(!has("name", e)){
-        throw new Error("Enum has no name");
+        throw new Error("Enum member has no name");
       }
       if(!has("value", e)){
-        throw new Error("Enum has no value");
+        throw new Error("Enum member has no value");
       }
 
       const {_attributes:{name, value, summary}} = e;
