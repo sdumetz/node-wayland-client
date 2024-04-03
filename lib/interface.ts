@@ -26,7 +26,11 @@ export default class Wl_interface extends EventEmitter{
   public readonly enums: Record<string, EnumDefinition>;
 
 
-
+  /**
+   * Interface constructor.
+   * It should normally not be called directly but rather through Display.createInterface(), itself called from Display.bind() or some interface request.
+   * @internal
+   */
   constructor(d:Display, id :number, {name, version, requests, events, enums}  :InterfaceDefinition){
     super();
     this.display = d;

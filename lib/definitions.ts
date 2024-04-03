@@ -35,6 +35,7 @@ export function isInterfaceCreationRequest(req: RequestDefinition): req is Inter
 
 export interface DestructorRequest extends RequestDefinition{
   type: "destructor";
+  args: [];
 }
 
 export function isDestructorRequest(req: RequestDefinition): req is DestructorRequest{
