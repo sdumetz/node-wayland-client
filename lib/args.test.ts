@@ -1,5 +1,13 @@
-
-import { format_args, readUInt, readFixed, writeFixed, writeUInt, readInt, get_args, writeInt } from "./args.js";
+import {
+  format_args,
+  readUInt,
+  readFixed,
+  writeFixed,
+  writeUInt,
+  readInt,
+  get_args,
+  writeInt,
+} from "./args.js";
 import { expect } from "chai";
 import { ArgumentDefinition, ArgumentType } from "./definitions.js";
 
@@ -112,6 +120,20 @@ describe("format_args()", function() {
     expect(readFixed(buffer, 0)).to.equal(3.5);
   });
 
+  it("encodes empty array argument", function () {
+    const args = [new Uint8Array([])];
+    const def: ArgumentDefinition[] = [{ name: "arg1", type: "array" }];
+    const buffer = format_args(args, def);
+    expect(buffer.toString("hex")).to.equal("00000000");
+  });
+
+  it("encodes array argument", function () {
+    const args = [new Uint8Array([5, 4, 3])];
+    const def: ArgumentDefinition[] = [{ name: "arg1", type: "array" }];
+    const buffer = format_args(args, def);
+    expect(buffer.toString("hex")).to.equal("0300000005040300");
+  });
+
   [
     "int",
     "uint",
@@ -192,6 +214,22 @@ describe("get_args()", function(){
   it(`get string argument`, function(){
     const b = format_args(["hello world"], [{ name: "arg1", type: "string" }])
     expect(get_args(b, [{ name: "arg1", type: "string" }])).to.deep.equal(["hello world"]);
+  });
+
+  it("parse empty array", function () {
+    const b = Buffer.alloc(32);
+    b.write("00000000", "hex");
+    expect(get_args(b, [{ name: "arg1", type: "array" }])).to.deep.equal([
+      new Uint8Array([]),
+    ]);
+  });
+
+  it("parse array", function () {
+    const b = Buffer.alloc(32);
+    b.write("030000000102ff00", "hex");
+    expect(get_args(b, [{ name: "arg1", type: "array" }])).to.deep.equal([
+      new Uint8Array([1, 2, 255]),
+    ]);
   });
 
   it(`get fixed argument`, function(){

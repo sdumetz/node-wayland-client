@@ -90,8 +90,15 @@ export interface EnumValue{
   summary?: string;
 }
 
-
-export type ArgumentType = "new_id"| "uint" | "int" | "fixed" | "object" | "enum" | "string";
+export type ArgumentType =
+  | "new_id"
+  | "uint"
+  | "int"
+  | "fixed"
+  | "object"
+  | "enum"
+  | "string"
+  | "array";
 
 export type wl_new_id = number;
 export type wl_uint = number;
@@ -100,6 +107,7 @@ export type wl_fixed = number;
 export type wl_object = number;
 export type wl_enum = number;
 export type wl_string = string;
+export type wl_array = Uint8Array;
 /**
  * @warning This is not supported as long as there is no solution for fd transfer
  */
