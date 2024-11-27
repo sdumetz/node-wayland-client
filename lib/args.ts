@@ -47,13 +47,45 @@ export function readFixed(b :Buffer, offset :number, en:"LE"|"BE" = os_en) :numb
 }
 
 /**
- * 
+ * Read a wl_array (length-prefixed byte array).
+ * @return parsed array from the buffer and the offset plus the number of bytes read.
  */
+export function readArray(
+  b: Buffer,
+  offset: number,
+  en: "LE" | "BE" = os_en,
+): [data: Uint8Array, newOffset: number] {
+  const arrayLength = readUInt(b, offset, en);
+  offset += 4;
+  const arrayData = new Uint8Array(b.subarray(offset, offset + arrayLength));
+  return [arrayData, offset + arrayLength];
+}
+
+/**
+ * Write a Uint8Array to a buffer as a wl_array (padded to 4 byte alignment).
+ * @return `offset` plus the number of bytes written.
+ */
+export function writeArray(
+  b: Buffer,
+  array: Uint8Array,
+  offset: number,
+  en: "LE" | "BE" = os_en,
+): number {
+  offset = writeUInt(b, array.length, offset, en);
+  b.set(array, offset);
+  const padding = (4 - (array.length % 4)) % 4;
+  if (padding > 0) {
+    b.fill(0, offset + array.length, offset + array.length + padding);
+  }
+  return offset + array.length + padding;
+}
+
 export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
   if(args.length != def.length) throw new Error(`Bad number of arguments (${args.length}, expected ${def.length}).`);
 
-  let argLengths = def.map(({type, name}, index)=>{
-    switch(type){
+  let argLengths = def.map(({ type, name }, index) => {
+    const arg = args[index];
+    switch (type) {
       case "new_id":
       case "uint":
       case "object":
@@ -62,11 +94,17 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
       case "int":
         return 4;
       case "string":
-        const arg = args[index];
         if(typeof arg !== "string") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`);
         let strlen = Buffer.byteLength(arg, "utf-8") + 1 /* NULL byte */;
         strlen = ((strlen % 4 != 0)? strlen + 4 - (strlen % 4) : strlen);
         return strlen+4 /* 32 bits uint strlen */;
+      case "array":
+        if (!(arg instanceof Uint8Array))
+          throw new Error(
+            `Invalid type: ${typeof arg} for ${name}. Expected a ${type}`,
+          );
+        // 4 bytes for the length, and the length is padded to 4 bytes
+        return 4 + arg.length + ((4 - (arg.length % 4)) % 4);
       default:
         throw new Error(`Unsupported request argument type : ${type}`);
     }
@@ -108,6 +146,14 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
         b.write(arg+'\x00', offset + 4, "utf-8");
         offset += argLengths[i]; //account for 32bits padding when necessary
         break;
+      case "array":
+        if (!(arg instanceof Uint8Array)) {
+          throw new Error(
+            `Invalid type: ${typeof arg} for ${name}. Expected a ${type}`,
+          );
+        }
+        offset = writeArray(b, arg, offset);
+        break;
       /* c8 ignore next 2*/
       default: /* Will never get called unless we missed some case in lengths pre-parsing */
         throw new Error(`Unsupported request argument type : ${type}`);
@@ -145,6 +191,11 @@ export function get_args(b :Buffer, defs :ArgumentDefinition[]) :any[]{
       case "fixed":
         values.push(readFixed(b, offset));
         offset += 4;
+        break;
+      case "array":
+        const [arrayData, newOffset] = readArray(b, offset);
+        values.push(arrayData);
+        offset = newOffset;
         break;
       default:
         throw new Error(`Unsupported event argument type : ${arg.type}`);
