@@ -1,6 +1,6 @@
 {
   "name": "wayland-client",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "pure javascript client implementation of the wayland protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
