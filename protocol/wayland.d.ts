@@ -1,4 +1,4 @@
-import Interface from "../lib/interface.js";
+import Wl_interface from "../lib/interface.js";
 import {
     wl_new_id,
     wl_uint,
@@ -9,13 +9,14 @@ import {
   } from "../lib/definitions.js";
 
 /**
+ * @summary core global object
  * 
  *  The core global object.  This is a special singleton object.  It
  *  is used for internal Wayland protocol features.
  *  
- * @summary core global object
  */
-export interface Wl_display extends Interface{
+export interface Wl_display extends Wl_interface{
+  name: "wl_display";
   version: 1;
   enums:{
         
@@ -66,6 +67,7 @@ export interface Wl_display extends Interface{
   
     
   /**
+   * @summary fatal error event
    * 
    *  The error event is sent out when a fatal (non-recoverable)
    *  error has occurred.  The object_id argument is the object
@@ -75,12 +77,12 @@ export interface Wl_display extends Interface{
    *  own set of error codes.  The message is a brief description
    *  of the error, for (debugging) convenience.
    *  
-   * @summary fatal error event
    */
   on(eventName: "error", listener: (object_id: wl_object, code: wl_uint, message: wl_string)=>void): this;
   
   
   /**
+   * @summary acknowledge object ID deletion
    * 
    *  This event is used internally by the object ID management
    *  logic. When a client deletes an object that it had created,
@@ -88,12 +90,12 @@ export interface Wl_display extends Interface{
    *  seen the delete request. When the client receives this event,
    *  it will know that it can safely reuse the object ID.
    *  
-   * @summary acknowledge object ID deletion
    */
   on(eventName: "delete_id", listener: (id: wl_uint)=>void): this;
   
     
   /**
+   * @summary asynchronous roundtrip
    * 
    *  The sync request asks the server to emit the 'done' event
    *  on the returned wl_callback object.  Since requests are
@@ -107,7 +109,6 @@ export interface Wl_display extends Interface{
    * 
    *  The callback_data passed in the callback is the event serial.
    *  
-   * @summary asynchronous roundtrip
    * 
    */
   sync () :Promise<void>;
@@ -115,6 +116,7 @@ export interface Wl_display extends Interface{
   
   
   /**
+   * @summary get global registry object
    * 
    *  This request creates a registry object that allows the client
    *  to list and bind the global objects available from the
@@ -126,7 +128,6 @@ export interface Wl_display extends Interface{
    *  Therefore, clients should invoke get_registry as infrequently as
    *  possible to avoid wasting memory.
    *  
-   * @summary get global registry object
    * 
    */
   get_registry () :Promise<Wl_registry>;
@@ -136,6 +137,7 @@ export interface Wl_display extends Interface{
 
 
 /**
+ * @summary global registry object
  * 
  *  The singleton global registry object.  The server has a number of
  *  global objects that are available to all clients.  These objects
@@ -158,9 +160,9 @@ export interface Wl_display extends Interface{
  *  emit events to the client and lets the client invoke requests on
  *  the object.
  *  
- * @summary global registry object
  */
-export interface Wl_registry extends Interface{
+export interface Wl_registry extends Wl_interface{
+  name: "wl_registry";
   version: 1;
   enums:{
         
@@ -168,6 +170,7 @@ export interface Wl_registry extends Interface{
   
     
   /**
+   * @summary announce global object
    * 
    *  Notify the client of global objects.
    * 
@@ -175,12 +178,12 @@ export interface Wl_registry extends Interface{
    *  the given name is now available, and it implements the
    *  given version of the given interface.
    *  
-   * @summary announce global object
    */
   on(eventName: "global", listener: (name: wl_uint, interface: wl_string, version: wl_uint)=>void): this;
   
   
   /**
+   * @summary announce removal of global object
    * 
    *  Notify the client of removed global objects.
    * 
@@ -193,17 +196,16 @@ export interface Wl_registry extends Interface{
    *  ignored until the client destroys it, to avoid races between
    *  the global going away and a client sending a request to it.
    *  
-   * @summary announce removal of global object
    */
   on(eventName: "global_remove", listener: (name: wl_uint)=>void): this;
   
     
   /**
+   * @summary bind an object to the display
    * 
    *  Binds a new, client-created object to the server using the
    *  specified name as the identifier.
    *  
-   * @summary bind an object to the display
    * @param name unique numeric name of the object
    * @param id bounded object
    */
@@ -214,13 +216,14 @@ export interface Wl_registry extends Interface{
 
 
 /**
+ * @summary callback object
  * 
  *  Clients can handle the 'done' event to get notified when
  *  the related request is done.
  *  
- * @summary callback object
  */
-export interface Wl_callback extends Interface{
+export interface Wl_callback extends Wl_interface{
+  name: "wl_callback";
   version: 1;
   enums:{
         
@@ -228,10 +231,10 @@ export interface Wl_callback extends Interface{
   
     
   /**
+   * @summary done event
    * 
    *  Notify the client when the related request is done.
    *  
-   * @summary done event
    */
   on(eventName: "done", listener: (callback_data: wl_uint)=>void): this;
   
@@ -240,14 +243,15 @@ export interface Wl_callback extends Interface{
 
 
 /**
+ * @summary the compositor singleton
  * 
  *  A compositor.  This object is a singleton global.  The
  *  compositor is in charge of combining the contents of multiple
  *  surfaces into one displayable output.
  *  
- * @summary the compositor singleton
  */
-export interface Wl_compositor extends Interface{
+export interface Wl_compositor extends Wl_interface{
+  name: "wl_compositor";
   version: 4;
   enums:{
         
@@ -256,10 +260,10 @@ export interface Wl_compositor extends Interface{
     
     
   /**
+   * @summary create new surface
    * 
    *  Ask the compositor to create a new surface.
    *  
-   * @summary create new surface
    * 
    */
   create_surface () :Promise<Wl_surface>;
@@ -267,10 +271,10 @@ export interface Wl_compositor extends Interface{
   
   
   /**
+   * @summary create new region
    * 
    *  Ask the compositor to create a new region.
    *  
-   * @summary create new region
    * 
    */
   create_region () :Promise<Wl_region>;
@@ -280,6 +284,7 @@ export interface Wl_compositor extends Interface{
 
 
 /**
+ * @summary a shared memory pool
  * 
  *  The wl_shm_pool object encapsulates a piece of memory shared
  *  between the compositor and client.  Through the wl_shm_pool
@@ -289,9 +294,9 @@ export interface Wl_compositor extends Interface{
  *  setup/teardown overhead and is useful when interactively resizing
  *  a surface or for many small buffers.
  *  
- * @summary a shared memory pool
  */
-export interface Wl_shm_pool extends Interface{
+export interface Wl_shm_pool extends Wl_interface{
+  name: "wl_shm_pool";
   version: 1;
   enums:{
         
@@ -300,6 +305,7 @@ export interface Wl_shm_pool extends Interface{
     
     
   /**
+   * @summary create a buffer from the pool
    * 
    *  Create a wl_buffer object from the pool.
    * 
@@ -313,7 +319,6 @@ export interface Wl_shm_pool extends Interface{
    *  so it is valid to destroy the pool immediately after creating
    *  a buffer from it.
    *  
-   * @summary create a buffer from the pool
    * @param offset buffer byte offset within the pool
    * @param width buffer width, in pixels
    * @param height buffer height, in pixels
@@ -325,6 +330,7 @@ export interface Wl_shm_pool extends Interface{
   
   
   /**
+   * @summary destroy the pool
    * 
    *  Destroy the shared memory pool.
    * 
@@ -332,7 +338,6 @@ export interface Wl_shm_pool extends Interface{
    *  buffers that have been created from this pool
    *  are gone.
    *  
-   * @summary destroy the pool
    * 
    */
   destroy () :Promise<void>;
@@ -340,13 +345,13 @@ export interface Wl_shm_pool extends Interface{
   
   
   /**
+   * @summary change the size of the pool mapping
    * 
    *  This request will cause the server to remap the backing memory
    *  for the pool from the file descriptor passed when the pool was
    *  created, but using the new size.  This request can only be
    *  used to make the pool bigger.
    *  
-   * @summary change the size of the pool mapping
    * @param size new size of the pool, in bytes
    */
   resize (size: wl_int) :Promise<void>;
@@ -356,6 +361,7 @@ export interface Wl_shm_pool extends Interface{
 
 
 /**
+ * @summary shared memory support
  * 
  *  A singleton global object that provides support for shared
  *  memory.
@@ -367,9 +373,9 @@ export interface Wl_shm_pool extends Interface{
  *  format events to inform clients about the valid pixel formats
  *  that can be used for buffers.
  *  
- * @summary shared memory support
  */
-export interface Wl_shm extends Interface{
+export interface Wl_shm extends Wl_interface{
+  name: "wl_shm";
   version: 1;
   enums:{
         
@@ -1250,7 +1256,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "yuv420_8bit",
@@ -1260,7 +1266,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "yuv420_10bit",
@@ -1270,7 +1276,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "xrgb8888_a8",
@@ -1280,7 +1286,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "xbgr8888_a8",
@@ -1290,7 +1296,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "rgbx8888_a8",
@@ -1300,7 +1306,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "bgrx8888_a8",
@@ -1310,7 +1316,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "rgb888_a8",
@@ -1320,7 +1326,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "bgr888_a8",
@@ -1330,7 +1336,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "rgb565_a8",
@@ -1340,7 +1346,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "bgr565_a8",
@@ -1430,7 +1436,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "q410",
@@ -1440,7 +1446,7 @@ export interface Wl_shm extends Interface{
     
     
       /**
-       * @summary undefined
+       *
        */
       {
         name: "q401",
@@ -1454,17 +1460,18 @@ export interface Wl_shm extends Interface{
   
     
   /**
+   * @summary pixel format description
    * 
    *  Informs the client about a valid pixel format that
    *  can be used for buffers. Known formats include
    *  argb8888 and xrgb8888.
    *  
-   * @summary pixel format description
    */
   on(eventName: "format", listener: (format: wl_uint)=>void): this;
   
     
   /**
+   * @summary create a shm pool
    * 
    *  Create a new wl_shm_pool object.
    * 
@@ -1472,7 +1479,6 @@ export interface Wl_shm extends Interface{
    *  objects.  The server will mmap size bytes of the passed file
    *  descriptor, to use as backing memory for the pool.
    *  
-   * @summary create a shm pool
    * @param fd file descriptor for the pool
    * @param size pool size, in bytes
    */
@@ -1483,6 +1489,7 @@ export interface Wl_shm extends Interface{
 
 
 /**
+ * @summary content for a wl_surface
  * 
  *  A buffer provides the content for a wl_surface. Buffers are
  *  created through factory interfaces such as wl_drm, wl_shm or
@@ -1490,9 +1497,9 @@ export interface Wl_shm extends Interface{
  *  wl_surface, but the mechanism by which a client provides and
  *  updates the contents is defined by the buffer factory interface.
  *  
- * @summary content for a wl_surface
  */
-export interface Wl_buffer extends Interface{
+export interface Wl_buffer extends Wl_interface{
+  name: "wl_buffer";
   version: 1;
   enums:{
         
@@ -1500,6 +1507,7 @@ export interface Wl_buffer extends Interface{
   
     
   /**
+   * @summary compositor releases buffer
    * 
    *  Sent when this wl_buffer is no longer used by the compositor.
    *  The client is now free to reuse or destroy this buffer and its
@@ -1514,19 +1522,18 @@ export interface Wl_buffer extends Interface{
    *  wl_surface contents, e.g. as a GL texture. This is an important
    *  optimization for GL(ES) compositors with wl_shm clients.
    *  
-   * @summary compositor releases buffer
    */
   on(eventName: "release", listener: ()=>void): this;
   
     
   /**
+   * @summary destroy a buffer
    * 
    *  Destroy a buffer. If and how you need to release the backing
    *  storage is defined by the buffer factory interface.
    * 
    *  For possible side-effects to a surface, see wl_surface.attach.
    *  
-   * @summary destroy a buffer
    * 
    */
   destroy () :Promise<void>;
@@ -1536,6 +1543,7 @@ export interface Wl_buffer extends Interface{
 
 
 /**
+ * @summary offer to transfer data
  * 
  *  A wl_data_offer represents a piece of data offered for transfer
  *  by another client (the source client).  It is used by the
@@ -1544,9 +1552,9 @@ export interface Wl_buffer extends Interface{
  *  converted to and provides the mechanism for transferring the
  *  data directly from the source client.
  *  
- * @summary offer to transfer data
  */
-export interface Wl_data_offer extends Interface{
+export interface Wl_data_offer extends Wl_interface{
+  name: "wl_data_offer";
   version: 3;
   enums:{
         
@@ -1597,27 +1605,28 @@ export interface Wl_data_offer extends Interface{
   
     
   /**
+   * @summary advertise offered mime type
    * 
    *  Sent immediately after creating the wl_data_offer object.  One
    *  event per offered mime type.
    *  
-   * @summary advertise offered mime type
    */
   on(eventName: "offer", listener: (mime_type: wl_string)=>void): this;
   
   
   /**
+   * @summary notify the source-side available actions
    * 
    *  This event indicates the actions offered by the data source. It
    *  will be sent right after wl_data_device.enter, or anytime the source
    *  side changes its offered actions through wl_data_source.set_actions.
    *  
-   * @summary notify the source-side available actions
    */
   on(eventName: "source_actions", listener: (source_actions: wl_uint)=>void): this;
   
   
   /**
+   * @summary notify the selected action
    * 
    *  This event indicates the action selected by the compositor after
    *  matching the source/destination side actions. Only one action (or
@@ -1655,12 +1664,12 @@ export interface Wl_data_offer extends Interface{
    *  final wl_data_offer.set_actions and wl_data_offer.accept requests
    *  must happen before the call to wl_data_offer.finish.
    *  
-   * @summary notify the selected action
    */
   on(eventName: "action", listener: (dnd_action: wl_uint)=>void): this;
   
     
   /**
+   * @summary accept one of the offered mime types
    * 
    *  Indicate that the client can accept the given mime type, or
    *  NULL for not accepted.
@@ -1677,7 +1686,6 @@ export interface Wl_data_offer extends Interface{
    *  wl_data_source.cancelled. Clients may still use this event in
    *  conjunction with wl_data_source.action for feedback.
    *  
-   * @summary accept one of the offered mime types
    * @param serial serial number of the accept request
    * @param mime_type mime type accepted by the client
    */
@@ -1686,6 +1694,7 @@ export interface Wl_data_offer extends Interface{
   
   
   /**
+   * @summary request that the data is transferred
    * 
    *  To transfer the offered data, the client issues this request
    *  and indicates the mime type it wants to receive.  The transfer
@@ -1703,7 +1712,6 @@ export interface Wl_data_offer extends Interface{
    *  clients may preemptively fetch data or examine it more closely to
    *  determine acceptance.
    *  
-   * @summary request that the data is transferred
    * @param mime_type mime type desired by receiver
    * @param fd file descriptor for data transfer
    */
@@ -1712,10 +1720,10 @@ export interface Wl_data_offer extends Interface{
   
   
   /**
+   * @summary destroy data offer
    * 
    *  Destroy the data offer.
    *  
-   * @summary destroy data offer
    * 
    */
   destroy () :Promise<void>;
@@ -1723,6 +1731,7 @@ export interface Wl_data_offer extends Interface{
   
   
   /**
+   * @summary the offer will no longer be used
    * 
    *  Notifies the compositor that the drag destination successfully
    *  finished the drag-and-drop operation.
@@ -1739,7 +1748,6 @@ export interface Wl_data_offer extends Interface{
    *  If wl_data_offer.finish request is received for a non drag and drop
    *  operation, the invalid_finish protocol error is raised.
    *  
-   * @summary the offer will no longer be used
    * 
    */
   finish () :Promise<void>;
@@ -1747,6 +1755,7 @@ export interface Wl_data_offer extends Interface{
   
   
   /**
+   * @summary set the available/preferred drag-and-drop actions
    * 
    *  Sets the actions that the destination side client supports for
    *  this operation. This request may trigger the emission of
@@ -1780,7 +1789,6 @@ export interface Wl_data_offer extends Interface{
    *  This request can only be made on drag-and-drop offers, a protocol error
    *  will be raised otherwise.
    *  
-   * @summary set the available/preferred drag-and-drop actions
    * @param dnd_actions actions supported by the destination client
    * @param preferred_action action preferred by the destination client
    */
@@ -1791,15 +1799,16 @@ export interface Wl_data_offer extends Interface{
 
 
 /**
+ * @summary offer to transfer data
  * 
  *  The wl_data_source object is the source side of a wl_data_offer.
  *  It is created by the source client in a data transfer and
  *  provides a way to describe the offered data and a way to respond
  *  to requests to transfer the data.
  *  
- * @summary offer to transfer data
  */
-export interface Wl_data_source extends Interface{
+export interface Wl_data_source extends Wl_interface{
+  name: "wl_data_source";
   version: 3;
   enums:{
         
@@ -1830,29 +1839,30 @@ export interface Wl_data_source extends Interface{
   
     
   /**
+   * @summary a target accepts an offered mime type
    * 
    *  Sent when a target accepts pointer_focus or motion events.  If
    *  a target does not accept any of the offered types, type is NULL.
    * 
    *  Used for feedback during drag-and-drop.
    *  
-   * @summary a target accepts an offered mime type
    */
   on(eventName: "target", listener: (mime_type: wl_string)=>void): this;
   
   
   /**
+   * @summary send the data
    * 
    *  Request for data from the client.  Send the data as the
    *  specified mime type over the passed file descriptor, then
    *  close it.
    *  
-   * @summary send the data
    */
   on(eventName: "send", listener: (mime_type: wl_string, fd: wl_fd)=>void): this;
   
   
   /**
+   * @summary selection was cancelled
    * 
    *  This data source is no longer valid. There are several reasons why
    *  this could happen:
@@ -1875,12 +1885,12 @@ export interface Wl_data_source extends Interface{
    *  only be emitted if the data source was replaced by another data
    *  source.
    *  
-   * @summary selection was cancelled
    */
   on(eventName: "cancelled", listener: ()=>void): this;
   
   
   /**
+   * @summary the drag-and-drop operation physically finished
    * 
    *  The user performed the drop action. This event does not indicate
    *  acceptance, wl_data_source.cancelled may still be emitted afterwards
@@ -1892,12 +1902,12 @@ export interface Wl_data_source extends Interface{
    *  Note that the data_source may still be used in the future and should
    *  not be destroyed here.
    *  
-   * @summary the drag-and-drop operation physically finished
    */
   on(eventName: "dnd_drop_performed", listener: ()=>void): this;
   
   
   /**
+   * @summary the drag-and-drop operation concluded
    * 
    *  The drop destination finished interoperating with this data
    *  source, so the client is now free to destroy this data source and
@@ -1906,12 +1916,12 @@ export interface Wl_data_source extends Interface{
    *  If the action used to perform the operation was "move", the
    *  source can now delete the transferred data.
    *  
-   * @summary the drag-and-drop operation concluded
    */
   on(eventName: "dnd_finished", listener: ()=>void): this;
   
   
   /**
+   * @summary notify the selected action
    * 
    *  This event indicates the action selected by the compositor after
    *  matching the source/destination side actions. Only one action (or
@@ -1939,18 +1949,17 @@ export interface Wl_data_source extends Interface{
    *  Clients can trigger cursor surface changes from this point, so
    *  they reflect the current action.
    *  
-   * @summary notify the selected action
    */
   on(eventName: "action", listener: (dnd_action: wl_uint)=>void): this;
   
     
   /**
+   * @summary add an offered mime type
    * 
    *  This request adds a mime type to the set of mime types
    *  advertised to targets.  Can be called several times to offer
    *  multiple types.
    *  
-   * @summary add an offered mime type
    * @param mime_type mime type offered by the data source
    */
   offer (mime_type: wl_string) :Promise<void>;
@@ -1958,10 +1967,10 @@ export interface Wl_data_source extends Interface{
   
   
   /**
+   * @summary destroy the data source
    * 
    *  Destroy the data source.
    *  
-   * @summary destroy the data source
    * 
    */
   destroy () :Promise<void>;
@@ -1969,6 +1978,7 @@ export interface Wl_data_source extends Interface{
   
   
   /**
+   * @summary set the available drag-and-drop actions
    * 
    *  Sets the actions that the source side client supports for this
    *  operation. This request may trigger wl_data_source.action and
@@ -1984,7 +1994,6 @@ export interface Wl_data_source extends Interface{
    *  wl_data_device.start_drag. Attempting to use the source other than
    *  for drag-and-drop will raise a protocol error.
    *  
-   * @summary set the available drag-and-drop actions
    * @param dnd_actions actions supported by the data source
    */
   set_actions (dnd_actions: wl_uint) :Promise<void>;
@@ -1994,6 +2003,7 @@ export interface Wl_data_source extends Interface{
 
 
 /**
+ * @summary data transfer device
  * 
  *  There is one wl_data_device per seat which can be obtained
  *  from the global wl_data_device_manager singleton.
@@ -2001,9 +2011,9 @@ export interface Wl_data_source extends Interface{
  *  A wl_data_device provides access to inter-client data transfer
  *  mechanisms such as copy-and-paste and drag-and-drop.
  *  
- * @summary data transfer device
  */
-export interface Wl_data_device extends Interface{
+export interface Wl_data_device extends Wl_interface{
+  name: "wl_data_device";
   version: 3;
   enums:{
         
@@ -2024,6 +2034,7 @@ export interface Wl_data_device extends Interface{
   
     
   /**
+   * @summary introduce a new wl_data_offer
    * 
    *  The data_offer event introduces a new wl_data_offer object,
    *  which will subsequently be used in either the
@@ -2033,47 +2044,47 @@ export interface Wl_data_device extends Interface{
    *  object will send out data_offer.offer events to describe the
    *  mime types it offers.
    *  
-   * @summary introduce a new wl_data_offer
    */
-  on(eventName: "data_offer", listener: (id: wl_new_id)=>void): this;
+  on(eventName: "data_offer", listener: (id: Wl_data_offer)=>void): this;
   
   
   /**
+   * @summary initiate drag-and-drop session
    * 
    *  This event is sent when an active drag-and-drop pointer enters
    *  a surface owned by the client.  The position of the pointer at
    *  enter time is provided by the x and y arguments, in surface-local
    *  coordinates.
    *  
-   * @summary initiate drag-and-drop session
    */
   on(eventName: "enter", listener: (serial: wl_uint, surface: wl_object, x: wl_fixed, y: wl_fixed, id: wl_object)=>void): this;
   
   
   /**
+   * @summary end drag-and-drop session
    * 
    *  This event is sent when the drag-and-drop pointer leaves the
    *  surface and the session ends.  The client must destroy the
    *  wl_data_offer introduced at enter time at this point.
    *  
-   * @summary end drag-and-drop session
    */
   on(eventName: "leave", listener: ()=>void): this;
   
   
   /**
+   * @summary drag-and-drop session motion
    * 
    *  This event is sent when the drag-and-drop pointer moves within
    *  the currently focused surface. The new position of the pointer
    *  is provided by the x and y arguments, in surface-local
    *  coordinates.
    *  
-   * @summary drag-and-drop session motion
    */
   on(eventName: "motion", listener: (time: wl_uint, x: wl_fixed, y: wl_fixed)=>void): this;
   
   
   /**
+   * @summary end drag-and-drop session successfully
    * 
    *  The event is sent when a drag-and-drop operation is ended
    *  because the implicit grab is removed.
@@ -2089,12 +2100,12 @@ export interface Wl_data_device extends Interface{
    *  wl_data_offer.set_actions request, or wl_data_offer.destroy in order
    *  to cancel the operation.
    *  
-   * @summary end drag-and-drop session successfully
    */
   on(eventName: "drop", listener: ()=>void): this;
   
   
   /**
+   * @summary advertise new selection
    * 
    *  The selection event is sent out to notify the client of a new
    *  wl_data_offer for the selection for this device.  The
@@ -2108,12 +2119,12 @@ export interface Wl_data_device extends Interface{
    *  destroy the previous selection data_offer, if any, upon receiving
    *  this event.
    *  
-   * @summary advertise new selection
    */
   on(eventName: "selection", listener: (id: wl_object)=>void): this;
   
     
   /**
+   * @summary start drag-and-drop operation
    * 
    *  This request asks the compositor to start a drag-and-drop
    *  operation on behalf of the client.
@@ -2144,7 +2155,6 @@ export interface Wl_data_device extends Interface{
    *  as an icon ends, the current and pending input regions become
    *  undefined, and the wl_surface is unmapped.
    *  
-   * @summary start drag-and-drop operation
    * @param source data source for the eventual transfer
    * @param origin surface where the drag originates
    * @param icon drag-and-drop icon surface
@@ -2155,13 +2165,13 @@ export interface Wl_data_device extends Interface{
   
   
   /**
+   * @summary copy data to the selection
    * 
    *  This request asks the compositor to set the selection
    *  to the data from the source on behalf of the client.
    * 
    *  To unset the selection, set the source to NULL.
    *  
-   * @summary copy data to the selection
    * @param source data source for the selection
    * @param serial serial number of the event that triggered this request
    */
@@ -2170,10 +2180,10 @@ export interface Wl_data_device extends Interface{
   
   
   /**
+   * @summary destroy data device
    * 
    *  This request destroys the data device.
    *  
-   * @summary destroy data device
    * 
    */
   release () :Promise<void>;
@@ -2183,6 +2193,7 @@ export interface Wl_data_device extends Interface{
 
 
 /**
+ * @summary data transfer interface
  * 
  *  The wl_data_device_manager is a singleton global object that
  *  provides access to inter-client data transfer mechanisms such as
@@ -2195,9 +2206,9 @@ export interface Wl_data_device extends Interface{
  *  functioning properly. See wl_data_source.set_actions,
  *  wl_data_offer.accept and wl_data_offer.finish for details.
  *  
- * @summary data transfer interface
  */
-export interface Wl_data_device_manager extends Interface{
+export interface Wl_data_device_manager extends Wl_interface{
+  name: "wl_data_device_manager";
   version: 3;
   enums:{
         
@@ -2249,10 +2260,10 @@ export interface Wl_data_device_manager extends Interface{
     
     
   /**
+   * @summary create a new data source
    * 
    *  Create a new data source.
    *  
-   * @summary create a new data source
    * 
    */
   create_data_source () :Promise<Wl_data_source>;
@@ -2260,10 +2271,10 @@ export interface Wl_data_device_manager extends Interface{
   
   
   /**
+   * @summary create a new data device
    * 
    *  Create a new data device for a given seat.
    *  
-   * @summary create a new data device
    * @param seat seat associated with the data device
    */
   get_data_device (seat: wl_object) :Promise<Wl_data_device>;
@@ -2273,6 +2284,7 @@ export interface Wl_data_device_manager extends Interface{
 
 
 /**
+ * @summary create desktop-style surfaces
  * 
  *  This interface is implemented by servers that provide
  *  desktop-style user interfaces.
@@ -2283,9 +2295,9 @@ export interface Wl_data_device_manager extends Interface{
  *  Note! This protocol is deprecated and not intended for production use.
  *  For desktop-style user interfaces, use xdg_shell.
  *  
- * @summary create desktop-style surfaces
  */
-export interface Wl_shell extends Interface{
+export interface Wl_shell extends Wl_interface{
+  name: "wl_shell";
   version: 1;
   enums:{
         
@@ -2307,6 +2319,7 @@ export interface Wl_shell extends Interface{
     
     
   /**
+   * @summary create a shell surface from a surface
    * 
    *  Create a shell surface for an existing surface. This gives
    *  the wl_surface the role of a shell surface. If the wl_surface
@@ -2314,7 +2327,6 @@ export interface Wl_shell extends Interface{
    * 
    *  Only one shell surface can be associated with a given surface.
    *  
-   * @summary create a shell surface from a surface
    * @param surface surface to be given the shell surface role
    */
   get_shell_surface (surface: wl_object) :Promise<Wl_shell_surface>;
@@ -2324,6 +2336,7 @@ export interface Wl_shell extends Interface{
 
 
 /**
+ * @summary desktop-style metadata interface
  * 
  *  An interface that may be implemented by a wl_surface, for
  *  implementations that provide a desktop-style user interface.
@@ -2337,9 +2350,9 @@ export interface Wl_shell extends Interface{
  *  wl_shell_surface_destroy() must be called before destroying
  *  the wl_surface object.
  *  
- * @summary desktop-style metadata interface
  */
-export interface Wl_shell_surface extends Interface{
+export interface Wl_shell_surface extends Wl_interface{
+  name: "wl_shell_surface";
   version: 1;
   enums:{
         
@@ -2498,16 +2511,17 @@ export interface Wl_shell_surface extends Interface{
   
     
   /**
+   * @summary ping client
    * 
    *  Ping a client to check if it is receiving events and sending
    *  requests. A client is expected to reply with a pong request.
    *  
-   * @summary ping client
    */
   on(eventName: "ping", listener: (serial: wl_uint)=>void): this;
   
   
   /**
+   * @summary suggest resize
    * 
    *  The configure event asks the client to resize its surface.
    * 
@@ -2527,28 +2541,27 @@ export interface Wl_shell_surface extends Interface{
    *  The width and height arguments specify the size of the window
    *  in surface-local coordinates.
    *  
-   * @summary suggest resize
    */
   on(eventName: "configure", listener: (edges: wl_uint, width: wl_int, height: wl_int)=>void): this;
   
   
   /**
+   * @summary popup interaction is done
    * 
    *  The popup_done event is sent out when a popup grab is broken,
    *  that is, when the user clicks a surface that doesn't belong
    *  to the client owning the popup surface.
    *  
-   * @summary popup interaction is done
    */
   on(eventName: "popup_done", listener: ()=>void): this;
   
     
   /**
+   * @summary respond to a ping event
    * 
    *  A client must respond to a ping event with a pong request or
    *  the client may be deemed unresponsive.
    *  
-   * @summary respond to a ping event
    * @param serial serial number of the ping event
    */
   pong (serial: wl_uint) :Promise<void>;
@@ -2556,6 +2569,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary start an interactive move
    * 
    *  Start a pointer-driven move of the surface.
    * 
@@ -2563,7 +2577,6 @@ export interface Wl_shell_surface extends Interface{
    *  The server may ignore move requests depending on the state of
    *  the surface (e.g. fullscreen or maximized).
    *  
-   * @summary start an interactive move
    * @param seat seat whose pointer is used
    * @param serial serial number of the implicit grab on the pointer
    */
@@ -2572,6 +2585,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary start an interactive resize
    * 
    *  Start a pointer-driven resizing of the surface.
    * 
@@ -2579,7 +2593,6 @@ export interface Wl_shell_surface extends Interface{
    *  The server may ignore resize requests depending on the state of
    *  the surface (e.g. fullscreen or maximized).
    *  
-   * @summary start an interactive resize
    * @param seat seat whose pointer is used
    * @param serial serial number of the implicit grab on the pointer
    * @param edges which edge or corner is being dragged
@@ -2589,12 +2602,12 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary make the surface a toplevel surface
    * 
    *  Map the surface as a toplevel surface.
    * 
    *  A toplevel surface is not fullscreen, maximized or transient.
    *  
-   * @summary make the surface a toplevel surface
    * 
    */
   set_toplevel () :Promise<void>;
@@ -2602,6 +2615,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary make the surface a transient surface
    * 
    *  Map the surface relative to an existing surface.
    * 
@@ -2611,7 +2625,6 @@ export interface Wl_shell_surface extends Interface{
    * 
    *  The flags argument controls details of the transient behaviour.
    *  
-   * @summary make the surface a transient surface
    * @param parent parent surface
    * @param x surface-local x coordinate
    * @param y surface-local y coordinate
@@ -2622,6 +2635,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary make the surface a fullscreen surface
    * 
    *  Map the surface as a fullscreen surface.
    * 
@@ -2657,7 +2671,6 @@ export interface Wl_shell_surface extends Interface{
    *  with the dimensions for the output on which the surface will
    *  be made fullscreen.
    *  
-   * @summary make the surface a fullscreen surface
    * @param method method for resolving size conflict
    * @param framerate framerate in mHz
    * @param output output on which the surface is to be fullscreen
@@ -2667,6 +2680,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary make the surface a popup surface
    * 
    *  Map the surface as a popup.
    * 
@@ -2688,7 +2702,6 @@ export interface Wl_shell_surface extends Interface{
    *  corner of the surface relative to the upper left corner of the
    *  parent surface, in surface-local coordinates.
    *  
-   * @summary make the surface a popup surface
    * @param seat seat whose pointer is used
    * @param serial serial number of the implicit grab on the pointer
    * @param parent parent surface
@@ -2701,6 +2714,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary make the surface a maximized surface
    * 
    *  Map the surface as a maximized surface.
    * 
@@ -2721,7 +2735,6 @@ export interface Wl_shell_surface extends Interface{
    * 
    *  The details depend on the compositor implementation.
    *  
-   * @summary make the surface a maximized surface
    * @param output output on which the surface is to be maximized
    */
   set_maximized (output: wl_object) :Promise<void>;
@@ -2729,6 +2742,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary set surface title
    * 
    *  Set a short title for the surface.
    * 
@@ -2738,7 +2752,6 @@ export interface Wl_shell_surface extends Interface{
    * 
    *  The string must be encoded in UTF-8.
    *  
-   * @summary set surface title
    * @param title surface title
    */
   set_title (title: wl_string) :Promise<void>;
@@ -2746,6 +2759,7 @@ export interface Wl_shell_surface extends Interface{
   
   
   /**
+   * @summary set surface class
    * 
    *  Set a class for the surface.
    * 
@@ -2754,7 +2768,6 @@ export interface Wl_shell_surface extends Interface{
    *  file name (or the full path if it is a non-standard location) of
    *  the application's .desktop file as the class.
    *  
-   * @summary set surface class
    * @param class_ surface class
    */
   set_class (class_: wl_string) :Promise<void>;
@@ -2764,6 +2777,7 @@ export interface Wl_shell_surface extends Interface{
 
 
 /**
+ * @summary an onscreen surface
  * 
  *  A surface is a rectangular area that may be displayed on zero
  *  or more outputs, and shown any number of times at the compositor's
@@ -2807,9 +2821,9 @@ export interface Wl_shell_surface extends Interface{
  *  a cursor (cursor is a different role than sub-surface, and role
  *  switching is not allowed).
  *  
- * @summary an onscreen surface
  */
-export interface Wl_surface extends Interface{
+export interface Wl_surface extends Wl_interface{
+  name: "wl_surface";
   version: 4;
   enums:{
         
@@ -2850,6 +2864,7 @@ export interface Wl_surface extends Interface{
   
     
   /**
+   * @summary surface enters an output
    * 
    *  This is emitted whenever a surface's creation, movement, or resizing
    *  results in some part of it being within the scanout region of an
@@ -2857,12 +2872,12 @@ export interface Wl_surface extends Interface{
    * 
    *  Note that a surface may be overlapping with zero or more outputs.
    *  
-   * @summary surface enters an output
    */
   on(eventName: "enter", listener: (output: wl_object)=>void): this;
   
   
   /**
+   * @summary surface leaves an output
    * 
    *  This is emitted whenever a surface's creation, movement, or resizing
    *  results in it no longer having any part of it within the scanout region
@@ -2874,16 +2889,15 @@ export interface Wl_surface extends Interface{
    *  updates even if no enter event has been sent. The frame event should be
    *  used instead.
    *  
-   * @summary surface leaves an output
    */
   on(eventName: "leave", listener: (output: wl_object)=>void): this;
   
     
   /**
+   * @summary delete surface
    * 
    *  Deletes the surface and invalidates its object ID.
    *  
-   * @summary delete surface
    * 
    */
   destroy () :Promise<void>;
@@ -2891,6 +2905,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary set the surface contents
    * 
    *  Set a buffer as the content of this surface.
    * 
@@ -2939,7 +2954,6 @@ export interface Wl_surface extends Interface{
    *  If wl_surface.attach is sent with a NULL wl_buffer, the
    *  following wl_surface.commit will remove the surface content.
    *  
-   * @summary set the surface contents
    * @param buffer buffer of surface contents
    * @param x surface-local x coordinate
    * @param y surface-local y coordinate
@@ -2949,6 +2963,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary mark part of the surface damaged
    * 
    *  This request is used to describe the regions where the pending
    *  buffer is different from the current surface contents, and where
@@ -2972,7 +2987,6 @@ export interface Wl_surface extends Interface{
    *  posted with wl_surface.damage_buffer which uses buffer coordinates
    *  instead of surface coordinates.
    *  
-   * @summary mark part of the surface damaged
    * @param x surface-local x coordinate
    * @param y surface-local y coordinate
    * @param width width of damage rectangle
@@ -2983,6 +2997,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary request a frame throttling hint
    * 
    *  Request a notification when it is a good time to start drawing a new
    *  frame, by creating a frame callback. This is useful for throttling
@@ -3017,7 +3032,6 @@ export interface Wl_surface extends Interface{
    *  The callback_data passed in the callback is the current time, in
    *  milliseconds, with an undefined base.
    *  
-   * @summary request a frame throttling hint
    * 
    */
   frame () :Promise<void>;
@@ -3025,6 +3039,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary set opaque region
    * 
    *  This request sets the region of the surface that contains
    *  opaque content.
@@ -3051,7 +3066,6 @@ export interface Wl_surface extends Interface{
    *  destroyed immediately. A NULL wl_region causes the pending opaque
    *  region to be set to empty.
    *  
-   * @summary set opaque region
    * @param region opaque region of the surface
    */
   set_opaque_region (region: wl_object) :Promise<void>;
@@ -3059,6 +3073,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary set input region
    * 
    *  This request sets the region of the surface that can receive
    *  pointer and touch events.
@@ -3083,7 +3098,6 @@ export interface Wl_surface extends Interface{
    *  immediately. A NULL wl_region causes the input region to be set
    *  to infinite.
    *  
-   * @summary set input region
    * @param region input region of the surface
    */
   set_input_region (region: wl_object) :Promise<void>;
@@ -3091,6 +3105,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary commit pending surface state
    * 
    *  Surface state (input, opaque, and damage regions, attached buffers,
    *  etc.) is double-buffered. Protocol requests modify the pending state,
@@ -3110,7 +3125,6 @@ export interface Wl_surface extends Interface{
    * 
    *  Other interfaces may add further double-buffered surface state.
    *  
-   * @summary commit pending surface state
    * 
    */
   commit () :Promise<void>;
@@ -3118,6 +3132,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary sets the buffer transformation
    * 
    *  This request sets an optional transformation on how the compositor
    *  interprets the contents of the buffer attached to the surface. The
@@ -3149,7 +3164,6 @@ export interface Wl_surface extends Interface{
    *  wl_output.transform enum the invalid_transform protocol error
    *  is raised.
    *  
-   * @summary sets the buffer transformation
    * @param transform transform for interpreting buffer contents
    */
   set_buffer_transform (transform: wl_int) :Promise<void>;
@@ -3157,6 +3171,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary sets the buffer scaling factor
    * 
    *  This request sets an optional scaling factor on how the compositor
    *  interprets the contents of the buffer attached to the window.
@@ -3182,7 +3197,6 @@ export interface Wl_surface extends Interface{
    *  If scale is not positive the invalid_scale protocol error is
    *  raised.
    *  
-   * @summary sets the buffer scaling factor
    * @param scale positive scale for interpreting buffer contents
    */
   set_buffer_scale (scale: wl_int) :Promise<void>;
@@ -3190,6 +3204,7 @@ export interface Wl_surface extends Interface{
   
   
   /**
+   * @summary mark part of the surface damaged using buffer coordinates
    * 
    *  This request is used to describe the regions where the pending
    *  buffer is different from the current surface contents, and where
@@ -3224,7 +3239,6 @@ export interface Wl_surface extends Interface{
    *  two requests separately and only transform from one to the other
    *  after receiving the wl_surface.commit.
    *  
-   * @summary mark part of the surface damaged using buffer coordinates
    * @param x buffer-local x coordinate
    * @param y buffer-local y coordinate
    * @param width width of damage rectangle
@@ -3237,15 +3251,16 @@ export interface Wl_surface extends Interface{
 
 
 /**
+ * @summary group of input devices
  * 
  *  A seat is a group of keyboards, pointer and touch devices. This
  *  object is published as a global during start up, or when such a
  *  device is hot plugged.  A seat typically has a pointer and
  *  maintains a keyboard focus and a pointer focus.
  *  
- * @summary group of input devices
  */
-export interface Wl_seat extends Interface{
+export interface Wl_seat extends Wl_interface{
+  name: "wl_seat";
   version: 7;
   enums:{
         
@@ -3300,6 +3315,7 @@ export interface Wl_seat extends Interface{
   
     
   /**
+   * @summary seat capabilities changed
    * 
    *  This is emitted whenever a seat gains or loses the pointer,
    *  keyboard or touch capabilities.  The argument is a capability
@@ -3326,23 +3342,23 @@ export interface Wl_seat extends Interface{
    *  The above behavior also applies to wl_keyboard and wl_touch with the
    *  keyboard and touch capabilities, respectively.
    *  
-   * @summary seat capabilities changed
    */
   on(eventName: "capabilities", listener: (capabilities: wl_uint)=>void): this;
   
   
   /**
+   * @summary unique identifier for this seat
    * 
    *  In a multiseat configuration this can be used by the client to help
    *  identify which physical devices the seat represents. Based on
    *  the seat configuration used by the compositor.
    *  
-   * @summary unique identifier for this seat
    */
   on(eventName: "name", listener: (name: wl_string)=>void): this;
   
     
   /**
+   * @summary return pointer object
    * 
    *  The ID provided will be initialized to the wl_pointer interface
    *  for this seat.
@@ -3353,7 +3369,6 @@ export interface Wl_seat extends Interface{
    *  never had the pointer capability. The missing_capability error will
    *  be sent in this case.
    *  
-   * @summary return pointer object
    * 
    */
   get_pointer () :Promise<Wl_pointer>;
@@ -3361,6 +3376,7 @@ export interface Wl_seat extends Interface{
   
   
   /**
+   * @summary return keyboard object
    * 
    *  The ID provided will be initialized to the wl_keyboard interface
    *  for this seat.
@@ -3371,7 +3387,6 @@ export interface Wl_seat extends Interface{
    *  never had the keyboard capability. The missing_capability error will
    *  be sent in this case.
    *  
-   * @summary return keyboard object
    * 
    */
   get_keyboard () :Promise<Wl_keyboard>;
@@ -3379,6 +3394,7 @@ export interface Wl_seat extends Interface{
   
   
   /**
+   * @summary return touch object
    * 
    *  The ID provided will be initialized to the wl_touch interface
    *  for this seat.
@@ -3389,7 +3405,6 @@ export interface Wl_seat extends Interface{
    *  never had the touch capability. The missing_capability error will
    *  be sent in this case.
    *  
-   * @summary return touch object
    * 
    */
   get_touch () :Promise<Wl_touch>;
@@ -3397,11 +3412,11 @@ export interface Wl_seat extends Interface{
   
   
   /**
+   * @summary release the seat object
    * 
    *  Using this request a client can tell the server that it is not going to
    *  use the seat object anymore.
    *  
-   * @summary release the seat object
    * 
    */
   release () :Promise<void>;
@@ -3411,6 +3426,7 @@ export interface Wl_seat extends Interface{
 
 
 /**
+ * @summary pointer input device
  * 
  *  The wl_pointer interface represents one or more input devices,
  *  such as mice, which control the pointer location and pointer_focus
@@ -3421,9 +3437,9 @@ export interface Wl_seat extends Interface{
  *  and button and axis events for button presses, button releases
  *  and scrolling.
  *  
- * @summary pointer input device
  */
-export interface Wl_pointer extends Interface{
+export interface Wl_pointer extends Wl_interface{
+  name: "wl_pointer";
   version: 7;
   enums:{
         
@@ -3536,6 +3552,7 @@ export interface Wl_pointer extends Interface{
   
     
   /**
+   * @summary enter event
    * 
    *  Notification that this seat's pointer is focused on a certain
    *  surface.
@@ -3544,12 +3561,12 @@ export interface Wl_pointer extends Interface{
    *  is undefined and a client should respond to this event by setting
    *  an appropriate pointer image with the set_cursor request.
    *  
-   * @summary enter event
    */
   on(eventName: "enter", listener: (serial: wl_uint, surface: wl_object, surface_x: wl_fixed, surface_y: wl_fixed)=>void): this;
   
   
   /**
+   * @summary leave event
    * 
    *  Notification that this seat's pointer is no longer focused on
    *  a certain surface.
@@ -3557,23 +3574,23 @@ export interface Wl_pointer extends Interface{
    *  The leave notification is sent before the enter notification
    *  for the new focus.
    *  
-   * @summary leave event
    */
   on(eventName: "leave", listener: (serial: wl_uint, surface: wl_object)=>void): this;
   
   
   /**
+   * @summary pointer motion event
    * 
    *  Notification of pointer location change. The arguments
    *  surface_x and surface_y are the location relative to the
    *  focused surface.
    *  
-   * @summary pointer motion event
    */
   on(eventName: "motion", listener: (time: wl_uint, surface_x: wl_fixed, surface_y: wl_fixed)=>void): this;
   
   
   /**
+   * @summary pointer button event
    * 
    *  Mouse button click and release notifications.
    * 
@@ -3590,12 +3607,12 @@ export interface Wl_pointer extends Interface{
    *  currently undefined but may be used in future versions of this
    *  protocol.
    *  
-   * @summary pointer button event
    */
   on(eventName: "button", listener: (serial: wl_uint, time: wl_uint, button: wl_uint, state: wl_uint)=>void): this;
   
   
   /**
+   * @summary axis event
    * 
    *  Scroll and other axis notifications.
    * 
@@ -3614,12 +3631,12 @@ export interface Wl_pointer extends Interface{
    *  When applicable, a client can transform its content relative to the
    *  scroll distance.
    *  
-   * @summary axis event
    */
   on(eventName: "axis", listener: (time: wl_uint, axis: wl_uint, value: wl_fixed)=>void): this;
   
   
   /**
+   * @summary end of a pointer event sequence
    * 
    *  Indicates the end of a set of events that logically belong together.
    *  A client is expected to accumulate the data in all events within the
@@ -3656,12 +3673,12 @@ export interface Wl_pointer extends Interface{
    *  wl_pointer.enter event being split across multiple wl_pointer.frame
    *  groups.
    *  
-   * @summary end of a pointer event sequence
    */
   on(eventName: "frame", listener: ()=>void): this;
   
   
   /**
+   * @summary axis source event
    * 
    *  Source information for scroll and other axes.
    * 
@@ -3689,12 +3706,12 @@ export interface Wl_pointer extends Interface{
    *  The order of wl_pointer.axis_discrete and wl_pointer.axis_source is
    *  not guaranteed.
    *  
-   * @summary axis source event
    */
   on(eventName: "axis_source", listener: (axis_source: wl_uint)=>void): this;
   
   
   /**
+   * @summary axis stop event
    * 
    *  Stop notification for scroll and other axes.
    * 
@@ -3711,12 +3728,12 @@ export interface Wl_pointer extends Interface{
    *  wl_pointer.axis event. The timestamp value may be the same as a
    *  preceding wl_pointer.axis event.
    *  
-   * @summary axis stop event
    */
   on(eventName: "axis_stop", listener: (time: wl_uint, axis: wl_uint)=>void): this;
   
   
   /**
+   * @summary axis click event
    * 
    *  Discrete step information for scroll and other axes.
    * 
@@ -3745,12 +3762,12 @@ export interface Wl_pointer extends Interface{
    *  The order of wl_pointer.axis_discrete and wl_pointer.axis_source is
    *  not guaranteed.
    *  
-   * @summary axis click event
    */
   on(eventName: "axis_discrete", listener: (axis: wl_uint, discrete: wl_int)=>void): this;
   
     
   /**
+   * @summary set the pointer surface
    * 
    *  Set the pointer surface, i.e., the surface that contains the
    *  pointer image (cursor). This request gives the surface the role
@@ -3784,7 +3801,6 @@ export interface Wl_pointer extends Interface{
    *  cursor ends, the current and pending input regions become
    *  undefined, and the wl_surface is unmapped.
    *  
-   * @summary set the pointer surface
    * @param serial serial number of the enter event
    * @param surface pointer surface
    * @param hotspot_x surface-local x coordinate
@@ -3795,6 +3811,7 @@ export interface Wl_pointer extends Interface{
   
   
   /**
+   * @summary release the pointer object
    * 
    *  Using this request a client can tell the server that it is not going to
    *  use the pointer object anymore.
@@ -3802,7 +3819,6 @@ export interface Wl_pointer extends Interface{
    *  This request destroys the pointer proxy object, so clients must not call
    *  wl_pointer_destroy() after using this request.
    *  
-   * @summary release the pointer object
    * 
    */
   release () :Promise<void>;
@@ -3812,13 +3828,14 @@ export interface Wl_pointer extends Interface{
 
 
 /**
+ * @summary keyboard input device
  * 
  *  The wl_keyboard interface represents one or more keyboards
  *  associated with a seat.
  *  
- * @summary keyboard input device
  */
-export interface Wl_keyboard extends Interface{
+export interface Wl_keyboard extends Wl_interface{
+  name: "wl_keyboard";
   version: 7;
   enums:{
         
@@ -3873,6 +3890,7 @@ export interface Wl_keyboard extends Interface{
   
     
   /**
+   * @summary keyboard mapping
    * 
    *  This event provides a file descriptor to the client which can be
    *  memory-mapped to provide a keyboard mapping description.
@@ -3880,12 +3898,12 @@ export interface Wl_keyboard extends Interface{
    *  From version 7 onwards, the fd must be mapped with MAP_PRIVATE by
    *  the recipient, as MAP_SHARED may fail.
    *  
-   * @summary keyboard mapping
    */
   on(eventName: "keymap", listener: (format: wl_uint, fd: wl_fd, size: wl_uint)=>void): this;
   
   
   /**
+   * @summary enter event
    * 
    *  Notification that this seat's keyboard focus is on a certain
    *  surface.
@@ -3893,12 +3911,12 @@ export interface Wl_keyboard extends Interface{
    *  The compositor must send the wl_keyboard.modifiers event after this
    *  event.
    *  
-   * @summary enter event
    */
   on(eventName: "enter", listener: (serial: wl_uint, surface: wl_object, keys: wl_array)=>void): this;
   
   
   /**
+   * @summary leave event
    * 
    *  Notification that this seat's keyboard focus is no longer on
    *  a certain surface.
@@ -3909,12 +3927,12 @@ export interface Wl_keyboard extends Interface{
    *  After this event client must assume that all keys, including modifiers,
    *  are lifted and also it must stop key repeating if there's some going on.
    *  
-   * @summary leave event
    */
   on(eventName: "leave", listener: (serial: wl_uint, surface: wl_object)=>void): this;
   
   
   /**
+   * @summary key event
    * 
    *  A key was pressed or released.
    *  The time argument is a timestamp with millisecond
@@ -3926,22 +3944,22 @@ export interface Wl_keyboard extends Interface{
    *  If this event produces a change in modifiers, then the resulting
    *  wl_keyboard.modifiers event must be sent after this event.
    *  
-   * @summary key event
    */
   on(eventName: "key", listener: (serial: wl_uint, time: wl_uint, key: wl_uint, state: wl_uint)=>void): this;
   
   
   /**
+   * @summary modifier and group state
    * 
    *  Notifies clients that the modifier and/or group state has
    *  changed, and it should update its local state.
    *  
-   * @summary modifier and group state
    */
   on(eventName: "modifiers", listener: (serial: wl_uint, mods_depressed: wl_uint, mods_latched: wl_uint, mods_locked: wl_uint, group: wl_uint)=>void): this;
   
   
   /**
+   * @summary repeat rate and delay
    * 
    *  Informs the client about the keyboard's repeat rate and delay.
    * 
@@ -3956,14 +3974,13 @@ export interface Wl_keyboard extends Interface{
    *  so clients should continue listening for the event past the creation
    *  of wl_keyboard.
    *  
-   * @summary repeat rate and delay
    */
   on(eventName: "repeat_info", listener: (rate: wl_int, delay: wl_int)=>void): this;
   
     
   /**
-   * 
    * @summary release the keyboard object
+   * 
    * 
    */
   release () :Promise<void>;
@@ -3973,6 +3990,7 @@ export interface Wl_keyboard extends Interface{
 
 
 /**
+ * @summary touchscreen input device
  * 
  *  The wl_touch interface represents a touchscreen
  *  associated with a seat.
@@ -3983,9 +4001,9 @@ export interface Wl_keyboard extends Interface{
  *  and ending with an up event. Events relating to the same
  *  contact point can be identified by the ID of the sequence.
  *  
- * @summary touchscreen input device
  */
-export interface Wl_touch extends Interface{
+export interface Wl_touch extends Wl_interface{
+  name: "wl_touch";
   version: 7;
   enums:{
         
@@ -3993,38 +4011,39 @@ export interface Wl_touch extends Interface{
   
     
   /**
+   * @summary touch down event and beginning of a touch sequence
    * 
    *  A new touch point has appeared on the surface. This touch point is
    *  assigned a unique ID. Future events from this touch point reference
    *  this ID. The ID ceases to be valid after a touch up event and may be
    *  reused in the future.
    *  
-   * @summary touch down event and beginning of a touch sequence
    */
   on(eventName: "down", listener: (serial: wl_uint, time: wl_uint, surface: wl_object, id: wl_int, x: wl_fixed, y: wl_fixed)=>void): this;
   
   
   /**
+   * @summary end of a touch event sequence
    * 
    *  The touch point has disappeared. No further events will be sent for
    *  this touch point and the touch point's ID is released and may be
    *  reused in a future touch down event.
    *  
-   * @summary end of a touch event sequence
    */
   on(eventName: "up", listener: (serial: wl_uint, time: wl_uint, id: wl_int)=>void): this;
   
   
   /**
+   * @summary update of touch point coordinates
    * 
    *  A touch point has changed coordinates.
    *  
-   * @summary update of touch point coordinates
    */
   on(eventName: "motion", listener: (time: wl_uint, id: wl_int, x: wl_fixed, y: wl_fixed)=>void): this;
   
   
   /**
+   * @summary end of touch frame event
    * 
    *  Indicates the end of a set of events that logically belong together.
    *  A client is expected to accumulate the data in all events within the
@@ -4035,12 +4054,12 @@ export interface Wl_touch extends Interface{
    *  must assume that any state not updated in a frame is unchanged from the
    *  previously known state.
    *  
-   * @summary end of touch frame event
    */
   on(eventName: "frame", listener: ()=>void): this;
   
   
   /**
+   * @summary touch session cancelled
    * 
    *  Sent if the compositor decides the touch stream is a global
    *  gesture. No further events are sent to the clients from that
@@ -4049,12 +4068,12 @@ export interface Wl_touch extends Interface{
    *  responsible for finalizing the touch points, future touch points on
    *  this surface may reuse the touch point ID.
    *  
-   * @summary touch session cancelled
    */
   on(eventName: "cancel", listener: ()=>void): this;
   
   
   /**
+   * @summary update shape of touch point
    * 
    *  Sent when a touchpoint has changed its shape.
    * 
@@ -4082,12 +4101,12 @@ export interface Wl_touch extends Interface{
    *  shape reports. The client has to make reasonable assumptions about the
    *  shape if it did not receive this event.
    *  
-   * @summary update shape of touch point
    */
   on(eventName: "shape", listener: (id: wl_int, major: wl_fixed, minor: wl_fixed)=>void): this;
   
   
   /**
+   * @summary update orientation of touch point
    * 
    *  Sent when a touchpoint has changed its orientation.
    * 
@@ -4113,14 +4132,13 @@ export interface Wl_touch extends Interface{
    *  This event is only sent by the compositor if the touch device supports
    *  orientation reports.
    *  
-   * @summary update orientation of touch point
    */
   on(eventName: "orientation", listener: (id: wl_int, orientation: wl_fixed)=>void): this;
   
     
   /**
-   * 
    * @summary release the touch object
+   * 
    * 
    */
   release () :Promise<void>;
@@ -4130,6 +4148,7 @@ export interface Wl_touch extends Interface{
 
 
 /**
+ * @summary compositor output region
  * 
  *  An output describes part of the compositor geometry.  The
  *  compositor works in the 'compositor coordinate system' and an
@@ -4138,9 +4157,9 @@ export interface Wl_touch extends Interface{
  *  displays part of the compositor space.  This object is published
  *  as global during start up, or when a monitor is hotplugged.
  *  
- * @summary compositor output region
  */
-export interface Wl_output extends Interface{
+export interface Wl_output extends Wl_interface{
+  name: "wl_output";
   version: 3;
   enums:{
         
@@ -4319,6 +4338,7 @@ export interface Wl_output extends Interface{
   
     
   /**
+   * @summary properties of the output
    * 
    *  The geometry event describes geometric properties of the output.
    *  The event is sent when binding to the output object and whenever
@@ -4334,12 +4354,12 @@ export interface Wl_output extends Interface{
    *  should use xdg_output.logical_position. Instead of using make and model,
    *  clients should use xdg_output.name and xdg_output.description.
    *  
-   * @summary properties of the output
    */
   on(eventName: "geometry", listener: (x: wl_int, y: wl_int, physical_width: wl_int, physical_height: wl_int, subpixel: wl_int, make: wl_string, model: wl_string, transform: wl_int)=>void): this;
   
   
   /**
+   * @summary advertise available modes for the output
    * 
    *  The mode event describes an available mode for the output.
    * 
@@ -4372,12 +4392,12 @@ export interface Wl_output extends Interface{
    *  compositors, such as those exposing virtual outputs, might fake the
    *  refresh rate or the size.
    *  
-   * @summary advertise available modes for the output
    */
   on(eventName: "mode", listener: (flags: wl_uint, width: wl_int, height: wl_int, refresh: wl_int)=>void): this;
   
   
   /**
+   * @summary sent all information about output
    * 
    *  This event is sent after all other properties have been
    *  sent after binding to the output object and after any
@@ -4385,12 +4405,12 @@ export interface Wl_output extends Interface{
    *  changes to the output properties to be seen as
    *  atomic, even if they happen via multiple events.
    *  
-   * @summary sent all information about output
    */
   on(eventName: "done", listener: ()=>void): this;
   
   
   /**
+   * @summary output scaling properties
    * 
    *  This event contains scaling geometry information
    *  that is not in the geometry event. It may be sent after
@@ -4411,17 +4431,16 @@ export interface Wl_output extends Interface{
    *  avoid scaling the surface, and the client can supply
    *  a higher detail image.
    *  
-   * @summary output scaling properties
    */
   on(eventName: "scale", listener: (factor: wl_int)=>void): this;
   
     
   /**
+   * @summary release the output object
    * 
    *  Using this request a client can tell the server that it is not going to
    *  use the output object anymore.
    *  
-   * @summary release the output object
    * 
    */
   release () :Promise<void>;
@@ -4431,15 +4450,16 @@ export interface Wl_output extends Interface{
 
 
 /**
+ * @summary region interface
  * 
  *  A region object describes an area.
  * 
  *  Region objects are used to describe the opaque and input
  *  regions of a surface.
  *  
- * @summary region interface
  */
-export interface Wl_region extends Interface{
+export interface Wl_region extends Wl_interface{
+  name: "wl_region";
   version: 1;
   enums:{
         
@@ -4448,10 +4468,10 @@ export interface Wl_region extends Interface{
     
     
   /**
+   * @summary destroy region
    * 
    *  Destroy the region.  This will invalidate the object ID.
    *  
-   * @summary destroy region
    * 
    */
   destroy () :Promise<void>;
@@ -4459,10 +4479,10 @@ export interface Wl_region extends Interface{
   
   
   /**
+   * @summary add rectangle to region
    * 
    *  Add the specified rectangle to the region.
    *  
-   * @summary add rectangle to region
    * @param x region-local x coordinate
    * @param y region-local y coordinate
    * @param width rectangle width
@@ -4473,10 +4493,10 @@ export interface Wl_region extends Interface{
   
   
   /**
+   * @summary subtract rectangle from region
    * 
    *  Subtract the specified rectangle from the region.
    *  
-   * @summary subtract rectangle from region
    * @param x region-local x coordinate
    * @param y region-local y coordinate
    * @param width rectangle width
@@ -4489,6 +4509,7 @@ export interface Wl_region extends Interface{
 
 
 /**
+ * @summary sub-surface compositing
  * 
  *  The global interface exposing sub-surface compositing capabilities.
  *  A wl_surface, that has sub-surfaces associated, is called the
@@ -4510,9 +4531,9 @@ export interface Wl_region extends Interface{
  *  objects. This should allow the compositor to pass YUV video buffer
  *  processing to dedicated overlay hardware when possible.
  *  
- * @summary sub-surface compositing
  */
-export interface Wl_subcompositor extends Interface{
+export interface Wl_subcompositor extends Wl_interface{
+  name: "wl_subcompositor";
   version: 1;
   enums:{
         
@@ -4534,12 +4555,12 @@ export interface Wl_subcompositor extends Interface{
     
     
   /**
+   * @summary unbind from the subcompositor interface
    * 
    *  Informs the server that the client will not be using this
    *  protocol object anymore. This does not affect any other
    *  objects, wl_subsurface objects included.
    *  
-   * @summary unbind from the subcompositor interface
    * 
    */
   destroy () :Promise<void>;
@@ -4547,6 +4568,7 @@ export interface Wl_subcompositor extends Interface{
   
   
   /**
+   * @summary give a surface the role sub-surface
    * 
    *  Create a sub-surface interface for the given surface, and
    *  associate it with the given parent surface. This turns a
@@ -4564,7 +4586,6 @@ export interface Wl_subcompositor extends Interface{
    *  This request modifies the behaviour of wl_surface.commit request on
    *  the sub-surface, see the documentation on wl_subsurface interface.
    *  
-   * @summary give a surface the role sub-surface
    * @param surface the surface to be turned into a sub-surface
    * @param parent the parent surface
    */
@@ -4575,6 +4596,7 @@ export interface Wl_subcompositor extends Interface{
 
 
 /**
+ * @summary sub-surface interface to a wl_surface
  * 
  *  An additional interface to a wl_surface object, which has been
  *  made a sub-surface. A sub-surface has one parent surface. A
@@ -4626,9 +4648,9 @@ export interface Wl_subcompositor extends Interface{
  *  If the parent wl_surface object is destroyed, the sub-surface is
  *  unmapped.
  *  
- * @summary sub-surface interface to a wl_surface
  */
-export interface Wl_subsurface extends Interface{
+export interface Wl_subsurface extends Wl_interface{
+  name: "wl_subsurface";
   version: 1;
   enums:{
         
@@ -4650,6 +4672,7 @@ export interface Wl_subsurface extends Interface{
     
     
   /**
+   * @summary remove sub-surface interface
    * 
    *  The sub-surface interface is removed from the wl_surface object
    *  that was turned into a sub-surface with a
@@ -4657,7 +4680,6 @@ export interface Wl_subsurface extends Interface{
    *  to the parent is deleted, and the wl_surface loses its role as
    *  a sub-surface. The wl_surface is unmapped immediately.
    *  
-   * @summary remove sub-surface interface
    * 
    */
   destroy () :Promise<void>;
@@ -4665,6 +4687,7 @@ export interface Wl_subsurface extends Interface{
   
   
   /**
+   * @summary reposition the sub-surface
    * 
    *  This schedules a sub-surface position change.
    *  The sub-surface will be moved so that its origin (top left
@@ -4683,7 +4706,6 @@ export interface Wl_subsurface extends Interface{
    * 
    *  The initial position is 0, 0.
    *  
-   * @summary reposition the sub-surface
    * @param x x coordinate in the parent surface
    * @param y y coordinate in the parent surface
    */
@@ -4692,6 +4714,7 @@ export interface Wl_subsurface extends Interface{
   
   
   /**
+   * @summary restack the sub-surface
    * 
    *  This sub-surface is taken from the stack, and put back just
    *  above the reference surface, changing the z-order of the sub-surfaces.
@@ -4709,7 +4732,6 @@ export interface Wl_subsurface extends Interface{
    *  A new sub-surface is initially added as the top-most in the stack
    *  of its siblings and parent.
    *  
-   * @summary restack the sub-surface
    * @param sibling the reference surface
    */
   place_above (sibling: wl_object) :Promise<void>;
@@ -4717,11 +4739,11 @@ export interface Wl_subsurface extends Interface{
   
   
   /**
+   * @summary restack the sub-surface
    * 
    *  The sub-surface is placed just below the reference surface.
    *  See wl_subsurface.place_above.
    *  
-   * @summary restack the sub-surface
    * @param sibling the reference surface
    */
   place_below (sibling: wl_object) :Promise<void>;
@@ -4729,6 +4751,7 @@ export interface Wl_subsurface extends Interface{
   
   
   /**
+   * @summary set sub-surface to synchronized mode
    * 
    *  Change the commit behaviour of the sub-surface to synchronized
    *  mode, also described as the parent dependent mode.
@@ -4744,7 +4767,6 @@ export interface Wl_subsurface extends Interface{
    * 
    *  See wl_subsurface for the recursive effect of this mode.
    *  
-   * @summary set sub-surface to synchronized mode
    * 
    */
   set_sync () :Promise<void>;
@@ -4752,6 +4774,7 @@ export interface Wl_subsurface extends Interface{
   
   
   /**
+   * @summary set sub-surface to desynchronized mode
    * 
    *  Change the commit behaviour of the sub-surface to desynchronized
    *  mode, also described as independent or freely running mode.
@@ -4773,7 +4796,6 @@ export interface Wl_subsurface extends Interface{
    *  If a surface's parent surface behaves as desynchronized, then
    *  the cached state is applied on set_desync.
    *  
-   * @summary set sub-surface to desynchronized mode
    * 
    */
   set_desync () :Promise<void>;
