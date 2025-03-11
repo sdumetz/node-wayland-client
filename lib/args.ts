@@ -1,6 +1,6 @@
 'use strict';
 import { endianness } from "os";
-import { ArgumentDefinition } from "./definitions.js";
+import { ArgumentDefinition, ArgumentType } from "./definitions.js";
 
 
 const os_en = endianness();
@@ -86,12 +86,27 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
   let argLengths = def.map(({ type, name }, index) => {
     const arg = args[index];
     switch (type) {
+      case "object":
+        let id:number = (typeof arg === "object")?arg?.id : arg;
+        if((typeof id !== "number")){
+          throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a number or an object with a numeric ID`);
+        }else if( !Number.isInteger(id) || id <= 0){
+          throw new Error(`Invalid ${type} value: ${id} (expect a positive integer)`);
+        }
+        return 4;
+      case "enum":
       case "new_id":
       case "uint":
-      case "object":
-      case "enum":
+        if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`);
+        if( Number.isNaN(arg) || arg < 0) throw new Error(`Invalid ${type} value: ${arg}`);
+        return 4;
       case "fixed":
+        if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`)
+        if( Number.isNaN(arg)) throw new Error(`Invalid ${type} value: ${arg}`);
+        return 4;
       case "int":
+        if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`)
+        if(Number.isNaN(arg)) throw new Error("Invalid int value: "+ arg);
         return 4;
       case "string":
         if(typeof arg !== "string") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`);
@@ -99,15 +114,18 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
         strlen = ((strlen % 4 != 0)? strlen + 4 - (strlen % 4) : strlen);
         return strlen+4 /* 32 bits uint strlen */;
       case "array":
-        if (!(arg instanceof Uint8Array))
+        if (!(arg instanceof Uint8Array)){
           throw new Error(
-            `Invalid type: ${typeof arg} for ${name}. Expected a ${type}`,
+            `Invalid type: ${typeof arg === "object"? arg.constructor.name: typeof arg} for ${name}. Expected a ${type}`,
           );
+        }
+
         // 4 bytes for the length, and the length is padded to 4 bytes
         return 4 + arg.length + ((4 - (arg.length % 4)) % 4);
       default:
-        throw new Error(`Unsupported request argument type : ${type}`);
+        break; //Proceed to throw
     }
+    throw new Error(`Unsupported request argument type : ${type}`);
   });
 
   let b = Buffer.alloc(argLengths.reduce((a, s)=>a+s, 0));
@@ -123,20 +141,14 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
       case "enum":
       case "new_id":
       case "uint":
-        if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`);
-        if( Number.isNaN(arg) || arg < 0) throw new Error(`Invalid ${type} value: ${arg}`);
         writeUInt(b, arg, offset);
         offset += 4;
         break;
       case "fixed":
-        if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`)
-        if( Number.isNaN(arg) || arg < 0) throw new Error(`Invalid ${type} value: ${arg}`);
         writeFixed(b, arg, offset);
         offset += 4;
         break;
       case "int":
-        if(typeof arg != "number") throw new Error(`Invalid type: ${typeof arg} for ${name}. Expected a ${type}`)
-        if(Number.isNaN(arg)) throw new Error("Invalid int value: "+ arg);
         writeInt(b, arg, offset);
         offset += 4;
         break;
@@ -147,11 +159,6 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
         offset += argLengths[i]; //account for 32bits padding when necessary
         break;
       case "array":
-        if (!(arg instanceof Uint8Array)) {
-          throw new Error(
-            `Invalid type: ${typeof arg} for ${name}. Expected a ${type}`,
-          );
-        }
         offset = writeArray(b, arg, offset);
         break;
       /* c8 ignore next 2*/

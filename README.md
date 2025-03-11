@@ -72,6 +72,7 @@ This module has ts declaration files. The base **Wl_interface** class has a gene
 
 This interface inherits from the base `Wl_interface` class and will have all the methods and events defined from the protocol file, with proper arguments types.
 
+It is of course possible to use the generic `Wl_interface` primitive without the benefits of typed pre-registered events and methods.
 
 ### class Wl_display()
 

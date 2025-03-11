@@ -134,6 +134,15 @@ describe("format_args()", function() {
     expect(buffer.toString("hex")).to.equal("0300000005040300");
   });
 
+
+  it("throw argument for array is not an UInt8Array", function () {
+    const def: ArgumentDefinition[] = [{ name: "arg1", type: "array" }];
+    expect(()=>format_args([[5, 4, 3]], def)).to.throw(`Invalid type: Array for arg1`);
+    expect(()=>format_args([1], def)).to.throw(`Invalid type: number for arg1`);
+    expect(()=>format_args(["foo"], def)).to.throw(`Invalid type: string for arg1`);
+    expect(()=>format_args([undefined], def)).to.throw(`Invalid type: undefined for arg1`);
+  });
+
   [
     "int",
     "uint",
@@ -162,14 +171,35 @@ describe("format_args()", function() {
     expect(()=> format_args(args, def)).to.throw("Invalid type: string for arg1. Expected a int");
   });
 
+
   it("accepts interface objects as object arguments", function(){
     let itfMock = {id: 3};
     let def :ArgumentDefinition[] = [{ name: "arg1", type: "object" }];
     expect(format_args([itfMock], def).toString("hex")).to.equal("03000000");
   });
+  it("throw if object interface has no id", function(){
+    let itfMock = {foo:"bar"};
+    let def :ArgumentDefinition[] = [{ name: "arg1", type: "object" }];
+    expect(()=>format_args([itfMock], def)).to.throw("Invalid type: object for arg1. Expected a number or an object with a numeric ID")
+  });
+
+  it("throw if object interface has invalid ID type", function(){
+    let itfMock = {id: "3"};
+    let def :ArgumentDefinition[] = [{ name: "arg1", type: "object" }];
+    expect(()=>format_args([itfMock], def)).to.throw("Invalid type: object for arg1. Expected a number or an object with a numeric ID");
+  });
+
+  it("throw if object interface has invalid IDvalue", function(){
+    let def :ArgumentDefinition[] = [{ name: "arg1", type: "object" }];
+    expect(()=>format_args([{id: -1}], def)).to.throw("Invalid object value: -1");
+
+    expect(()=>format_args([{id: 0}], def)).to.throw("Invalid object value: 0")
+  });
+
+
 
   ["int", "uint", "object", "enum", "fixed"].forEach((type)=>{
-    it(`thow an error if ${type} is NaN`, function() {
+    it(`throw if ${type} is NaN`, function() {
       const args = [Number.NaN];
       const def :ArgumentDefinition[] = [{ name: "arg1", type: type as any }];
       expect(()=>format_args(args, def)).to.throw(`Invalid ${type} value: NaN`);

@@ -1,13 +1,13 @@
 import Wl_interface from "../lib/interface.js";
 import {
-  wl_new_id,
-  wl_uint,
-  wl_int,
-  wl_fixed,
-  wl_string,
-  wl_array,
-  wl_fd,
-} from "../lib/definitions.js";
+    wl_new_id,
+    wl_uint,
+    wl_int,
+    wl_fixed,
+    wl_string,
+    wl_array,
+    wl_fd,
+  } from "../lib/definitions.js";
 
 /**
  * @summary core global object
