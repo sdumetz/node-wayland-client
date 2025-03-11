@@ -1,10 +1,12 @@
+![Build Status](https://github.com/github/docs/actions/workflows/build.yml/badge.svg?branch=main&event=push)
+
 # Wayland client library
 
 low-level wayland client implementation in modern (nodejs 16+) javascript.
 
 No runtime dependencies, no high level abstractions either.
 
-It should be able to manage any wayland protocol extension out there (see [the popular ones](https://wayland.app/protocols/)). However it might require a lot of glue code to do anything useful.
+It should be able to manage any wayland protocol extension out there (see [the popular ones](https://wayland.app/protocols/)) through interface definitions parsing.
 
 It lacks support for any kind of shared-memory features, due to bad support for it in nodejs even with native addons. Additionally it doesn't support file descriptor borrowing which is the mechanism used to share buffers between clients and servers.
 

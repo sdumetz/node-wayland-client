@@ -43,7 +43,6 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.11.30",
     "chai": "^4.3.10",
-    "handlebars": "^4.7.8",
     "mocha": "^10.2.0",
     "typescript": "^5.4.2",
     "xml-js": "^1.6.11"
