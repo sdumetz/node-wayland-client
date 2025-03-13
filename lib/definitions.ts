@@ -92,6 +92,7 @@ export interface EnumValue{
 
 export type ArgumentType =
   | "new_id"
+  | "fd"
   | "uint"
   | "int"
   | "fixed"
@@ -113,6 +114,12 @@ export type wl_array = Uint8Array;
  */
 export type wl_fd = number;
 
+export type wl_arg = wl_new_id|wl_uint|wl_int|wl_fixed|wl_object|wl_enum|wl_string|wl_array;
+
+export function wl_arg_as_number(v:wl_arg):wl_new_id|wl_uint|wl_int|wl_fixed|wl_object|wl_enum{
+  if(typeof v != "number") throw new Error("Invalid argument type : "+typeof v+" (expected a number)");
+  return v;
+}
 
 export interface EnumReduction{
   [key: string]: number;

@@ -64,8 +64,6 @@ describe("format_args()", function() {
   
   it("throws if argument type is unknown or unsupported", function(){
     expect(()=>format_args([1], [{ name: "arg1", type: "foo" } as any])).to.throw(`Unsupported request argument type : foo`);
-    //fd exists but is not supported
-    expect(()=>format_args([1], [{ name: "arg1", type: "fd" } as any])).to.throw(`Unsupported request argument type : fd`);
   });
 
 
@@ -132,6 +130,13 @@ describe("format_args()", function() {
     const def: ArgumentDefinition[] = [{ name: "arg1", type: "array" }];
     const buffer = format_args(args, def);
     expect(buffer.toString("hex")).to.equal("0300000005040300");
+  });
+
+  it("encodes file descriptor arguments", function(){
+    const args = [31];
+    const def: ArgumentDefinition[]= [{name: "fd1", type: "fd"}];
+    const buffer = format_args(args, def);
+    expect(buffer).to.have.length(0);
   });
 
 
@@ -272,6 +277,11 @@ describe("get_args()", function(){
     writeFixed(b, 1.5, 0);
     expect(get_args(b, [{ name: "arg1", type: "fixed" }])).to.deep.equal([1.5]);
   });
+
+  it("get fd argument", function(){
+    //fd is a dummy argument: the descriptor is passed as ancillary data
+    expect(get_args(Buffer.alloc(0), [{ name: "arg1", type: "fd" }])).to.deep.equal([-1]);
+  })
 
   it("throws on bad definition", function(){
     expect(()=> get_args(Buffer.alloc(4), [{ name: "arg1", type: "foo" } as any])).to.throw("Unsupported event argument type : foo");

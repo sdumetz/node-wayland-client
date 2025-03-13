@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { isCallbackArgument, isCallbackRequest, isDestructorRequest, isInterfaceArgument, isInterfaceCreationRequest } from "./definitions.js";
+import { isCallbackArgument, isCallbackRequest, isDestructorRequest, isInterfaceArgument, isInterfaceCreationRequest, wl_arg_as_number } from "./definitions.js";
 
 
 const badValues :any[] = [
@@ -72,6 +72,15 @@ describe("definitions", function(){
 
     it("returns true if the type is 'destructor'", function(){
       expect(isDestructorRequest({name: "some request", description: "", summary: "", args: [], type: "destructor"})).to.be.true;
+    });
+  });
+
+  describe("wl_arg_as_number", function(){
+    it("checks type of argument", function(){
+      expect(()=>wl_arg_as_number("foo")).to.throw("Invalid argument type :");
+      expect(wl_arg_as_number(1)).to.equal(1);
+      expect(wl_arg_as_number(0)).to.equal(0);
+      expect(wl_arg_as_number(-1)).to.equal(-1);
     });
   });
 });

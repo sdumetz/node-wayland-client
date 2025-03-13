@@ -8,7 +8,7 @@ No runtime dependencies, no high level abstractions either.
 
 It should be able to manage any wayland protocol extension out there (see [the popular ones](https://wayland.app/protocols/)) through interface definitions parsing.
 
-It lacks support for any kind of shared-memory features, due to bad support for it in nodejs even with native addons. Additionally it doesn't support file descriptor borrowing which is the mechanism used to share buffers between clients and servers.
+It lacks support for any kind of shared-memory features, mainly because they rely on file descriptor borrowing to share buffers between the client and the backend. It is relatively easy to perform fd borrowing through a [native addon](https://github.com/sdumetz/node-wayland-shm) but cleanly integrating this (the receiving end in particular) would require reimplementing most of the **net.Socket** class. A feature request exists for this ([#53391](https://github.com/nodejs/node/issues/53391)) but it's unclear whether it will be implemented one day.
 
 Examples of a good use case might be [zwp_idle_inhibit_manager](https://wayland.app/protocols/idle-inhibit-unstable-v1), [zwlr_output_manager](https://wayland.app/protocols/wlr-output-management-unstable-v1) or managing virtual inputs, like [zwlr_virtual_pointer](https://wayland.app/protocols/wlr-virtual-pointer-unstable-v1). Some other interfaces that do not require shared memory or file descriptor borrowing should also work fine.
 

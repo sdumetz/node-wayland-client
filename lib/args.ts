@@ -1,6 +1,6 @@
 'use strict';
 import { endianness } from "os";
-import { ArgumentDefinition, ArgumentType } from "./definitions.js";
+import { ArgumentDefinition, wl_arg } from "./definitions.js";
 
 
 const os_en = endianness();
@@ -122,6 +122,8 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
 
         // 4 bytes for the length, and the length is padded to 4 bytes
         return 4 + arg.length + ((4 - (arg.length % 4)) % 4);
+      case "fd":
+        return 0;
       default:
         break; //Proceed to throw
     }
@@ -134,7 +136,7 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
   let offset = 0;
   for(let i = 0; i < args.length; i++){
     let arg = args[i];
-    const {type, name} = def[i];
+    const {type} = def[i];
     switch(type){
       case "object":
         if(typeof arg == "object" && typeof arg?.id === "number") arg = arg.id;
@@ -161,6 +163,8 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
       case "array":
         offset = writeArray(b, arg, offset);
         break;
+      case "fd":
+        break;
       /* c8 ignore next 2*/
       default: /* Will never get called unless we missed some case in lengths pre-parsing */
         throw new Error(`Unsupported request argument type : ${type}`);
@@ -172,7 +176,7 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
  * Parses a buffer into an array of values, using the arguments definition.
  * @returns the parsed values with correct types. Better types might be inferred
  */
-export function get_args(b :Buffer, defs :ArgumentDefinition[]) :any[]{
+export function get_args<T extends ArgumentDefinition[]>(b :Buffer, defs :T) :wl_arg[]{
   const values = [];
   let offset = 0;
 
@@ -203,6 +207,11 @@ export function get_args(b :Buffer, defs :ArgumentDefinition[]) :any[]{
         const [arrayData, newOffset] = readArray(b, offset);
         values.push(arrayData);
         offset = newOffset;
+        break;
+      case "fd":
+        //fd arguments are a placeholder of size 0, received as ancillary data
+        //Push -1 (bad FD) and expect it to be replaced by the actual data if supported
+        values.push(-1);
         break;
       default:
         throw new Error(`Unsupported event argument type : ${arg.type}`);

@@ -14,10 +14,13 @@ import Wl_interface from "./interface.js";
 import { parseInterface } from "./parse.js";
 import { EnumReduction, InterfaceDefinition, RequestDefinition, wl_object } from "./definitions.js";
 import { ElementCompact } from "xml-js";
+import { debuglog } from "node:util";
 
 const thisDir = path.dirname(fileURLToPath(import.meta.url));
 const outDir = path.resolve(thisDir, "../protocol");
 
+
+const debug = debuglog("wayland:display");
 
 export default class Display extends EventEmitter{
   //Keep track of last assigned ID to help speed up ID generation
@@ -277,7 +280,11 @@ export default class Display extends EventEmitter{
   public async request(srcId :number, opcode :number, def :RequestDefinition, ...args :any[]){
     const b1 = Buffer.alloc(8);
     const b2 = format_args(args, def.args);
-    //console.log("Request: ", srcId, opcode, args, b2.length);
+    const with_ancillary = def.args.some(a=>a.type === "fd");
+    if(with_ancillary){
+      throw new Error("sending ancillary data not supported");
+    }
+    debug("Wayland request: ", srcId, opcode, args, b2.length);
     writeUInt(b1, srcId, 0);
     //16 most significant bits are the message length. 16 next bits are the message opcode
     writeUInt(b1, (b1.length + b2.length) << 16 | opcode & 0xFFFF, 4);

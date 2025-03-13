@@ -3,7 +3,7 @@ import {EventEmitter, once} from "node:events";
 
 import { get_args } from "./args.js";
 import Display from "./display.js";
-import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition, isInterfaceArgument, isCallbackArgument as isCallbackArgument, isCallbackRequest, isInterfaceCreationRequest, isDestructorRequest } from "./definitions.js";
+import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition, isInterfaceArgument, isCallbackArgument as isCallbackArgument, isCallbackRequest, isInterfaceCreationRequest, isDestructorRequest, wl_arg_as_number } from "./definitions.js";
 
 
 
@@ -107,7 +107,7 @@ export default class Wl_interface extends EventEmitter{
           console.warn("Found an interface creation event that had more than one argument. This is unexpected.")
         }
         const [id] = values;
-        let itf = this.display.registerInterface(id, event.args[0].interface);
+        let itf = this.display.registerInterface(wl_arg_as_number(id), event.args[0].interface);
         return this.emit(event.name, itf);
       }else{
         return this.emit(event.name, ...values);
