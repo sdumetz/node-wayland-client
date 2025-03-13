@@ -178,18 +178,17 @@ export default class Display extends EventEmitter{
    * Binds a global. see the [Wayland handbook](https://wayland-book.com/registry/binding.html) to learn how this works.
    * @see Wl_registry.bind()
    */
-  async bind<T extends Wl_interface = Wl_interface>(iname :T["name"], version?:T["version"]) :Promise<T>{
+  async bind<T extends Wl_interface = Wl_interface>(iname :T["name"], version:T["version"] = 1) :Promise<T>{
     const def = this.getDefinition(iname);
     const gid = this.#globals.get(iname);
     if(!gid) throw new Error(` No global named ${iname}. Available globals : ${[...this.#globals.keys()].join(", ")}`);
-    if(typeof version !== "undefined" && version != def.version){
+    if(def.version < version){
       console.warn(`Version mismatch: user requests ${iname} v${version}, but v${def.version} is defined`);
     }
     const itf = this.createInterface<T>(iname);
     //console.log(`Bind globals#${iname}(${gid}) to id: ${itf.id}`);
-
     // @ts-ignore : bind is (intentionally) ill-defined in the protocol file, this reflects here.
-    await this.wl_registry.bind(gid, def.name, def.version, itf.id);
+    await this.wl_registry.bind(gid, def.name, version, itf.id);
 
     //FIXME : We might want to wait for wl_display.sync() while catching errors to handle protocol errors here instead of in Display.error
     // This is not very high priority because protocol errors are fatal anyways and this would slow us down.
