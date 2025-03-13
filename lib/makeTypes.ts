@@ -21,8 +21,9 @@ function indent(str :string, spaces :number) :string{
   return str.split("\n").map(l=> " ".repeat(spaces) + l).join("\n");
 }
 
-function comment(str :string){
-  return str?str.split("\n").map(l=>l.replace(/^\s+/, " ")).join("\n * "):"";
+function comment(str :string|string[]){
+  let lines = Array.isArray(str)?str.map(s=>s.replace(/\n$/, "")): str?.split("\n");
+  return lines? lines.map(l=>l.replace(/^\s+/, " ")).join("\n * "): "";
 }
 
 
@@ -93,7 +94,7 @@ ${name}: [
   {
     name: "${name}",
     value: ${value},
-    summary: "${summary}",
+    summary: "${summary?.replace(/\n/,"")}",
   },
 `).join("\n")}
 ]

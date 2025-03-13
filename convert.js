@@ -21,29 +21,53 @@ if(!src){
 
 /**
  * 
+ * @param {string} dirpath 
+ * @return {Promise<void>}
+ */
+async function walk(dirpath){
+  for await (const file of await fs.opendir(dirpath)){
+    if(file.isDirectory()){
+      await walk(path.join(dirpath, file.name));
+    }else if(file.name.endsWith(".xml")) {
+      await convert(path.join(dirpath, file.name));
+    }
+  }
+}
+
+/**
+ * 
  * @param {string} filepath 
+ * @return {Promise<void>}
  */
 async function convert(filepath){
   try{
     const xml = await fs.readFile(filepath, {encoding: "utf-8"});
     /**@type {import("xml-js").ElementCompact} */
-    const {protocol:{interface: interfaces}} = xml2js(xml, {compact: true});
-    const jsInterfaces = interfaces.map(parseInterface);
-    const json = JSON.stringify(jsInterfaces, null, 2);
-    await fs.writeFile(filepath.replace(".xml", ".json"), json);
-    await fs.writeFile(filepath.replace(".xml", ".d.ts"), makeTypes(jsInterfaces, internal));
+    let {protocol:{interface: interfaces}} = xml2js(xml, {compact: true});
+    if(!Array.isArray(interfaces)){
+      interfaces = interfaces?[interfaces]:[];
+    }
+    try{
+      const jsInterfaces = interfaces.map(parseInterface);
+      const json = JSON.stringify(jsInterfaces, null, 2);
+      await fs.writeFile(filepath.replace(".xml", ".json"), json);
+      await fs.writeFile(filepath.replace(".xml", ".d.ts"), makeTypes(jsInterfaces, internal));
+    }catch(e){
+      console.error(e);
+      console.warn("Source file : ", interfaces);
+      process.exit(1);
+    }
+   
   }catch(e){
     if(e.code == "EISDIR"){
-      for await (const file of await fs.opendir(filepath)){
-        if(!file.name.endsWith(".xml")) continue;
-        await convert(path.join(filepath, file.name));
-      }
+      walk(filepath);
     }else{
       throw e;
     }
   }
 
 }
+
 /**
  * Convert a file (or every xml file in a directory) to a pre-parsed json array of interfaces
  */
