@@ -90,6 +90,12 @@ Use pre-compiled JSON files if speed is really important : parsing is ~10x faste
 
 Binds a global interface. It's the starting point of any interaction with the wayland server.
 
+### listGlobals()
+
+List all registered globals on this server. Note that this method is synchronous but one would need to wait for at least one `sync` event to have happened. Initializing through `await wl_display.init()` or `await open_display()` already waits for such an event.
+
+See [examples/list_globals.js](https://github.com/sdumetz/node-wayland-client/tree/main/examples/list_globals.js).
+
 ### class Wl_interface()
 
 #### inspect() :string

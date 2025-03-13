@@ -261,6 +261,10 @@ export default class Display extends EventEmitter{
     return e.reduce((acc, v)=>{acc[v.name] = v.value; return acc;}, {} as EnumReduction);
   }
 
+  /**List the name of all known globals */
+  listGlobals(){
+    return this.#globals.keys();
+  }
 
   async write(b :Parameters<Socket["write"]>[0]){
     const flushed = this.#s.write(b);
