@@ -31,9 +31,7 @@ export default class Display extends EventEmitter{
     super();
     this.#s = s;
     this.#s.on("data", this.onData);
-    this.#s.on("close", ()=>{
-      console.log("Connection closed");
-    });
+    this.#s.on("close", this.emit.bind(this,"close"));
     this.#s.on("error", this.emit.bind(this, "error"));
   }
 
@@ -75,17 +73,19 @@ export default class Display extends EventEmitter{
     
     wl_display.on("error", (srcId, errno, msg)=>{
       let src = this.#objects.get(srcId);
+      //Maybe it would be worth it to special-case errors from wl_register.bind() because they offer no explanation
       if(!src){
-        console.warn("FATAL ERROR in unknown interface: %s", errno, msg);
+        this.emit("error", new Error(`in unknown  wayland interface (${errno}): ${msg}`));
         return;
       }
       let srcErrors = src.enums["error"];
       if(srcErrors){
         let err = srcErrors[errno];
-        console.warn("FATAL ERROR in %s (%s): %s", src.name,  err.name, err.summary, msg);
+        this.emit("error", new Error(`in ${src.name} (${err.name}): ${err.summary}\n${msg}`));
       }else{
-        console.warn("FATAL ERROR in %s: %s (undefiend error)",src.name, errno, msg);
+        this.emit("error", new Error(`in ${src.name} (${errno}): ${msg}`));
       }
+      this.#s.destroy();
     });
 
     // @ts-ignore

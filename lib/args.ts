@@ -190,9 +190,9 @@ export function get_args(b :Buffer, defs :ArgumentDefinition[]) :any[]{
         offset += 4;
         break;
       case "string":
-        let nLength = readUInt(b, 4);
+        let nLength = readUInt(b, offset);
         offset +=4;
-        values.push(b.slice(offset, nLength+offset-1).toString("utf-8").replace(/\x00+$/, ""));
+        values.push(b.subarray(offset, nLength+offset -1).toString("utf-8").replace(/\x00+$/, ""));
         offset += ((nLength % 4 != 0)? nLength + 4 - (nLength % 4) : nLength);
         break;
       case "fixed":

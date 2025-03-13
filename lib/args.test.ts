@@ -242,8 +242,13 @@ describe("get_args()", function(){
   });
 
   it(`get string argument`, function(){
-    const b = format_args(["hello world"], [{ name: "arg1", type: "string" }])
+    const d1 :ArgumentDefinition[]= [{ name: "arg1", type: "string" }];
+    let b = format_args(["hello world"], d1)
     expect(get_args(b, [{ name: "arg1", type: "string" }])).to.deep.equal(["hello world"]);
+    
+    const d2 :ArgumentDefinition[] =  [{name:"arg1", type:"int"}, { name: "arg2", type: "string" }];
+    b = format_args([1, "hello world"], d2);
+    expect(get_args(b, d2)).to.deep.equal([1, "hello world"]);
   });
 
   it("parse empty array", function () {
@@ -277,4 +282,32 @@ describe("get_args()", function(){
     expect(get_args(b, [{ name: "arg1", type: "string" }])).to.deep.equal(["size 8 s"]);
 
   });
+
+  it("parses wl_display errors", function(){
+    const def :ArgumentDefinition<ArgumentType>[] =  [
+      {
+        name: 'object_id',
+        type: 'object',
+        summary: 'object where the error occurred'
+      },
+      { name: 'code', type: 'uint', summary: 'error code' },
+      { name: 'message', type: 'string', summary: 'error description' }
+    ];
+    const message = "Error message string";
+    const strlen = Buffer.byteLength(message) +1 /*NULL byte*/;
+    //32bits-aligned
+    const len = ((strlen % 4 != 0)? strlen + 4 - (strlen % 4) : strlen)
+    const b = Buffer.alloc(4+4+ 4 + len );
+    b.writeUInt32LE(0x05) //Interface ID
+    b.writeUInt32LE(1, 4);
+    b.writeUInt32LE(strlen, 8);
+    b.write(message+'\x00', 12, 'utf8');
+
+    const args = get_args(b, def);
+    expect(args).to.deep.equal([
+      0x05,
+      1,
+      message,
+    ]);
+  })
 })
