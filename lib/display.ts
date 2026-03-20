@@ -29,6 +29,7 @@ export default class Display extends EventEmitter{
   #globals = new Map<string, number>();
   #objects = new Map<wl_object, Wl_interface>();
   #s :Socket;
+  #recv = Buffer.alloc(0);
 
   constructor(s :Socket){
     super();
@@ -129,14 +130,16 @@ export default class Display extends EventEmitter{
    * Handles data received from the socket. It split individual messages and delegates parsing to `Display.onMessage()`
    */
   protected onData = (d :Buffer)=>{
-    while(d.length){
-      let id = readUInt(d, 0);
-      let length = (readUInt(d, 4)>>16);
-      let opcode = (readUInt(d, 4) &0xFFFF);
-      const msg = d.slice(8, length);
-      this.onMessage(id, opcode, msg);
-      d = d.slice(length);
+    d = this.#recv.length ? Buffer.concat([this.#recv, d] as Uint8Array[]) : d;
+    while(d.length >= 8){
+      const length = (readUInt(d, 4)>>16);
+      if(d.length < length) break;
+      const id = readUInt(d, 0);
+      const opcode = (readUInt(d, 4) &0xFFFF);
+      this.onMessage(id, opcode, d.subarray(8, length));
+      d = d.subarray(length);
     }
+    this.#recv = d;
   }
 
   /**
