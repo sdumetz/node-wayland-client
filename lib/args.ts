@@ -58,7 +58,8 @@ export function readArray(
   const arrayLength = readUInt(b, offset, en);
   offset += 4;
   const arrayData = new Uint8Array(b.subarray(offset, offset + arrayLength));
-  return [arrayData, offset + arrayLength];
+  const padding = (4 - (arrayLength % 4)) % 4;
+  return [arrayData, offset + arrayLength + padding];
 }
 
 /**
