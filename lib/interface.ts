@@ -48,8 +48,22 @@ export default class Wl_interface extends EventEmitter{
         (this as any)[op.name] = async (...args :any[])=>{
           let wl_callback =  this.display.createInterface(first_arg.interface);
           await this.display.request(this.id, opcode, op, wl_callback.id, ...args);
-          await once(wl_callback, "done");
-          this.display.deleteId(wl_callback.id);
+          //Ensure we don't hang on a dead socket
+          const ac = new AbortController();
+          const onClose = () => ac.abort(new Error(`${this.name}.${op.name}: display closed`));
+          const onError = (e :Error) => ac.abort(e);
+          this.display.once("close", onClose);
+          this.display.once("error", onError);
+          try{
+            await once(wl_callback, "done", {signal: ac.signal});
+          }catch(e :any){
+            if(ac.signal.aborted) throw ac.signal.reason ?? e;
+            throw e;
+          }finally{
+            this.display.off("close", onClose);
+            this.display.off("error", onError);
+            this.display.deleteId(wl_callback.id);
+          }
         }
       }else if(isInterfaceCreationRequest(op)){
         const first_arg = op.args[0];
