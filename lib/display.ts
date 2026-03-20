@@ -30,6 +30,7 @@ export default class Display extends EventEmitter{
   #objects = new Map<wl_object, Wl_interface>();
   #s :Socket;
   #recv = Buffer.alloc(0);
+  protected readonly _maxId = 0xFEFFFFFF;
 
   constructor(s :Socket){
     super();
@@ -108,14 +109,14 @@ export default class Display extends EventEmitter{
 
   /**
    * Return the first found available ID
-   * @todo wayland protocol specifies IDs should be compacted, we do not do this.
    * @returns {number} an available ID
    */
   protected nextId() :number{
-    while(this.#objects.has(++this.#last_id)){
-      //FIXME handle max client ID 0xfeffffff
+    for(let tries = 0; tries < this._maxId; tries++){
+      if(++this.#last_id > this._maxId) this.#last_id = 1;
+      if(!this.#objects.has(this.#last_id)) return this.#last_id;
     }
-    return this.#last_id;
+    throw new Error("Wayland object ID space exhausted");
   }
 
   get wl_display(){
@@ -272,8 +273,8 @@ export default class Display extends EventEmitter{
     return this.#globals.keys();
   }
 
-  async write(b :Parameters<Socket["write"]>[0]){
-    const flushed = this.#s.write(b);
+  async write(b :Buffer | string){
+    const flushed = this.#s.write(b as any);
     if(!flushed) await once(this.#s, "drain");
   }
 
@@ -291,7 +292,7 @@ export default class Display extends EventEmitter{
     writeUInt(b1, srcId, 0);
     //16 most significant bits are the message length. 16 next bits are the message opcode
     writeUInt(b1, (b1.length + b2.length) << 16 | opcode & 0xFFFF, 4);
-    await this.write(Buffer.concat([b1, b2]));
+    await this.write(Buffer.concat([b1, b2] as Uint8Array[]));
   }
 
   async sync(){

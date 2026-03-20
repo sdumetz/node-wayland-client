@@ -82,8 +82,8 @@ export default class Wl_interface extends EventEmitter{
         }
       }else if(isDestructorRequest(op)){
         (this as any)[op.name] = async (...args :any[]) =>{
-          this.display.deleteId(this.id);
           await this.display.request(this.id, opcode, op, ...args);
+          this.display.deleteId(this.id);
         }
       }else{
         (this as any)[op.name] = this.display.request.bind(this.display, this.id, opcode, op);
