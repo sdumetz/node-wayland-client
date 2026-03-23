@@ -95,16 +95,22 @@ export default class Display extends EventEmitter{
 
     // @ts-ignore
     const wl_registry = await wl_display.get_registry();
-    wl_registry.on("global", (id, iName, version)=>{
-      this.#globals.set(iName, id); //Globals are stored here because their definition might not be loaded yet.
-    });
-    /** 
-     * @todo handle "global_remove"
-     */
+    this._bindRegistry(wl_registry);
     const cb = await wl_display.sync();
     //await once(this.#s, "data");
 
     return wl_registry;
+  }
+
+  protected _bindRegistry(registry: Wl_interface) {
+    registry.on("global", (id: number, iName: string) => {
+      this.#globals.set(iName, id);
+    });
+    registry.on("global_remove", (id: number) => {
+      for (const [name, gid] of this.#globals) {
+        if (gid === id) { this.#globals.delete(name); break; }
+      }
+    });
   }
 
   /**
