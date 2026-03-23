@@ -44,12 +44,10 @@ One major use case is to listen to some events until the server is done sending 
 ```js
   await display.load(path.join(thisDir, "protocol", "wlr_output_management_unstable_v1.xml"));
   let wlr_output = await display.bind("zwlr_output_manager_v1");
-  const end_aggregate = wlr_output.aggregate();
-  const [serial] = await once(wlr_output, "done");
-  let {head: heads} = end_aggregate();
+  let {head: heads, done: serial} = await wlr_output.drain(() => once(wlr_output, "done"));
 ```
 
-It's a bit cumbersome to use but way better than manually wiring every events recursively.
+Way better than manually wiring every event recursively. The `drain()` call collects all events until the `"done"` event fires, including `"done"` itself — so `serial` and `heads` are both available in the result.
 
 ### compile a protocol file
 
@@ -103,18 +101,36 @@ See [examples/list_globals.js](https://github.com/sdumetz/node-wayland-client/tr
 Outputs a string describing all events and requests provided by this interface.
 
 
-#### aggregate() :()=>AggregateResult
+#### async drain(until?: (() => Promise\<any\>) | Promise\<any\>): Promise\<AggregateResult\>
 
-Returns a function to be called once the aggregation should finish.
+Collects all events received by this interface until `until` resolves, then returns them as a plain object. Defaults to `display.sync()`.
 
-This function returns an object that contains all event data received since `aggregate()` was called. Unfortunately this is very much generic and intended for low-level use. Knowing an interface implementation will almost always allow for a better result type to be inferred.
+Prefer passing a **factory function** so the `until` listener is registered *after* aggregation begins (no race window):
+
+```js
+const result = await itf.drain(() => once(itf, "done"));
+// result.done  — args from the "done" event
+// result.mode  — args from any "mode" events (array if fired multiple times)
+```
+
+Passing a bare promise also works when the promise is independent of this interface's events.
+
+#### aggregate(): (() => AggregateResult) & Disposable
+
+Low-level aggregation primitive. **Prefer `drain()` for most use cases.**
+
+Returns an `end()` function that stops aggregation and returns the collected events. The return value also implements `Disposable`, enabling automatic cleanup with the `using` keyword:
 
 
-#### async drain(until :Promise<any> = this.display.sync()):Promise<AggregateResult>
 
-Wrapper around `Wl_interface.aggregate()` that waits for a promise to resolve before returning the result.
+```js
+using end = itf.aggregate();
+await once(itf, "done");
+const result = end();
+// if an exception escapes before end(), using cleans up the listeners anyway
+```
 
-By default it will listen to `Wl_display.sync()` but the event to wait for is generally specified per-interface in the protocol documentation.
+Without `using`, wrap `end()` in a try/finally to guarantee cleanup.
 
 ## Troubleshooting
 

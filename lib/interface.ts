@@ -155,24 +155,25 @@ export default class Wl_interface extends EventEmitter{
    * Low level catch-all method to aggregate all events
    * received by this interface over a period of time
    * into a single object.
-   * 
-   * Higher-level functions are generally to be preferred because it is error-prone to have to manually cancel aggeration.
-   * 
-   * Usage :
+   *
+   * **Prefer `drain()` for most use cases** — it handles cleanup automatically.
+   *
+   * The returned function also implements `Disposable`, so automatic cleanup is
+   * guaranteed with the `using` keyword:
    * ```javascript
-   *    let end = itf.aggregate();
-   *    await once("done", itf);
-   *    let infos = end();
+   *    using const end = itf.aggregate();
+   *    await once(itf, "done");
+   *    const infos = end();
    * ```
-   * 
-   * @todo might be more efficient to listen only once instead of attaching a listener for each event.
-   *       However performance should be tested before assuming anything.
+   * Without `using`, wrap in a try/finally or call `end()` unconditionally to avoid listener leaks.
    */
-  aggregate() :()=>AggregateResult{
+  aggregate() :(() => AggregateResult) & Disposable {
     let infos :AggregateResult = {id: this.id};
     const cancellations:(()=>void)[] = [];
+
+    const listeners = new Map<string, (...args: any[]) => void>();
     for (let {name} of this.events){
-      let listener = (...args: any[])=>{
+      const listener = (...args: any[]) => {
         const res = (infos[name] ??= []) as any[];
         if(args[0] instanceof Wl_interface){
           const end = args[0].aggregate();
@@ -186,26 +187,41 @@ export default class Wl_interface extends EventEmitter{
         }else{
           res.push(args);
         }
-      }
+      };
       this.on(name, listener);
-      cancellations.push(()=>this.off(name, listener));
+      listeners.set(name, listener);
     }
-    return function end_aggregate(){
+
+    const end = (): AggregateResult => {
+      for(const [name, listener] of listeners){
+        this.off(name, listener);
+      }
       cancellations.forEach((c)=>c());
       for(let key in infos){
         if((infos[key] as any).length == 1) infos[key] = (infos[key] as any)[0];
       }
       return infos;
     };
+    (end as any)[Symbol.dispose] = end;
+    return end as (() => AggregateResult) & Disposable;
   }
 
   /**
-   * Wrapper around `Wl_interface.aggregate()` that waits for a promise (defaults to `Display.sync()`) to end data aggregation
+   * Collects all events until `until` resolves, then returns the aggregated result.
+   * Defaults to `display.sync()`.
+   *
+   * Prefer passing a **factory function** `() => once(itf, "event")` over a bare promise
+   * so that the `until` listener is registered *after* aggregation begins (no race window):
+   * ```javascript
+   *   const result = await itf.drain(() => once(itf, "done"));
+   * ```
+   * Passing a bare promise also works when the promise is independent of this interface's events (eg: a timeout or a global interface event).
    */
-  async drain(until :Promise<any> = this.display.sync()):Promise<AggregateResult>{
+  async drain(until: (() => Promise<any>) | Promise<any> = () => this.display.sync()):Promise<AggregateResult>{
     const end_drain = this.aggregate();
+    const p = typeof until === "function" ? until() : until;
     try{
-      await until;
+      await p;
     }catch(e){
       end_drain();
       throw e;

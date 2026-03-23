@@ -15,9 +15,7 @@ open_display().then(async (display)=>{
   //*
   await display.load(path.join(thisDir, "protocol", "wlr_output_management_unstable_v1.xml"));
   let wlr_output = await display.bind("zwlr_output_manager_v1");
-  const end_aggregate = wlr_output.aggregate();
-  const [serial] = await once(wlr_output, "done");
-  let {head: heads} = end_aggregate();
+  let {head: heads, done: serial} = await wlr_output.drain(() => once(wlr_output, "done"));
   if(!Array.isArray(heads)) heads = (heads?[heads]: []);
   console.log("HEAD : ", serial, JSON.stringify(heads, null, 2));
   

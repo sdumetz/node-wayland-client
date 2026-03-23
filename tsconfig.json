@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es2023"],
+    "lib": ["es2023", "esnext.disposable"],
     "module": "node16",
     "target": "es2022",
 
