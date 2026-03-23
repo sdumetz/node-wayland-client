@@ -29,7 +29,7 @@ export default class Display extends EventEmitter{
   #globals = new Map<string, number>();
   #objects = new Map<wl_object, Wl_interface>();
   #s :Socket;
-  #recv = Buffer.alloc(0);
+  #recv = Buffer.alloc(0) as Buffer;
   protected readonly _maxId = 0xFEFFFFFF;
 
   constructor(s :Socket){
@@ -131,7 +131,7 @@ export default class Display extends EventEmitter{
    * Handles data received from the socket. It split individual messages and delegates parsing to `Display.onMessage()`
    */
   protected onData = (d :Buffer)=>{
-    d = this.#recv.length ? Buffer.concat([this.#recv, d] as Uint8Array[]) : d;
+    d = this.#recv.length ? Buffer.concat([this.#recv, d]) : d;
     while(d.length >= 8){
       const length = (readUInt(d, 4)>>16);
       if(d.length < length) break;
@@ -292,7 +292,7 @@ export default class Display extends EventEmitter{
     writeUInt(b1, srcId, 0);
     //16 most significant bits are the message length. 16 next bits are the message opcode
     writeUInt(b1, (b1.length + b2.length) << 16 | opcode & 0xFFFF, 4);
-    await this.write(Buffer.concat([b1, b2] as Uint8Array[]));
+    await this.write(Buffer.concat([b1, b2]));
   }
 
   async sync(){
