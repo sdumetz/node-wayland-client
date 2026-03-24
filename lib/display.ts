@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 
 import { Wl_display, Wl_registry } from "../protocol/wayland.js";
 
-import { writeUInt, readUInt, format_args } from "./args.js";
+import { writeUInt, readUInt, format_args, get_args } from "./args.js";
 
 import Wl_interface from "./interface.js";
 import { parseInterface } from "./parse.js";
@@ -22,15 +22,30 @@ const outDir = path.resolve(thisDir, "../protocol");
 
 const debug = debuglog("wayland:display");
 
+/**
+ * Special error class to mark wayland protocol errors
+ * All such errors are fatal (non recoverable)
+ */
+export class WaylandProtocolError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "WaylandProtocolError";
+  }
+}
+
 export default class Display extends EventEmitter{
+  protected readonly _maxId = 0xFEFFFFFF;
+
   //Keep track of last assigned ID to help speed up ID generation
   #last_id = 1;
+
+  // Registers of interfaces, globals, objects to keep track of resources
   #interfaces = new Map<string, InterfaceDefinition>();
   #globals = new Map<string, number>();
   #objects = new Map<wl_object, Wl_interface>();
+
   #s :Socket;
   #recv = Buffer.alloc(0) as Buffer;
-  protected readonly _maxId = 0xFEFFFFFF;
 
   constructor(s :Socket){
     super();
@@ -75,23 +90,6 @@ export default class Display extends EventEmitter{
     //*/
     //Special case for wl_display that is allocated on connection.
     const wl_display = this.registerInterface<Wl_display> (1, "wl_display");
-    
-    wl_display.on("error", (srcId, errno, msg)=>{
-      let src = this.#objects.get(srcId);
-      //Maybe it would be worth it to special-case errors from wl_register.bind() because they offer no explanation
-      if(!src){
-        this.emit("error", new Error(`in unknown  wayland interface (${errno}): ${msg}`));
-        return;
-      }
-      let srcErrors = src.enums["error"];
-      if(srcErrors){
-        let err = srcErrors[errno];
-        this.emit("error", new Error(`in ${src.name} (${err.name}): ${err.summary}\n${msg}`));
-      }else{
-        this.emit("error", new Error(`in ${src.name} (${errno}): ${msg}`));
-      }
-      this.#s.destroy();
-    });
 
     // @ts-ignore
     const wl_registry = await wl_display.get_registry();
@@ -100,6 +98,50 @@ export default class Display extends EventEmitter{
     //await once(this.#s, "data");
 
     return wl_registry;
+  }
+
+  /**
+   * Special handler for {@link https://wayland.app/protocols/wayland#wl_display:event:error wl_display::error} events
+   * They are caught before being wired through the standard interface logic
+   * to prevent confusion between "standard errors" (eg: bad usage of an interface) and protocol errors
+   * 
+   * All errors can thus be caught using `display.on("error", err =>{})`
+   * Remember that WaylandProtocolError are fatal and the connection will no longer be usable afterwards
+   * 
+   * ```js
+   * display.on("error", err =>{
+   *   if(err.name == "WaylandProtocolError") console.error("FATAL ERROR", err);
+   *   else console.log("Usage error : ", err);
+   * });
+   * ```
+   */
+  protected _handleProtocolError(msg: Buffer): void {
+    const wl_display = this.#objects.get(1);
+    if (!wl_display?.events[0]) {
+      this.emit("error", new WaylandProtocolError("unknown wayland protocol error"));
+      this.#s.destroy();
+      return;
+    }
+    try {
+      const [srcId, errno, message] = get_args(msg, wl_display.events[0].args);
+      const src = this.#objects.get(srcId as wl_object);
+      let err: WaylandProtocolError;
+      if (!src) {
+        err = new WaylandProtocolError(`in unknown wayland interface (${errno}): ${message}`);
+      } else {
+        const srcErrors = src.enums["error"];
+        if (srcErrors) {
+          const e = srcErrors[errno as number];
+          err = new WaylandProtocolError(`in ${src.name} (${e.name}): ${e.summary}\n${message}`);
+        } else {
+          err = new WaylandProtocolError(`in ${src.name} (${errno}): ${message}`);
+        }
+      }
+      this.emit("error", err);
+    } catch (e: any) {
+      this.emit("error", e instanceof Error ? e : new Error(String(e)));
+    }
+    this.#s.destroy();
   }
 
   protected _bindRegistry(registry: Wl_interface) {
@@ -153,6 +195,10 @@ export default class Display extends EventEmitter{
    * top-level message parsing and dispatching
    */
   protected onMessage(id :number, evcode :number, msg :Buffer){
+    if (id === 1 && evcode === 0) {   // wl_display.error — intercept before push()
+      this._handleProtocolError(msg);
+      return;
+    }
     const target = this.#objects.get(id);
     if(!target) return this.emit("warning", "No interface with id "+id);
     const event = target.events[evcode];
@@ -307,8 +353,8 @@ export default class Display extends EventEmitter{
   }
 
 
-  close(){
-    this.#s.end();
+  async close(){
+    return new Promise<void>((resolve)=>this.#s.end(resolve));
   }
 
 }

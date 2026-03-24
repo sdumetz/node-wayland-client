@@ -35,6 +35,44 @@ let wlr_output = await display.bind("zwlr_output_manager_v1");
 
  > See the `examples` folder.
 
+### Error handling
+
+Both socket-level errors and fatal Wayland protocol errors are reported on the `"error"` event of the `Display` object. Set up a handler after calling `init()` / `open_display()`:
+
+```js
+import open_display from "wayland-client";
+
+const display = await open_display();
+display.on("error", (err) => {
+  if (err.name === "WaylandProtocolError") {
+    // The compositor reported a protocol violation.
+    // The connection is already destroyed — do not try to send further requests.
+    console.error("Fatal Wayland protocol error:", err.message);
+  } else {
+    // Low-level socket error (e.g. ECONNRESET).
+    // err.code contains the Node.js error code.
+    console.error("Socket error:", err.message);
+  }
+});
+```
+
+`WaylandProtocolError` is a named export of the package so it can be imported to check `err instanceof WaylandProtocolError` if needed.
+
+
+**`WaylandProtocolError`** is always fatal — the compositor has destroyed the connection, and calling any further requests will have no effect. No explicit cleanup is needed.
+
+**Socket errors** (plain `Error` objects with a `.code` property) indicate a transport-level failure. Depending on the error code they may or may not be recoverable, but in practice the `"close"` event will follow shortly after.
+
+Interface-level errors (e.g. an unknown event opcode received for a specific object) bubble up to `Display` unless the interface itself has an `"error"` listener:
+
+```js
+const surface = await display.bind("wl_surface");
+surface.on("error", (err) => {
+  // Intercept errors specific to this surface without affecting other objects.
+});
+```
+This is technically a protocol violation but as it only affects the target object, implementors may choose to handle it locally without crashing the entire connection. It generally happens when the client's interface definition doesn't match the compositor's one. 
+
 ### Use the interface
 
 What happens next depends on the protocol used. The best thing is to make use of the generated types definitions. [wayland protocols documentation](https://wayland.app/protocols/) is also a good resource to get started.
@@ -146,9 +184,7 @@ xml-js is required to import protocol extensions from XML files.
 
 ### Protocol errors
 
-protocol errors happen asynchronously so it's sometimes hard to know where they come from.
-
-They are always fatal and `Wl_display` should no longer be used after a protocol error. It's not necessary to close or cleanup anything after such an error.
+Protocol errors are reported as `WaylandProtocolError` instances on the `Display` `"error"` event. They happen asynchronously and are always fatal — see [Error handling](#error-handling) for how to distinguish them from socket errors and set up the correct handler.
 
 
 # Ressources
