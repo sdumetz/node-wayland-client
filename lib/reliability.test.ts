@@ -14,7 +14,8 @@ import {
   EventDefinition,
   InterfaceDefinition,
 } from "./definitions.js";
-import Display, { WaylandProtocolError } from "./display.js";
+import Display from "./display.js";
+import { WaylandProtocolError } from "./errors.js";
 import Wl_interface from "./interface.js";
 
 

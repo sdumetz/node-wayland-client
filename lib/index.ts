@@ -7,7 +7,8 @@ import Display from "./display.js";
 
 export * from "./definitions.js";
 export {default as Wl_interface} from "./interface.js";
-export {default as Display, WaylandProtocolError} from "./display.js";
+export {default as Display} from "./display.js";
+export {WaylandProtocolError} from "./errors.js";
 
 export default async function open_display(sPath :string = process.env["XDG_RUNTIME_DIR"]?path.join(process.env["XDG_RUNTIME_DIR"], process.env["WAYLAND_DISPLAY"] ?? "wayland-0"):"" ):Promise<Display>{
   if(!sPath) throw new Error("no socket path provided and XDG_RUNTIME_DIR not set");

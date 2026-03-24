@@ -15,23 +15,13 @@ import { parseInterface } from "./parse.js";
 import { EnumReduction, InterfaceDefinition, RequestDefinition, wl_object } from "./definitions.js";
 import { ElementCompact } from "xml-js";
 import { debuglog } from "node:util";
+import { WaylandProtocolError } from "./errors.js";
 
 const thisDir = path.dirname(fileURLToPath(import.meta.url));
 const outDir = path.resolve(thisDir, "../protocol");
 
 
 const debug = debuglog("wayland:display");
-
-/**
- * Special error class to mark wayland protocol errors
- * All such errors are fatal (non recoverable)
- */
-export class WaylandProtocolError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "WaylandProtocolError";
-  }
-}
 
 export default class Display extends EventEmitter{
   protected readonly _maxId = 0xFEFFFFFF;
