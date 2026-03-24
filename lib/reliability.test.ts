@@ -14,7 +14,7 @@ import {
   EventDefinition,
   InterfaceDefinition,
 } from "./definitions.js";
-import Display from "./display.js";
+import Display, { WaylandProtocolError } from "./display.js";
 import Wl_interface from "./interface.js";
 
 
@@ -25,7 +25,8 @@ class MockDisplay extends Display {
   public warnings: string[] = [];
 
   constructor() {
-    super(new EventEmitter() as any);
+    const sock = Object.assign(new EventEmitter(), { destroy() {}, write() { return true; } });
+    super(sock as any);
     this.on("warning", (msg: string) => this.warnings.push(msg));
   }
 
@@ -33,7 +34,7 @@ class MockDisplay extends Display {
     this.packets.push(b);
     return Promise.resolve();
   }
-  override close(): void {}
+  override async close(): Promise<void> {}
 
   setMaxId(n: number) { (this._maxId as any) = n; }
 
@@ -428,6 +429,115 @@ describe("aggregate(): listener registration and cleanup", function () {
 });
 
 
+// ── WaylandProtocolError vs socket error disambiguation ───────────────────
+
+describe("Display error events: WaylandProtocolError vs socket errors", function () {
+  /**
+   * Both Wayland protocol errors (from the compositor via wl_display.error)
+   * and socket-level errors end up on the Display "error" event.
+   * Protocol errors are wrapped in WaylandProtocolError; socket errors are
+   * forwarded as-is so consumers can use instanceof to tell them apart.
+   *
+   * wl_display.error is intercepted at the onMessage level before push() is
+   * called, so the Node.js "error" event on wl_display is never used for
+   * protocol errors
+   */
+
+  /** Serialises wl_display.error args into a wire body buffer. */
+  function makeWlDisplayErrorBody(srcId: number, errno: number, message: string): Buffer {
+    const args: ArgumentDefinition[] = [
+      { name: "object_id", type: "uint" },
+      { name: "code",      type: "uint" },
+      { name: "message",   type: "string" },
+    ];
+    return format_args([srcId, errno, message], args);
+  }
+
+  /** Minimal Display subclass that exposes the underlying socket. */
+  class SocketDisplay extends Display {
+    public readonly testSocket: EventEmitter;
+    constructor() {
+      const s = Object.assign(new EventEmitter(), { destroy() {}, write() { return true; } });
+      super(s as any);
+      this.testSocket = s;
+    }
+    override write(_b: any): Promise<void> { return Promise.resolve(); }
+    override async close(): Promise<void> {}
+  }
+
+  it("protocol error (unknown source) emits WaylandProtocolError", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    d.registerInterface(1, "wl_display");
+
+    let received: Error | undefined;
+    d.on("error", (e: Error) => { received = e; });
+
+    d.feedData(makeMsg(1, 0, makeWlDisplayErrorBody(99, 0, "test protocol error")));
+
+    expect(received).to.be.instanceOf(WaylandProtocolError);
+    expect(received!.message).to.include("unknown");
+  });
+
+  it("protocol error (known source) emits WaylandProtocolError on Display", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    d.registerInterface(1, "wl_display");
+    d.registerInterface(42, "wl_display");
+
+    let received: Error | undefined;
+    d.on("error", (e: Error) => { received = e; });
+
+    d.feedData(makeMsg(1, 0, makeWlDisplayErrorBody(42, 0, "bad method")));
+
+    expect(received).to.be.instanceOf(WaylandProtocolError);
+    expect(received!.message).to.include("wl_display");
+  });
+
+  it("emitError() on wl_display reaches Display directly without mangling", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    const wl_display = d.registerInterface(1, "wl_display");
+
+    let received: Error | undefined;
+    d.on("error", (e: Error) => { received = e; });
+
+    const internalError = new Error("parse failure");
+    wl_display.emitError(internalError);
+
+    expect(received).to.equal(internalError);
+    expect(received).not.to.be.instanceOf(WaylandProtocolError);
+  });
+
+  it("socket error is forwarded as-is (not a WaylandProtocolError)", function () {
+    const d = new SocketDisplay();
+    const socketError = Object.assign(new Error("ECONNRESET"), { code: "ECONNRESET" });
+
+    let received: Error | undefined;
+    d.on("error", (e: Error) => { received = e; });
+
+    d.testSocket.emit("error", socketError);
+
+    expect(received).to.equal(socketError, "same Error object must be forwarded");
+    expect(received).not.to.be.instanceOf(WaylandProtocolError);
+  });
+
+  it("protocol error calls socket.destroy()", async function () {
+    const d = new SocketDisplay();
+    await d.load("wayland");
+    d.registerInterface(1, "wl_display");
+
+    let destroyCalled = false;
+    (d.testSocket as any).destroy = () => { destroyCalled = true; };
+    d.on("error", () => { /* absorb */ });
+
+    (d as any)._handleProtocolError(makeWlDisplayErrorBody(99, 0, "fatal"));
+
+    expect(destroyCalled).to.be.true;
+  });
+});
+
+
 // ── wl_registry global_remove handling ───────────────────────────────────
 
 describe("wl_registry: global_remove removes globals from the registry", function () {
@@ -479,5 +589,20 @@ describe("wl_registry: global_remove removes globals from the registry", functio
       expect(e.message).to.match(/No global named/);
     }
     expect(threw).to.be.true;
+  });
+
+  it("listGlobals() returns all currently advertised global names", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+
+    const registry = d.registerInterface(2, "wl_registry");
+    (d as any)._bindRegistry(registry);
+
+    registry.emit("global", 1, "wl_compositor", 4);
+    registry.emit("global", 2, "wl_shm", 1);
+
+    const globals = [...d.listGlobals()];
+    expect(globals).to.include("wl_compositor");
+    expect(globals).to.include("wl_shm");
   });
 });

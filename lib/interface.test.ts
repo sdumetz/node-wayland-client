@@ -5,6 +5,7 @@ import Display from "./display.js";
 import Wl_interface from "./interface.js";
 import EventEmitter from "events";
 import { expect } from "chai";
+import { format_args } from "./args.js";
 
 
 class DisplayMock extends Display{
@@ -20,7 +21,7 @@ class DisplayMock extends Display{
     return Promise.resolve();
   }
 
-  override close(): void {
+  override async close(): Promise<void> {
     return;
   }
 
@@ -221,5 +222,164 @@ describe("class Wl_interface", function(){
       expect(e).to.be.an("error");
     }
     expect(deleteCalls).to.equal(1);
+  });
+});
+
+const emptyDef: InterfaceDefinition = {
+  name: "wl_itf", version: 1, description: "", summary: "",
+  requests: [], events: [], enums: {},
+};
+
+describe("Wl_interface.emitError()", function(){
+  let d: DisplayMock;
+  beforeEach(function(){ d = new DisplayMock(); });
+
+  it("delegates to display when interface has no error listeners", function(){
+    const itf = new Wl_interface(d, 3, emptyDef);
+    let received: Error|undefined;
+    d.on("error", (e: Error) => { received = e; });
+    const err = new Error("test");
+    itf.emitError(err);
+    expect(received).to.equal(err);
+  });
+
+  it("emits on self when interface has error listeners", function(){
+    const itf = new Wl_interface(d, 3, emptyDef);
+    let selfReceived: Error|undefined;
+    let displayReceived: Error|undefined;
+    itf.on("error", (e: Error) => { selfReceived = e; });
+    d.on("error", (e: Error) => { displayReceived = e; });
+    const err = new Error("test");
+    itf.emitError(err);
+    expect(selfReceived).to.equal(err);
+    expect(displayReceived).to.be.undefined;
+  });
+});
+
+describe("Wl_interface.push()", function(){
+  let d: DisplayMock;
+  beforeEach(function(){ d = new DisplayMock(); });
+
+  it("emits error on display when get_args fails on malformed buffer", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      events: [{ name: "ping", description: "", summary: "", args: [{ name: "id", type: "uint", summary: "" }] }],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    let received: Error|undefined;
+    d.on("error", (e: Error) => { received = e; });
+    itf.push(0, Buffer.alloc(0)); // too short for a uint32
+    expect(received).to.be.an.instanceof(Error);
+  });
+
+  it("handles interface creation event with extra args (console.warn path)", async function(){
+    await d.load("wayland");
+    const eventDef: EventDefinition = {
+      name: "created", description: "", summary: "",
+      args: [
+        { name: "id", type: "new_id", interface: "wl_registry", summary: "" },
+        { name: "version", type: "uint", summary: "" },
+      ],
+    };
+    const def: InterfaceDefinition = {
+      ...emptyDef, events: [eventDef],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    let emitted: Wl_interface|undefined;
+    itf.on("created", (i: Wl_interface) => { emitted = i; });
+    const buf = format_args([2, 1], eventDef.args);
+    itf.push(0, buf);
+    expect(emitted).to.be.instanceof(Wl_interface);
+    expect(emitted!.name).to.equal("wl_registry");
+  });
+});
+
+describe("Wl_interface.aggregate()", function(){
+  let d: DisplayMock;
+  beforeEach(function(){ d = new DisplayMock(); });
+
+  it("records true for no-arg events", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      events: [{ name: "done", description: "", summary: "", args: [] }],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const end = itf.aggregate();
+    itf.emit("done");
+    const result = end();
+    expect(result.done).to.equal(true);
+  });
+
+  it("records the value for single-arg events", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      events: [{ name: "size", description: "", summary: "", args: [
+        { name: "n", type: "uint", summary: "" },
+      ]}],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const end = itf.aggregate();
+    itf.emit("size", 42);
+    const result = end();
+    expect(result.size).to.equal(42);
+  });
+
+  it("records array for multi-arg events", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      events: [{ name: "point", description: "", summary: "", args: [
+        { name: "x", type: "uint", summary: "" },
+        { name: "y", type: "uint", summary: "" },
+      ]}],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const end = itf.aggregate();
+    itf.emit("point", 3, 7);
+    const result = end();
+    expect(result.point).to.deep.equal([3, 7]);
+  });
+
+  it("aggregates nested Wl_interface events", function(){
+    const childDef: InterfaceDefinition = {
+      ...emptyDef, name: "wl_output",
+    };
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      events: [{ name: "child", description: "", summary: "", args: [
+        { name: "obj", type: "new_id", interface: "wl_output", summary: "" },
+      ]}],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const child = new Wl_interface(d, 4, childDef);
+    const end = itf.aggregate();
+    itf.emit("child", child);
+    const result = end();
+    expect(result.child).to.be.an("object").with.property("id", 4);
+  });
+});
+
+describe("Wl_interface.drain()", function(){
+  let d: DisplayMock;
+  beforeEach(function(){ d = new DisplayMock(); });
+
+  it("rethrows if the until promise rejects", async function(){
+    const itf = new Wl_interface(d, 3, emptyDef);
+    const err = new Error("until failed");
+    try{
+      await itf.drain(Promise.reject(err));
+      expect.fail("Should have thrown");
+    }catch(e){
+      expect(e).to.equal(err);
+    }
+  });
+
+  it("returns aggregate result when until resolves", async function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      events: [{ name: "done", description: "", summary: "", args: [] }],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const result = await itf.drain(Promise.resolve());
+    expect(result).to.be.an("object").with.property("id", 3);
   });
 });
