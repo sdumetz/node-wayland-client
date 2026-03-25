@@ -131,7 +131,7 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
     throw new Error(`Unsupported request argument type : ${type}`);
   });
 
-  let b = Buffer.alloc(argLengths.reduce((a, s)=>a+s, 0));
+  let b = Buffer.allocUnsafe(argLengths.reduce((a, s)=>a+s, 0));
 
   //Arguments
   let offset = 0;
@@ -171,6 +171,8 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
         throw new Error(`Unsupported request argument type : ${type}`);
     }
   }
+  /* c8 ignore next Since we used allocUnsafe, verify that we wrote the entire buffer. This should never be true unless we have a critical bug */
+  if(offset != b.byteLength) throw new Error(`misaligned write: buffer is ${b.byteLength} bytes but we wrote ${offset} bytes`);
   return b;
 }
 /**

@@ -35,7 +35,7 @@ export default class Display extends EventEmitter{
   #objects = new Map<wl_object, Wl_interface>();
 
   #s :Socket;
-  #recv = Buffer.alloc(0) as Buffer;
+  #recv = Buffer.allocUnsafe(0) as Buffer;
 
   constructor(s :Socket){
     super();
@@ -345,7 +345,7 @@ export default class Display extends EventEmitter{
    * 
    */
   public async request(srcId :number, opcode :number, def :RequestDefinition, ...args :any[]){
-    const b1 = Buffer.alloc(8);
+    const b1 = Buffer.allocUnsafe(8);
     const b2 = format_args(args, def.args);
     const with_ancillary = def.args.some(a=>a.type === "fd");
     if(with_ancillary){
