@@ -69,28 +69,30 @@
       }
     ],
     "enums": {
-      "error": [
-        {
-          "name": "invalid_object",
-          "value": 0,
-          "summary": "server couldn't find object"
-        },
-        {
-          "name": "invalid_method",
-          "value": 1,
-          "summary": "method doesn't exist on the specified interface or malformed request"
-        },
-        {
-          "name": "no_memory",
-          "value": 2,
-          "summary": "server is out of memory"
-        },
-        {
-          "name": "implementation",
-          "value": 3,
-          "summary": "implementation error in compositor"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "invalid_object",
+            "value": 0,
+            "summary": "server couldn't find object"
+          },
+          {
+            "name": "invalid_method",
+            "value": 1,
+            "summary": "method doesn't exist on the specified interface or malformed request"
+          },
+          {
+            "name": "no_memory",
+            "value": 2,
+            "summary": "server is out of memory"
+          },
+          {
+            "name": "implementation",
+            "value": 3,
+            "summary": "implementation error in compositor"
+          }
+        ]
+      }
     }
   },
   {
@@ -260,6 +262,7 @@
       },
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tDestroy the shared memory pool.\n\n\tThe mmapped memory will be released when all\n\tbuffers that have been created from this pool\n\tare gone.\n      ",
         "summary": "destroy the pool",
         "args": []
@@ -326,533 +329,537 @@
       }
     ],
     "enums": {
-      "error": [
-        {
-          "name": "invalid_format",
-          "value": 0,
-          "summary": "buffer format is not known"
-        },
-        {
-          "name": "invalid_stride",
-          "value": 1,
-          "summary": "invalid size or stride during pool or buffer creation"
-        },
-        {
-          "name": "invalid_fd",
-          "value": 2,
-          "summary": "mmapping the file descriptor failed"
-        }
-      ],
-      "format": [
-        {
-          "name": "argb8888",
-          "value": 0,
-          "summary": "32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian"
-        },
-        {
-          "name": "xrgb8888",
-          "value": 1,
-          "summary": "32-bit RGB format, [31:0] x:R:G:B 8:8:8:8 little endian"
-        },
-        {
-          "name": "c8",
-          "value": 538982467,
-          "summary": "8-bit color index format, [7:0] C"
-        },
-        {
-          "name": "rgb332",
-          "value": 943867730,
-          "summary": "8-bit RGB format, [7:0] R:G:B 3:3:2"
-        },
-        {
-          "name": "bgr233",
-          "value": 944916290,
-          "summary": "8-bit BGR format, [7:0] B:G:R 2:3:3"
-        },
-        {
-          "name": "xrgb4444",
-          "value": 842093144,
-          "summary": "16-bit xRGB format, [15:0] x:R:G:B 4:4:4:4 little endian"
-        },
-        {
-          "name": "xbgr4444",
-          "value": 842089048,
-          "summary": "16-bit xBGR format, [15:0] x:B:G:R 4:4:4:4 little endian"
-        },
-        {
-          "name": "rgbx4444",
-          "value": 842094674,
-          "summary": "16-bit RGBx format, [15:0] R:G:B:x 4:4:4:4 little endian"
-        },
-        {
-          "name": "bgrx4444",
-          "value": 842094658,
-          "summary": "16-bit BGRx format, [15:0] B:G:R:x 4:4:4:4 little endian"
-        },
-        {
-          "name": "argb4444",
-          "value": 842093121,
-          "summary": "16-bit ARGB format, [15:0] A:R:G:B 4:4:4:4 little endian"
-        },
-        {
-          "name": "abgr4444",
-          "value": 842089025,
-          "summary": "16-bit ABGR format, [15:0] A:B:G:R 4:4:4:4 little endian"
-        },
-        {
-          "name": "rgba4444",
-          "value": 842088786,
-          "summary": "16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian"
-        },
-        {
-          "name": "bgra4444",
-          "value": 842088770,
-          "summary": "16-bit BGRA format, [15:0] B:G:R:A 4:4:4:4 little endian"
-        },
-        {
-          "name": "xrgb1555",
-          "value": 892424792,
-          "summary": "16-bit xRGB format, [15:0] x:R:G:B 1:5:5:5 little endian"
-        },
-        {
-          "name": "xbgr1555",
-          "value": 892420696,
-          "summary": "16-bit xBGR 1555 format, [15:0] x:B:G:R 1:5:5:5 little endian"
-        },
-        {
-          "name": "rgbx5551",
-          "value": 892426322,
-          "summary": "16-bit RGBx 5551 format, [15:0] R:G:B:x 5:5:5:1 little endian"
-        },
-        {
-          "name": "bgrx5551",
-          "value": 892426306,
-          "summary": "16-bit BGRx 5551 format, [15:0] B:G:R:x 5:5:5:1 little endian"
-        },
-        {
-          "name": "argb1555",
-          "value": 892424769,
-          "summary": "16-bit ARGB 1555 format, [15:0] A:R:G:B 1:5:5:5 little endian"
-        },
-        {
-          "name": "abgr1555",
-          "value": 892420673,
-          "summary": "16-bit ABGR 1555 format, [15:0] A:B:G:R 1:5:5:5 little endian"
-        },
-        {
-          "name": "rgba5551",
-          "value": 892420434,
-          "summary": "16-bit RGBA 5551 format, [15:0] R:G:B:A 5:5:5:1 little endian"
-        },
-        {
-          "name": "bgra5551",
-          "value": 892420418,
-          "summary": "16-bit BGRA 5551 format, [15:0] B:G:R:A 5:5:5:1 little endian"
-        },
-        {
-          "name": "rgb565",
-          "value": 909199186,
-          "summary": "16-bit RGB 565 format, [15:0] R:G:B 5:6:5 little endian"
-        },
-        {
-          "name": "bgr565",
-          "value": 909199170,
-          "summary": "16-bit BGR 565 format, [15:0] B:G:R 5:6:5 little endian"
-        },
-        {
-          "name": "rgb888",
-          "value": 875710290,
-          "summary": "24-bit RGB format, [23:0] R:G:B little endian"
-        },
-        {
-          "name": "bgr888",
-          "value": 875710274,
-          "summary": "24-bit BGR format, [23:0] B:G:R little endian"
-        },
-        {
-          "name": "xbgr8888",
-          "value": 875709016,
-          "summary": "32-bit xBGR format, [31:0] x:B:G:R 8:8:8:8 little endian"
-        },
-        {
-          "name": "rgbx8888",
-          "value": 875714642,
-          "summary": "32-bit RGBx format, [31:0] R:G:B:x 8:8:8:8 little endian"
-        },
-        {
-          "name": "bgrx8888",
-          "value": 875714626,
-          "summary": "32-bit BGRx format, [31:0] B:G:R:x 8:8:8:8 little endian"
-        },
-        {
-          "name": "abgr8888",
-          "value": 875708993,
-          "summary": "32-bit ABGR format, [31:0] A:B:G:R 8:8:8:8 little endian"
-        },
-        {
-          "name": "rgba8888",
-          "value": 875708754,
-          "summary": "32-bit RGBA format, [31:0] R:G:B:A 8:8:8:8 little endian"
-        },
-        {
-          "name": "bgra8888",
-          "value": 875708738,
-          "summary": "32-bit BGRA format, [31:0] B:G:R:A 8:8:8:8 little endian"
-        },
-        {
-          "name": "xrgb2101010",
-          "value": 808669784,
-          "summary": "32-bit xRGB format, [31:0] x:R:G:B 2:10:10:10 little endian"
-        },
-        {
-          "name": "xbgr2101010",
-          "value": 808665688,
-          "summary": "32-bit xBGR format, [31:0] x:B:G:R 2:10:10:10 little endian"
-        },
-        {
-          "name": "rgbx1010102",
-          "value": 808671314,
-          "summary": "32-bit RGBx format, [31:0] R:G:B:x 10:10:10:2 little endian"
-        },
-        {
-          "name": "bgrx1010102",
-          "value": 808671298,
-          "summary": "32-bit BGRx format, [31:0] B:G:R:x 10:10:10:2 little endian"
-        },
-        {
-          "name": "argb2101010",
-          "value": 808669761,
-          "summary": "32-bit ARGB format, [31:0] A:R:G:B 2:10:10:10 little endian"
-        },
-        {
-          "name": "abgr2101010",
-          "value": 808665665,
-          "summary": "32-bit ABGR format, [31:0] A:B:G:R 2:10:10:10 little endian"
-        },
-        {
-          "name": "rgba1010102",
-          "value": 808665426,
-          "summary": "32-bit RGBA format, [31:0] R:G:B:A 10:10:10:2 little endian"
-        },
-        {
-          "name": "bgra1010102",
-          "value": 808665410,
-          "summary": "32-bit BGRA format, [31:0] B:G:R:A 10:10:10:2 little endian"
-        },
-        {
-          "name": "yuyv",
-          "value": 1448695129,
-          "summary": "packed YCbCr format, [31:0] Cr0:Y1:Cb0:Y0 8:8:8:8 little endian"
-        },
-        {
-          "name": "yvyu",
-          "value": 1431918169,
-          "summary": "packed YCbCr format, [31:0] Cb0:Y1:Cr0:Y0 8:8:8:8 little endian"
-        },
-        {
-          "name": "uyvy",
-          "value": 1498831189,
-          "summary": "packed YCbCr format, [31:0] Y1:Cr0:Y0:Cb0 8:8:8:8 little endian"
-        },
-        {
-          "name": "vyuy",
-          "value": 1498765654,
-          "summary": "packed YCbCr format, [31:0] Y1:Cb0:Y0:Cr0 8:8:8:8 little endian"
-        },
-        {
-          "name": "ayuv",
-          "value": 1448433985,
-          "summary": "packed AYCbCr format, [31:0] A:Y:Cb:Cr 8:8:8:8 little endian"
-        },
-        {
-          "name": "nv12",
-          "value": 842094158,
-          "summary": "2 plane YCbCr Cr:Cb format, 2x2 subsampled Cr:Cb plane"
-        },
-        {
-          "name": "nv21",
-          "value": 825382478,
-          "summary": "2 plane YCbCr Cb:Cr format, 2x2 subsampled Cb:Cr plane"
-        },
-        {
-          "name": "nv16",
-          "value": 909203022,
-          "summary": "2 plane YCbCr Cr:Cb format, 2x1 subsampled Cr:Cb plane"
-        },
-        {
-          "name": "nv61",
-          "value": 825644622,
-          "summary": "2 plane YCbCr Cb:Cr format, 2x1 subsampled Cb:Cr plane"
-        },
-        {
-          "name": "yuv410",
-          "value": 961959257,
-          "summary": "3 plane YCbCr format, 4x4 subsampled Cb (1) and Cr (2) planes"
-        },
-        {
-          "name": "yvu410",
-          "value": 961893977,
-          "summary": "3 plane YCbCr format, 4x4 subsampled Cr (1) and Cb (2) planes"
-        },
-        {
-          "name": "yuv411",
-          "value": 825316697,
-          "summary": "3 plane YCbCr format, 4x1 subsampled Cb (1) and Cr (2) planes"
-        },
-        {
-          "name": "yvu411",
-          "value": 825316953,
-          "summary": "3 plane YCbCr format, 4x1 subsampled Cr (1) and Cb (2) planes"
-        },
-        {
-          "name": "yuv420",
-          "value": 842093913,
-          "summary": "3 plane YCbCr format, 2x2 subsampled Cb (1) and Cr (2) planes"
-        },
-        {
-          "name": "yvu420",
-          "value": 842094169,
-          "summary": "3 plane YCbCr format, 2x2 subsampled Cr (1) and Cb (2) planes"
-        },
-        {
-          "name": "yuv422",
-          "value": 909202777,
-          "summary": "3 plane YCbCr format, 2x1 subsampled Cb (1) and Cr (2) planes"
-        },
-        {
-          "name": "yvu422",
-          "value": 909203033,
-          "summary": "3 plane YCbCr format, 2x1 subsampled Cr (1) and Cb (2) planes"
-        },
-        {
-          "name": "yuv444",
-          "value": 875713881,
-          "summary": "3 plane YCbCr format, non-subsampled Cb (1) and Cr (2) planes"
-        },
-        {
-          "name": "yvu444",
-          "value": 875714137,
-          "summary": "3 plane YCbCr format, non-subsampled Cr (1) and Cb (2) planes"
-        },
-        {
-          "name": "r8",
-          "value": 538982482,
-          "summary": "[7:0] R"
-        },
-        {
-          "name": "r16",
-          "value": 540422482,
-          "summary": "[15:0] R little endian"
-        },
-        {
-          "name": "rg88",
-          "value": 943212370,
-          "summary": "[15:0] R:G 8:8 little endian"
-        },
-        {
-          "name": "gr88",
-          "value": 943215175,
-          "summary": "[15:0] G:R 8:8 little endian"
-        },
-        {
-          "name": "rg1616",
-          "value": 842221394,
-          "summary": "[31:0] R:G 16:16 little endian"
-        },
-        {
-          "name": "gr1616",
-          "value": 842224199,
-          "summary": "[31:0] G:R 16:16 little endian"
-        },
-        {
-          "name": "xrgb16161616f",
-          "value": 1211388504,
-          "summary": "[63:0] x:R:G:B 16:16:16:16 little endian"
-        },
-        {
-          "name": "xbgr16161616f",
-          "value": 1211384408,
-          "summary": "[63:0] x:B:G:R 16:16:16:16 little endian"
-        },
-        {
-          "name": "argb16161616f",
-          "value": 1211388481,
-          "summary": "[63:0] A:R:G:B 16:16:16:16 little endian"
-        },
-        {
-          "name": "abgr16161616f",
-          "value": 1211384385,
-          "summary": "[63:0] A:B:G:R 16:16:16:16 little endian"
-        },
-        {
-          "name": "xyuv8888",
-          "value": 1448434008,
-          "summary": "[31:0] X:Y:Cb:Cr 8:8:8:8 little endian"
-        },
-        {
-          "name": "vuy888",
-          "value": 875713878,
-          "summary": "[23:0] Cr:Cb:Y 8:8:8 little endian"
-        },
-        {
-          "name": "vuy101010",
-          "value": 808670550,
-          "summary": "Y followed by U then V, 10:10:10. Non-linear modifier only"
-        },
-        {
-          "name": "y210",
-          "value": 808530521,
-          "summary": "[63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 10:6:10:6:10:6:10:6 little endian per 2 Y pixels"
-        },
-        {
-          "name": "y212",
-          "value": 842084953,
-          "summary": "[63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 12:4:12:4:12:4:12:4 little endian per 2 Y pixels"
-        },
-        {
-          "name": "y216",
-          "value": 909193817,
-          "summary": "[63:0] Cr0:Y1:Cb0:Y0 16:16:16:16 little endian per 2 Y pixels"
-        },
-        {
-          "name": "y410",
-          "value": 808531033,
-          "summary": "[31:0] A:Cr:Y:Cb 2:10:10:10 little endian"
-        },
-        {
-          "name": "y412",
-          "value": 842085465,
-          "summary": "[63:0] A:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian"
-        },
-        {
-          "name": "y416",
-          "value": 909194329,
-          "summary": "[63:0] A:Cr:Y:Cb 16:16:16:16 little endian"
-        },
-        {
-          "name": "xvyu2101010",
-          "value": 808670808,
-          "summary": "[31:0] X:Cr:Y:Cb 2:10:10:10 little endian"
-        },
-        {
-          "name": "xvyu12_16161616",
-          "value": 909334104,
-          "summary": "[63:0] X:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian"
-        },
-        {
-          "name": "xvyu16161616",
-          "value": 942954072,
-          "summary": "[63:0] X:Cr:Y:Cb 16:16:16:16 little endian"
-        },
-        {
-          "name": "y0l0",
-          "value": 810299481,
-          "summary": "[63:0]   A3:A2:Y3:0:Cr0:0:Y2:0:A1:A0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian"
-        },
-        {
-          "name": "x0l0",
-          "value": 810299480,
-          "summary": "[63:0]   X3:X2:Y3:0:Cr0:0:Y2:0:X1:X0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian"
-        },
-        {
-          "name": "y0l2",
-          "value": 843853913,
-          "summary": "[63:0]   A3:A2:Y3:Cr0:Y2:A1:A0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian"
-        },
-        {
-          "name": "x0l2",
-          "value": 843853912,
-          "summary": "[63:0]   X3:X2:Y3:Cr0:Y2:X1:X0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian"
-        },
-        {
-          "name": "yuv420_8bit",
-          "value": 942691673
-        },
-        {
-          "name": "yuv420_10bit",
-          "value": 808539481
-        },
-        {
-          "name": "xrgb8888_a8",
-          "value": 943805016
-        },
-        {
-          "name": "xbgr8888_a8",
-          "value": 943800920
-        },
-        {
-          "name": "rgbx8888_a8",
-          "value": 943806546
-        },
-        {
-          "name": "bgrx8888_a8",
-          "value": 943806530
-        },
-        {
-          "name": "rgb888_a8",
-          "value": 943798354
-        },
-        {
-          "name": "bgr888_a8",
-          "value": 943798338
-        },
-        {
-          "name": "rgb565_a8",
-          "value": 943797586
-        },
-        {
-          "name": "bgr565_a8",
-          "value": 943797570
-        },
-        {
-          "name": "nv24",
-          "value": 875714126,
-          "summary": "non-subsampled Cr:Cb plane"
-        },
-        {
-          "name": "nv42",
-          "value": 842290766,
-          "summary": "non-subsampled Cb:Cr plane"
-        },
-        {
-          "name": "p210",
-          "value": 808530512,
-          "summary": "2x1 subsampled Cr:Cb plane, 10 bit per channel"
-        },
-        {
-          "name": "p010",
-          "value": 808530000,
-          "summary": "2x2 subsampled Cr:Cb plane 10 bits per channel"
-        },
-        {
-          "name": "p012",
-          "value": 842084432,
-          "summary": "2x2 subsampled Cr:Cb plane 12 bits per channel"
-        },
-        {
-          "name": "p016",
-          "value": 909193296,
-          "summary": "2x2 subsampled Cr:Cb plane 16 bits per channel"
-        },
-        {
-          "name": "axbxgxrx106106106106",
-          "value": 808534593,
-          "summary": "[63:0] A:x:B:x:G:x:R:x 10:6:10:6:10:6:10:6 little endian"
-        },
-        {
-          "name": "nv15",
-          "value": 892425806,
-          "summary": "2x2 subsampled Cr:Cb plane"
-        },
-        {
-          "name": "q410",
-          "value": 808531025
-        },
-        {
-          "name": "q401",
-          "value": 825242705
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "invalid_format",
+            "value": 0,
+            "summary": "buffer format is not known"
+          },
+          {
+            "name": "invalid_stride",
+            "value": 1,
+            "summary": "invalid size or stride during pool or buffer creation"
+          },
+          {
+            "name": "invalid_fd",
+            "value": 2,
+            "summary": "mmapping the file descriptor failed"
+          }
+        ]
+      },
+      "format": {
+        "entries": [
+          {
+            "name": "argb8888",
+            "value": 0,
+            "summary": "32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian"
+          },
+          {
+            "name": "xrgb8888",
+            "value": 1,
+            "summary": "32-bit RGB format, [31:0] x:R:G:B 8:8:8:8 little endian"
+          },
+          {
+            "name": "c8",
+            "value": 538982467,
+            "summary": "8-bit color index format, [7:0] C"
+          },
+          {
+            "name": "rgb332",
+            "value": 943867730,
+            "summary": "8-bit RGB format, [7:0] R:G:B 3:3:2"
+          },
+          {
+            "name": "bgr233",
+            "value": 944916290,
+            "summary": "8-bit BGR format, [7:0] B:G:R 2:3:3"
+          },
+          {
+            "name": "xrgb4444",
+            "value": 842093144,
+            "summary": "16-bit xRGB format, [15:0] x:R:G:B 4:4:4:4 little endian"
+          },
+          {
+            "name": "xbgr4444",
+            "value": 842089048,
+            "summary": "16-bit xBGR format, [15:0] x:B:G:R 4:4:4:4 little endian"
+          },
+          {
+            "name": "rgbx4444",
+            "value": 842094674,
+            "summary": "16-bit RGBx format, [15:0] R:G:B:x 4:4:4:4 little endian"
+          },
+          {
+            "name": "bgrx4444",
+            "value": 842094658,
+            "summary": "16-bit BGRx format, [15:0] B:G:R:x 4:4:4:4 little endian"
+          },
+          {
+            "name": "argb4444",
+            "value": 842093121,
+            "summary": "16-bit ARGB format, [15:0] A:R:G:B 4:4:4:4 little endian"
+          },
+          {
+            "name": "abgr4444",
+            "value": 842089025,
+            "summary": "16-bit ABGR format, [15:0] A:B:G:R 4:4:4:4 little endian"
+          },
+          {
+            "name": "rgba4444",
+            "value": 842088786,
+            "summary": "16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian"
+          },
+          {
+            "name": "bgra4444",
+            "value": 842088770,
+            "summary": "16-bit BGRA format, [15:0] B:G:R:A 4:4:4:4 little endian"
+          },
+          {
+            "name": "xrgb1555",
+            "value": 892424792,
+            "summary": "16-bit xRGB format, [15:0] x:R:G:B 1:5:5:5 little endian"
+          },
+          {
+            "name": "xbgr1555",
+            "value": 892420696,
+            "summary": "16-bit xBGR 1555 format, [15:0] x:B:G:R 1:5:5:5 little endian"
+          },
+          {
+            "name": "rgbx5551",
+            "value": 892426322,
+            "summary": "16-bit RGBx 5551 format, [15:0] R:G:B:x 5:5:5:1 little endian"
+          },
+          {
+            "name": "bgrx5551",
+            "value": 892426306,
+            "summary": "16-bit BGRx 5551 format, [15:0] B:G:R:x 5:5:5:1 little endian"
+          },
+          {
+            "name": "argb1555",
+            "value": 892424769,
+            "summary": "16-bit ARGB 1555 format, [15:0] A:R:G:B 1:5:5:5 little endian"
+          },
+          {
+            "name": "abgr1555",
+            "value": 892420673,
+            "summary": "16-bit ABGR 1555 format, [15:0] A:B:G:R 1:5:5:5 little endian"
+          },
+          {
+            "name": "rgba5551",
+            "value": 892420434,
+            "summary": "16-bit RGBA 5551 format, [15:0] R:G:B:A 5:5:5:1 little endian"
+          },
+          {
+            "name": "bgra5551",
+            "value": 892420418,
+            "summary": "16-bit BGRA 5551 format, [15:0] B:G:R:A 5:5:5:1 little endian"
+          },
+          {
+            "name": "rgb565",
+            "value": 909199186,
+            "summary": "16-bit RGB 565 format, [15:0] R:G:B 5:6:5 little endian"
+          },
+          {
+            "name": "bgr565",
+            "value": 909199170,
+            "summary": "16-bit BGR 565 format, [15:0] B:G:R 5:6:5 little endian"
+          },
+          {
+            "name": "rgb888",
+            "value": 875710290,
+            "summary": "24-bit RGB format, [23:0] R:G:B little endian"
+          },
+          {
+            "name": "bgr888",
+            "value": 875710274,
+            "summary": "24-bit BGR format, [23:0] B:G:R little endian"
+          },
+          {
+            "name": "xbgr8888",
+            "value": 875709016,
+            "summary": "32-bit xBGR format, [31:0] x:B:G:R 8:8:8:8 little endian"
+          },
+          {
+            "name": "rgbx8888",
+            "value": 875714642,
+            "summary": "32-bit RGBx format, [31:0] R:G:B:x 8:8:8:8 little endian"
+          },
+          {
+            "name": "bgrx8888",
+            "value": 875714626,
+            "summary": "32-bit BGRx format, [31:0] B:G:R:x 8:8:8:8 little endian"
+          },
+          {
+            "name": "abgr8888",
+            "value": 875708993,
+            "summary": "32-bit ABGR format, [31:0] A:B:G:R 8:8:8:8 little endian"
+          },
+          {
+            "name": "rgba8888",
+            "value": 875708754,
+            "summary": "32-bit RGBA format, [31:0] R:G:B:A 8:8:8:8 little endian"
+          },
+          {
+            "name": "bgra8888",
+            "value": 875708738,
+            "summary": "32-bit BGRA format, [31:0] B:G:R:A 8:8:8:8 little endian"
+          },
+          {
+            "name": "xrgb2101010",
+            "value": 808669784,
+            "summary": "32-bit xRGB format, [31:0] x:R:G:B 2:10:10:10 little endian"
+          },
+          {
+            "name": "xbgr2101010",
+            "value": 808665688,
+            "summary": "32-bit xBGR format, [31:0] x:B:G:R 2:10:10:10 little endian"
+          },
+          {
+            "name": "rgbx1010102",
+            "value": 808671314,
+            "summary": "32-bit RGBx format, [31:0] R:G:B:x 10:10:10:2 little endian"
+          },
+          {
+            "name": "bgrx1010102",
+            "value": 808671298,
+            "summary": "32-bit BGRx format, [31:0] B:G:R:x 10:10:10:2 little endian"
+          },
+          {
+            "name": "argb2101010",
+            "value": 808669761,
+            "summary": "32-bit ARGB format, [31:0] A:R:G:B 2:10:10:10 little endian"
+          },
+          {
+            "name": "abgr2101010",
+            "value": 808665665,
+            "summary": "32-bit ABGR format, [31:0] A:B:G:R 2:10:10:10 little endian"
+          },
+          {
+            "name": "rgba1010102",
+            "value": 808665426,
+            "summary": "32-bit RGBA format, [31:0] R:G:B:A 10:10:10:2 little endian"
+          },
+          {
+            "name": "bgra1010102",
+            "value": 808665410,
+            "summary": "32-bit BGRA format, [31:0] B:G:R:A 10:10:10:2 little endian"
+          },
+          {
+            "name": "yuyv",
+            "value": 1448695129,
+            "summary": "packed YCbCr format, [31:0] Cr0:Y1:Cb0:Y0 8:8:8:8 little endian"
+          },
+          {
+            "name": "yvyu",
+            "value": 1431918169,
+            "summary": "packed YCbCr format, [31:0] Cb0:Y1:Cr0:Y0 8:8:8:8 little endian"
+          },
+          {
+            "name": "uyvy",
+            "value": 1498831189,
+            "summary": "packed YCbCr format, [31:0] Y1:Cr0:Y0:Cb0 8:8:8:8 little endian"
+          },
+          {
+            "name": "vyuy",
+            "value": 1498765654,
+            "summary": "packed YCbCr format, [31:0] Y1:Cb0:Y0:Cr0 8:8:8:8 little endian"
+          },
+          {
+            "name": "ayuv",
+            "value": 1448433985,
+            "summary": "packed AYCbCr format, [31:0] A:Y:Cb:Cr 8:8:8:8 little endian"
+          },
+          {
+            "name": "nv12",
+            "value": 842094158,
+            "summary": "2 plane YCbCr Cr:Cb format, 2x2 subsampled Cr:Cb plane"
+          },
+          {
+            "name": "nv21",
+            "value": 825382478,
+            "summary": "2 plane YCbCr Cb:Cr format, 2x2 subsampled Cb:Cr plane"
+          },
+          {
+            "name": "nv16",
+            "value": 909203022,
+            "summary": "2 plane YCbCr Cr:Cb format, 2x1 subsampled Cr:Cb plane"
+          },
+          {
+            "name": "nv61",
+            "value": 825644622,
+            "summary": "2 plane YCbCr Cb:Cr format, 2x1 subsampled Cb:Cr plane"
+          },
+          {
+            "name": "yuv410",
+            "value": 961959257,
+            "summary": "3 plane YCbCr format, 4x4 subsampled Cb (1) and Cr (2) planes"
+          },
+          {
+            "name": "yvu410",
+            "value": 961893977,
+            "summary": "3 plane YCbCr format, 4x4 subsampled Cr (1) and Cb (2) planes"
+          },
+          {
+            "name": "yuv411",
+            "value": 825316697,
+            "summary": "3 plane YCbCr format, 4x1 subsampled Cb (1) and Cr (2) planes"
+          },
+          {
+            "name": "yvu411",
+            "value": 825316953,
+            "summary": "3 plane YCbCr format, 4x1 subsampled Cr (1) and Cb (2) planes"
+          },
+          {
+            "name": "yuv420",
+            "value": 842093913,
+            "summary": "3 plane YCbCr format, 2x2 subsampled Cb (1) and Cr (2) planes"
+          },
+          {
+            "name": "yvu420",
+            "value": 842094169,
+            "summary": "3 plane YCbCr format, 2x2 subsampled Cr (1) and Cb (2) planes"
+          },
+          {
+            "name": "yuv422",
+            "value": 909202777,
+            "summary": "3 plane YCbCr format, 2x1 subsampled Cb (1) and Cr (2) planes"
+          },
+          {
+            "name": "yvu422",
+            "value": 909203033,
+            "summary": "3 plane YCbCr format, 2x1 subsampled Cr (1) and Cb (2) planes"
+          },
+          {
+            "name": "yuv444",
+            "value": 875713881,
+            "summary": "3 plane YCbCr format, non-subsampled Cb (1) and Cr (2) planes"
+          },
+          {
+            "name": "yvu444",
+            "value": 875714137,
+            "summary": "3 plane YCbCr format, non-subsampled Cr (1) and Cb (2) planes"
+          },
+          {
+            "name": "r8",
+            "value": 538982482,
+            "summary": "[7:0] R"
+          },
+          {
+            "name": "r16",
+            "value": 540422482,
+            "summary": "[15:0] R little endian"
+          },
+          {
+            "name": "rg88",
+            "value": 943212370,
+            "summary": "[15:0] R:G 8:8 little endian"
+          },
+          {
+            "name": "gr88",
+            "value": 943215175,
+            "summary": "[15:0] G:R 8:8 little endian"
+          },
+          {
+            "name": "rg1616",
+            "value": 842221394,
+            "summary": "[31:0] R:G 16:16 little endian"
+          },
+          {
+            "name": "gr1616",
+            "value": 842224199,
+            "summary": "[31:0] G:R 16:16 little endian"
+          },
+          {
+            "name": "xrgb16161616f",
+            "value": 1211388504,
+            "summary": "[63:0] x:R:G:B 16:16:16:16 little endian"
+          },
+          {
+            "name": "xbgr16161616f",
+            "value": 1211384408,
+            "summary": "[63:0] x:B:G:R 16:16:16:16 little endian"
+          },
+          {
+            "name": "argb16161616f",
+            "value": 1211388481,
+            "summary": "[63:0] A:R:G:B 16:16:16:16 little endian"
+          },
+          {
+            "name": "abgr16161616f",
+            "value": 1211384385,
+            "summary": "[63:0] A:B:G:R 16:16:16:16 little endian"
+          },
+          {
+            "name": "xyuv8888",
+            "value": 1448434008,
+            "summary": "[31:0] X:Y:Cb:Cr 8:8:8:8 little endian"
+          },
+          {
+            "name": "vuy888",
+            "value": 875713878,
+            "summary": "[23:0] Cr:Cb:Y 8:8:8 little endian"
+          },
+          {
+            "name": "vuy101010",
+            "value": 808670550,
+            "summary": "Y followed by U then V, 10:10:10. Non-linear modifier only"
+          },
+          {
+            "name": "y210",
+            "value": 808530521,
+            "summary": "[63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 10:6:10:6:10:6:10:6 little endian per 2 Y pixels"
+          },
+          {
+            "name": "y212",
+            "value": 842084953,
+            "summary": "[63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 12:4:12:4:12:4:12:4 little endian per 2 Y pixels"
+          },
+          {
+            "name": "y216",
+            "value": 909193817,
+            "summary": "[63:0] Cr0:Y1:Cb0:Y0 16:16:16:16 little endian per 2 Y pixels"
+          },
+          {
+            "name": "y410",
+            "value": 808531033,
+            "summary": "[31:0] A:Cr:Y:Cb 2:10:10:10 little endian"
+          },
+          {
+            "name": "y412",
+            "value": 842085465,
+            "summary": "[63:0] A:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian"
+          },
+          {
+            "name": "y416",
+            "value": 909194329,
+            "summary": "[63:0] A:Cr:Y:Cb 16:16:16:16 little endian"
+          },
+          {
+            "name": "xvyu2101010",
+            "value": 808670808,
+            "summary": "[31:0] X:Cr:Y:Cb 2:10:10:10 little endian"
+          },
+          {
+            "name": "xvyu12_16161616",
+            "value": 909334104,
+            "summary": "[63:0] X:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian"
+          },
+          {
+            "name": "xvyu16161616",
+            "value": 942954072,
+            "summary": "[63:0] X:Cr:Y:Cb 16:16:16:16 little endian"
+          },
+          {
+            "name": "y0l0",
+            "value": 810299481,
+            "summary": "[63:0]   A3:A2:Y3:0:Cr0:0:Y2:0:A1:A0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian"
+          },
+          {
+            "name": "x0l0",
+            "value": 810299480,
+            "summary": "[63:0]   X3:X2:Y3:0:Cr0:0:Y2:0:X1:X0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian"
+          },
+          {
+            "name": "y0l2",
+            "value": 843853913,
+            "summary": "[63:0]   A3:A2:Y3:Cr0:Y2:A1:A0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian"
+          },
+          {
+            "name": "x0l2",
+            "value": 843853912,
+            "summary": "[63:0]   X3:X2:Y3:Cr0:Y2:X1:X0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian"
+          },
+          {
+            "name": "yuv420_8bit",
+            "value": 942691673
+          },
+          {
+            "name": "yuv420_10bit",
+            "value": 808539481
+          },
+          {
+            "name": "xrgb8888_a8",
+            "value": 943805016
+          },
+          {
+            "name": "xbgr8888_a8",
+            "value": 943800920
+          },
+          {
+            "name": "rgbx8888_a8",
+            "value": 943806546
+          },
+          {
+            "name": "bgrx8888_a8",
+            "value": 943806530
+          },
+          {
+            "name": "rgb888_a8",
+            "value": 943798354
+          },
+          {
+            "name": "bgr888_a8",
+            "value": 943798338
+          },
+          {
+            "name": "rgb565_a8",
+            "value": 943797586
+          },
+          {
+            "name": "bgr565_a8",
+            "value": 943797570
+          },
+          {
+            "name": "nv24",
+            "value": 875714126,
+            "summary": "non-subsampled Cr:Cb plane"
+          },
+          {
+            "name": "nv42",
+            "value": 842290766,
+            "summary": "non-subsampled Cb:Cr plane"
+          },
+          {
+            "name": "p210",
+            "value": 808530512,
+            "summary": "2x1 subsampled Cr:Cb plane, 10 bit per channel"
+          },
+          {
+            "name": "p010",
+            "value": 808530000,
+            "summary": "2x2 subsampled Cr:Cb plane 10 bits per channel"
+          },
+          {
+            "name": "p012",
+            "value": 842084432,
+            "summary": "2x2 subsampled Cr:Cb plane 12 bits per channel"
+          },
+          {
+            "name": "p016",
+            "value": 909193296,
+            "summary": "2x2 subsampled Cr:Cb plane 16 bits per channel"
+          },
+          {
+            "name": "axbxgxrx106106106106",
+            "value": 808534593,
+            "summary": "[63:0] A:x:B:x:G:x:R:x 10:6:10:6:10:6:10:6 little endian"
+          },
+          {
+            "name": "nv15",
+            "value": 892425806,
+            "summary": "2x2 subsampled Cr:Cb plane"
+          },
+          {
+            "name": "q410",
+            "value": 808531025
+          },
+          {
+            "name": "q401",
+            "value": 825242705
+          }
+        ]
+      }
     }
   },
   {
@@ -863,6 +870,7 @@
     "requests": [
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tDestroy a buffer. If and how you need to release the backing\n\tstorage is defined by the buffer factory interface.\n\n\tFor possible side-effects to a surface, see wl_surface.attach.\n      ",
         "summary": "destroy a buffer",
         "args": []
@@ -921,18 +929,21 @@
       },
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tDestroy the data offer.\n      ",
         "summary": "destroy data offer",
         "args": []
       },
       {
         "name": "finish",
+        "since": 3,
         "description": "\n\tNotifies the compositor that the drag destination successfully\n\tfinished the drag-and-drop operation.\n\n\tUpon receiving this request, the compositor will emit\n\twl_data_source.dnd_finished on the drag source client.\n\n\tIt is a client error to perform other requests than\n\twl_data_offer.destroy after this one. It is also an error to perform\n\tthis request after a NULL mime type has been set in\n\twl_data_offer.accept or no action was received through\n\twl_data_offer.action.\n\n\tIf wl_data_offer.finish request is received for a non drag and drop\n\toperation, the invalid_finish protocol error is raised.\n      ",
         "summary": "the offer will no longer be used",
         "args": []
       },
       {
         "name": "set_actions",
+        "since": 3,
         "description": "\n\tSets the actions that the destination side client supports for\n\tthis operation. This request may trigger the emission of\n\twl_data_source.action and wl_data_offer.action events if the compositor\n\tneeds to change the selected action.\n\n\tThis request can be called multiple times throughout the\n\tdrag-and-drop operation, typically in response to wl_data_device.enter\n\tor wl_data_device.motion events.\n\n\tThis request determines the final result of the drag-and-drop\n\toperation. If the end result is that no action is accepted,\n\tthe drag source will receive wl_data_source.cancelled.\n\n\tThe dnd_actions argument must contain only values expressed in the\n\twl_data_device_manager.dnd_actions enum, and the preferred_action\n\targument must only contain one of those values set, otherwise it\n\twill result in a protocol error.\n\n\tWhile managing an \"ask\" action, the destination drag-and-drop client\n\tmay perform further wl_data_offer.receive requests, and is expected\n\tto perform one last wl_data_offer.set_actions request with a preferred\n\taction other than \"ask\" (and optionally wl_data_offer.accept) before\n\trequesting wl_data_offer.finish, in order to convey the action selected\n\tby the user. If the preferred action is not in the\n\twl_data_offer.source_actions mask, an error will be raised.\n\n\tIf the \"ask\" action is dismissed (e.g. user cancellation), the client\n\tis expected to perform wl_data_offer.destroy right away.\n\n\tThis request can only be made on drag-and-drop offers, a protocol error\n\twill be raised otherwise.\n      ",
         "summary": "set the available/preferred drag-and-drop actions",
         "args": [
@@ -966,6 +977,7 @@
       },
       {
         "name": "source_actions",
+        "since": 3,
         "description": "\n\tThis event indicates the actions offered by the data source. It\n\twill be sent right after wl_data_device.enter, or anytime the source\n\tside changes its offered actions through wl_data_source.set_actions.\n      ",
         "summary": "notify the source-side available actions",
         "args": [
@@ -979,6 +991,7 @@
       },
       {
         "name": "action",
+        "since": 3,
         "description": "\n\tThis event indicates the action selected by the compositor after\n\tmatching the source/destination side actions. Only one action (or\n\tnone) will be offered here.\n\n\tThis event can be emitted multiple times during the drag-and-drop\n\toperation in response to destination side action changes through\n\twl_data_offer.set_actions.\n\n\tThis event will no longer be emitted after wl_data_device.drop\n\thappened on the drag-and-drop destination, the client must\n\thonor the last action received, or the last preferred one set\n\tthrough wl_data_offer.set_actions when handling an \"ask\" action.\n\n\tCompositors may also change the selected action on the fly, mainly\n\tin response to keyboard modifier changes during the drag-and-drop\n\toperation.\n\n\tThe most recent action received is always the valid one. Prior to\n\treceiving wl_data_device.drop, the chosen action may change (e.g.\n\tdue to keyboard modifiers being pressed). At the time of receiving\n\twl_data_device.drop the drag-and-drop destination must honor the\n\tlast action received.\n\n\tAction changes may still happen after wl_data_device.drop,\n\tespecially on \"ask\" actions, where the drag-and-drop destination\n\tmay choose another action afterwards. Action changes happening\n\tat this stage are always the result of inter-client negotiation, the\n\tcompositor shall no longer be able to induce a different action.\n\n\tUpon \"ask\" actions, it is expected that the drag-and-drop destination\n\tmay potentially choose a different action and/or mime type,\n\tbased on wl_data_offer.source_actions and finally chosen by the\n\tuser (e.g. popping up a menu with the available options). The\n\tfinal wl_data_offer.set_actions and wl_data_offer.accept requests\n\tmust happen before the call to wl_data_offer.finish.\n      ",
         "summary": "notify the selected action",
         "args": [
@@ -992,28 +1005,30 @@
       }
     ],
     "enums": {
-      "error": [
-        {
-          "name": "invalid_finish",
-          "value": 0,
-          "summary": "finish request was called untimely"
-        },
-        {
-          "name": "invalid_action_mask",
-          "value": 1,
-          "summary": "action mask contains invalid values"
-        },
-        {
-          "name": "invalid_action",
-          "value": 2,
-          "summary": "action argument has an invalid value"
-        },
-        {
-          "name": "invalid_offer",
-          "value": 3,
-          "summary": "offer doesn't accept this request"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "invalid_finish",
+            "value": 0,
+            "summary": "finish request was called untimely"
+          },
+          {
+            "name": "invalid_action_mask",
+            "value": 1,
+            "summary": "action mask contains invalid values"
+          },
+          {
+            "name": "invalid_action",
+            "value": 2,
+            "summary": "action argument has an invalid value"
+          },
+          {
+            "name": "invalid_offer",
+            "value": 3,
+            "summary": "offer doesn't accept this request"
+          }
+        ]
+      }
     }
   },
   {
@@ -1036,12 +1051,14 @@
       },
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tDestroy the data source.\n      ",
         "summary": "destroy the data source",
         "args": []
       },
       {
         "name": "set_actions",
+        "since": 3,
         "description": "\n\tSets the actions that the source side client supports for this\n\toperation. This request may trigger wl_data_source.action and\n\twl_data_offer.action events if the compositor needs to change the\n\tselected action.\n\n\tThe dnd_actions argument must contain only values expressed in the\n\twl_data_device_manager.dnd_actions enum, otherwise it will result\n\tin a protocol error.\n\n\tThis request must be made once only, and can only be made on sources\n\tused in drag-and-drop, so it must be performed before\n\twl_data_device.start_drag. Attempting to use the source other than\n\tfor drag-and-drop will raise a protocol error.\n      ",
         "summary": "set the available drag-and-drop actions",
         "args": [
@@ -1093,18 +1110,21 @@
       },
       {
         "name": "dnd_drop_performed",
+        "since": 3,
         "description": "\n\tThe user performed the drop action. This event does not indicate\n\tacceptance, wl_data_source.cancelled may still be emitted afterwards\n\tif the drop destination does not accept any mime type.\n\n\tHowever, this event might however not be received if the compositor\n\tcancelled the drag-and-drop operation before this event could happen.\n\n\tNote that the data_source may still be used in the future and should\n\tnot be destroyed here.\n      ",
         "summary": "the drag-and-drop operation physically finished",
         "args": []
       },
       {
         "name": "dnd_finished",
+        "since": 3,
         "description": "\n\tThe drop destination finished interoperating with this data\n\tsource, so the client is now free to destroy this data source and\n\tfree all associated data.\n\n\tIf the action used to perform the operation was \"move\", the\n\tsource can now delete the transferred data.\n      ",
         "summary": "the drag-and-drop operation concluded",
         "args": []
       },
       {
         "name": "action",
+        "since": 3,
         "description": "\n\tThis event indicates the action selected by the compositor after\n\tmatching the source/destination side actions. Only one action (or\n\tnone) will be offered here.\n\n\tThis event can be emitted multiple times during the drag-and-drop\n\toperation, mainly in response to destination side changes through\n\twl_data_offer.set_actions, and as the data device enters/leaves\n\tsurfaces.\n\n\tIt is only possible to receive this event after\n\twl_data_source.dnd_drop_performed if the drag-and-drop operation\n\tended in an \"ask\" action, in which case the final wl_data_source.action\n\tevent will happen immediately before wl_data_source.dnd_finished.\n\n\tCompositors may also change the selected action on the fly, mainly\n\tin response to keyboard modifier changes during the drag-and-drop\n\toperation.\n\n\tThe most recent action received is always the valid one. The chosen\n\taction may change alongside negotiation (e.g. an \"ask\" action can turn\n\tinto a \"move\" operation), so the effects of the final action must\n\talways be applied in wl_data_offer.dnd_finished.\n\n\tClients can trigger cursor surface changes from this point, so\n\tthey reflect the current action.\n      ",
         "summary": "notify the selected action",
         "args": [
@@ -1118,18 +1138,20 @@
       }
     ],
     "enums": {
-      "error": [
-        {
-          "name": "invalid_action_mask",
-          "value": 0,
-          "summary": "action mask contains invalid values"
-        },
-        {
-          "name": "invalid_source",
-          "value": 1,
-          "summary": "source doesn't accept this request"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "invalid_action_mask",
+            "value": 0,
+            "summary": "action mask contains invalid values"
+          },
+          {
+            "name": "invalid_source",
+            "value": 1,
+            "summary": "source doesn't accept this request"
+          }
+        ]
+      }
     }
   },
   {
@@ -1191,6 +1213,8 @@
       },
       {
         "name": "release",
+        "type": "destructor",
+        "since": 2,
         "description": "\n\tThis request destroys the data device.\n      ",
         "summary": "destroy data device",
         "args": []
@@ -1295,13 +1319,15 @@
       }
     ],
     "enums": {
-      "error": [
-        {
-          "name": "role",
-          "value": 0,
-          "summary": "given wl_surface has another role"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "role",
+            "value": 0,
+            "summary": "given wl_surface has another role"
+          }
+        ]
+      }
     }
   },
   {
@@ -1345,28 +1371,31 @@
     ],
     "events": [],
     "enums": {
-      "dnd_action": [
-        {
-          "name": "none",
-          "value": 0,
-          "summary": "no action"
-        },
-        {
-          "name": "copy",
-          "value": 1,
-          "summary": "copy action"
-        },
-        {
-          "name": "move",
-          "value": 2,
-          "summary": "move action"
-        },
-        {
-          "name": "ask",
-          "value": 4,
-          "summary": "ask action"
-        }
-      ]
+      "dnd_action": {
+        "since": 3,
+        "entries": [
+          {
+            "name": "none",
+            "value": 0,
+            "summary": "no action"
+          },
+          {
+            "name": "copy",
+            "value": 1,
+            "summary": "copy action"
+          },
+          {
+            "name": "move",
+            "value": 2,
+            "summary": "move action"
+          },
+          {
+            "name": "ask",
+            "value": 4,
+            "summary": "ask action"
+          }
+        ]
+      }
     }
   },
   {
@@ -1397,13 +1426,15 @@
     ],
     "events": [],
     "enums": {
-      "error": [
-        {
-          "name": "role",
-          "value": 0,
-          "summary": "given wl_surface has another role"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "role",
+            "value": 0,
+            "summary": "given wl_surface has another role"
+          }
+        ]
+      }
     }
   },
   {
@@ -1649,82 +1680,88 @@
       }
     ],
     "enums": {
-      "resize": [
-        {
-          "name": "none",
-          "value": 0,
-          "summary": "no edge"
-        },
-        {
-          "name": "top",
-          "value": 1,
-          "summary": "top edge"
-        },
-        {
-          "name": "bottom",
-          "value": 2,
-          "summary": "bottom edge"
-        },
-        {
-          "name": "left",
-          "value": 4,
-          "summary": "left edge"
-        },
-        {
-          "name": "top_left",
-          "value": 5,
-          "summary": "top and left edges"
-        },
-        {
-          "name": "bottom_left",
-          "value": 6,
-          "summary": "bottom and left edges"
-        },
-        {
-          "name": "right",
-          "value": 8,
-          "summary": "right edge"
-        },
-        {
-          "name": "top_right",
-          "value": 9,
-          "summary": "top and right edges"
-        },
-        {
-          "name": "bottom_right",
-          "value": 10,
-          "summary": "bottom and right edges"
-        }
-      ],
-      "transient": [
-        {
-          "name": "inactive",
-          "value": 1,
-          "summary": "do not set keyboard focus"
-        }
-      ],
-      "fullscreen_method": [
-        {
-          "name": "default",
-          "value": 0,
-          "summary": "no preference, apply default policy"
-        },
-        {
-          "name": "scale",
-          "value": 1,
-          "summary": "scale, preserve the surface's aspect ratio and center on output"
-        },
-        {
-          "name": "driver",
-          "value": 2,
-          "summary": "switch output mode to the smallest mode that can fit the surface, add black borders to compensate size mismatch"
-        },
-        {
-          "name": "fill",
-          "value": 3,
-          "summary": "no upscaling, center on output and add black borders to compensate size mismatch"
-        }
-      ]
+      "resize": {
+        "entries": [
+          {
+            "name": "none",
+            "value": 0,
+            "summary": "no edge"
+          },
+          {
+            "name": "top",
+            "value": 1,
+            "summary": "top edge"
+          },
+          {
+            "name": "bottom",
+            "value": 2,
+            "summary": "bottom edge"
+          },
+          {
+            "name": "left",
+            "value": 4,
+            "summary": "left edge"
+          },
+          {
+            "name": "top_left",
+            "value": 5,
+            "summary": "top and left edges"
+          },
+          {
+            "name": "bottom_left",
+            "value": 6,
+            "summary": "bottom and left edges"
+          },
+          {
+            "name": "right",
+            "value": 8,
+            "summary": "right edge"
+          },
+          {
+            "name": "top_right",
+            "value": 9,
+            "summary": "top and right edges"
+          },
+          {
+            "name": "bottom_right",
+            "value": 10,
+            "summary": "bottom and right edges"
+          }
+        ]
+      },
+      "transient": {
+        "entries": [
+          {
+            "name": "inactive",
+            "value": 1,
+            "summary": "do not set keyboard focus"
+          }
+        ]
+      },
+      "fullscreen_method": {
+        "entries": [
+          {
+            "name": "default",
+            "value": 0,
+            "summary": "no preference, apply default policy"
+          },
+          {
+            "name": "scale",
+            "value": 1,
+            "summary": "scale, preserve the surface's aspect ratio and center on output"
+          },
+          {
+            "name": "driver",
+            "value": 2,
+            "summary": "switch output mode to the smallest mode that can fit the surface, add black borders to compensate size mismatch"
+          },
+          {
+            "name": "fill",
+            "value": 3,
+            "summary": "no upscaling, center on output and add black borders to compensate size mismatch"
+          }
+        ]
+      }
     }
   },
   {
@@ -1735,6 +1772,7 @@
     "requests": [
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tDeletes the surface and invalidates its object ID.\n      ",
         "summary": "delete surface",
         "args": []
@@ -1839,6 +1877,7 @@
       },
       {
         "name": "set_buffer_transform",
+        "since": 2,
         "description": "\n\tThis request sets an optional transformation on how the compositor\n\tinterprets the contents of the buffer attached to the surface. The\n\taccepted values for the transform parameter are the values for\n\twl_output.transform.\n\n\tBuffer transform is double-buffered state, see wl_surface.commit.\n\n\tA newly created surface has its buffer transformation set to normal.\n\n\twl_surface.set_buffer_transform changes the pending buffer\n\ttransformation. wl_surface.commit copies the pending buffer\n\ttransformation to the current one. Otherwise, the pending and current\n\tvalues are never changed.\n\n\tThe purpose of this request is to allow clients to render content\n\taccording to the output transform, thus permitting the compositor to\n\tuse certain optimizations even if the display is rotated. Using\n\thardware overlays and scanning out a client buffer for fullscreen\n\tsurfaces are examples of such optimizations. Those optimizations are\n\thighly dependent on the compositor implementation, so the use of this\n\trequest should be considered on a case-by-case basis.\n\n\tNote that if the transform value includes 90 or 270 degree rotation,\n\tthe width of the buffer will become the surface height and the height\n\tof the buffer will become the surface width.\n\n\tIf transform is not one of the values from the\n\twl_output.transform enum the invalid_transform protocol error\n\tis raised.\n      ",
         "summary": "sets the buffer transformation",
         "args": [
@@ -1852,6 +1891,7 @@
       },
       {
         "name": "set_buffer_scale",
+        "since": 3,
         "description": "\n\tThis request sets an optional scaling factor on how the compositor\n\tinterprets the contents of the buffer attached to the window.\n\n\tBuffer scale is double-buffered state, see wl_surface.commit.\n\n\tA newly created surface has its buffer scale set to 1.\n\n\twl_surface.set_buffer_scale changes the pending buffer scale.\n\twl_surface.commit copies the pending buffer scale to the current one.\n\tOtherwise, the pending and current values are never changed.\n\n\tThe purpose of this request is to allow clients to supply higher\n\tresolution buffer data for use on high resolution outputs. It is\n\tintended that you pick the same buffer scale as the scale of the\n\toutput that the surface is displayed on. This means the compositor\n\tcan avoid scaling when rendering the surface on that output.\n\n\tNote that if the scale is larger than 1, then you have to attach\n\ta buffer that is larger (by a factor of scale in each dimension)\n\tthan the desired surface size.\n\n\tIf scale is not positive the invalid_scale protocol error is\n\traised.\n      ",
         "summary": "sets the buffer scaling factor",
         "args": [
@@ -1864,6 +1904,7 @@
       },
       {
         "name": "damage_buffer",
+        "since": 4,
         "description": "\n\tThis request is used to describe the regions where the pending\n\tbuffer is different from the current surface contents, and where\n\tthe surface therefore needs to be repainted. The compositor\n\tignores the parts of the damage that fall outside of the surface.\n\n\tDamage is double-buffered state, see wl_surface.commit.\n\n\tThe damage rectangle is specified in buffer coordinates,\n\twhere x and y specify the upper left corner of the damage rectangle.\n\n\tThe initial value for pending damage is empty: no damage.\n\twl_surface.damage_buffer adds pending damage: the new pending\n\tdamage is the union of old pending damage and the given rectangle.\n\n\twl_surface.commit assigns pending damage as the current damage,\n\tand clears pending damage. The server will clear the current\n\tdamage as it repaints the surface.\n\n\tThis request differs from wl_surface.damage in only one way - it\n\ttakes damage in buffer coordinates instead of surface-local\n\tcoordinates. While this generally is more intuitive than surface\n\tcoordinates, it is especially desirable when using wp_viewport\n\tor when a drawing library (like EGL) is unaware of buffer scale\n\tand buffer transform.\n\n\tNote: Because buffer transformation changes and damage requests may\n\tbe interleaved in the protocol stream, it is impossible to determine\n\tthe actual mapping between surface and buffer damage until\n\twl_surface.commit time. Therefore, compositors wishing to take both\n\tkinds of damage into account will have to accumulate damage from the\n\ttwo requests separately and only transform from one to the other\n\tafter receiving the wl_surface.commit.\n      ",
         "summary": "mark part of the surface damaged using buffer coordinates",
         "args": [
@@ -1919,23 +1960,25 @@
       }
     ],
     "enums": {
-      "error": [
-        {
-          "name": "invalid_scale",
-          "value": 0,
-          "summary": "buffer scale value is invalid"
-        },
-        {
-          "name": "invalid_transform",
-          "value": 1,
-          "summary": "buffer transform value is invalid"
-        },
-        {
-          "name": "invalid_size",
-          "value": 2,
-          "summary": "buffer size is invalid"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "invalid_scale",
+            "value": 0,
+            "summary": "buffer scale value is invalid"
+          },
+          {
+            "name": "invalid_transform",
+            "value": 1,
+            "summary": "buffer transform value is invalid"
+          },
+          {
+            "name": "invalid_size",
+            "value": 2,
+            "summary": "buffer size is invalid"
+          }
+        ]
+      }
     }
   },
   {
@@ -1985,6 +2028,8 @@
       },
       {
         "name": "release",
+        "type": "destructor",
+        "since": 5,
         "description": "\n\tUsing this request a client can tell the server that it is not going to\n\tuse the seat object anymore.\n      ",
         "summary": "release the seat object",
         "args": []
@@ -2006,6 +2051,7 @@
       },
       {
         "name": "name",
+        "since": 2,
         "description": "\n\tIn a multiseat configuration this can be used by the client to help\n\tidentify which physical devices the seat represents. Based on\n\tthe seat configuration used by the compositor.\n      ",
         "summary": "unique identifier for this seat",
         "args": [
@@ -2018,30 +2064,34 @@
       }
     ],
     "enums": {
-      "capability": [
-        {
-          "name": "pointer",
-          "value": 1,
-          "summary": "the seat has pointer devices"
-        },
-        {
-          "name": "keyboard",
-          "value": 2,
-          "summary": "the seat has one or more keyboards"
-        },
-        {
-          "name": "touch",
-          "value": 4,
-          "summary": "the seat has touch devices"
-        }
-      ],
-      "error": [
-        {
-          "name": "missing_capability",
-          "value": 0,
-          "summary": "get_pointer, get_keyboard or get_touch called on seat without the matching capability"
-        }
-      ]
+      "capability": {
+        "entries": [
+          {
+            "name": "pointer",
+            "value": 1,
+            "summary": "the seat has pointer devices"
+          },
+          {
+            "name": "keyboard",
+            "value": 2,
+            "summary": "the seat has one or more keyboards"
+          },
+          {
+            "name": "touch",
+            "value": 4,
+            "summary": "the seat has touch devices"
+          }
+        ]
+      },
+      "error": {
+        "entries": [
+          {
+            "name": "missing_capability",
+            "value": 0,
+            "summary": "get_pointer, get_keyboard or get_touch called on seat without the matching capability"
+          }
+        ]
+      }
     }
   },
   {
@@ -2081,6 +2131,8 @@
       },
       {
         "name": "release",
+        "type": "destructor",
+        "since": 3,
         "description": "\n\tUsing this request a client can tell the server that it is not going to\n\tuse the pointer object anymore.\n\n\tThis request destroys the pointer proxy object, so clients must not call\n\twl_pointer_destroy() after using this request.\n      ",
         "summary": "release the pointer object",
         "args": []
@@ -2208,12 +2260,14 @@
       },
       {
         "name": "frame",
+        "since": 5,
         "description": "\n\tIndicates the end of a set of events that logically belong together.\n\tA client is expected to accumulate the data in all events within the\n\tframe before proceeding.\n\n\tAll wl_pointer events before a wl_pointer.frame event belong\n\tlogically together. For example, in a diagonal scroll motion the\n\tcompositor will send an optional wl_pointer.axis_source event, two\n\twl_pointer.axis events (horizontal and vertical) and finally a\n\twl_pointer.frame event. The client may use this information to\n\tcalculate a diagonal vector for scrolling.\n\n\tWhen multiple wl_pointer.axis events occur within the same frame,\n\tthe motion vector is the combined motion of all events.\n\tWhen a wl_pointer.axis and a wl_pointer.axis_stop event occur within\n\tthe same frame, this indicates that axis movement in one axis has\n\tstopped but continues in the other axis.\n\tWhen multiple wl_pointer.axis_stop events occur within the same\n\tframe, this indicates that these axes stopped in the same instance.\n\n\tA wl_pointer.frame event is sent for every logical event group,\n\teven if the group only contains a single wl_pointer event.\n\tSpecifically, a client may get a sequence: motion, frame, button,\n\tframe, axis, frame, axis_stop, frame.\n\n\tThe wl_pointer.enter and wl_pointer.leave events are logical events\n\tgenerated by the compositor and not the hardware. These events are\n\talso grouped by a wl_pointer.frame. When a pointer moves from one\n\tsurface to another, a compositor should group the\n\twl_pointer.leave event within the same wl_pointer.frame.\n\tHowever, a client must not rely on wl_pointer.leave and\n\twl_pointer.enter being in the same wl_pointer.frame.\n\tCompositor-specific policies may require the wl_pointer.leave and\n\twl_pointer.enter event being split across multiple wl_pointer.frame\n\tgroups.\n      ",
         "summary": "end of a pointer event sequence",
         "args": []
       },
       {
         "name": "axis_source",
+        "since": 5,
         "description": "\n\tSource information for scroll and other axes.\n\n\tThis event does not occur on its own. It is sent before a\n\twl_pointer.frame event and carries the source information for\n\tall events within that frame.\n\n\tThe source specifies how this event was generated. If the source is\n\twl_pointer.axis_source.finger, a wl_pointer.axis_stop event will be\n\tsent when the user lifts the finger off the device.\n\n\tIf the source is wl_pointer.axis_source.wheel,\n\twl_pointer.axis_source.wheel_tilt or\n\twl_pointer.axis_source.continuous, a wl_pointer.axis_stop event may\n\tor may not be sent. Whether a compositor sends an axis_stop event\n\tfor these sources is hardware-specific and implementation-dependent;\n\tclients must not rely on receiving an axis_stop event for these\n\tscroll sources and should treat scroll sequences from these scroll\n\tsources as unterminated by default.\n\n\tThis event is optional. If the source is unknown for a particular\n\taxis event sequence, no event is sent.\n\tOnly one wl_pointer.axis_source event is permitted per frame.\n\n\tThe order of wl_pointer.axis_discrete and wl_pointer.axis_source is\n\tnot guaranteed.\n      ",
         "summary": "axis source event",
         "args": [
@@ -2227,6 +2281,7 @@
       },
       {
         "name": "axis_stop",
+        "since": 5,
         "description": "\n\tStop notification for scroll and other axes.\n\n\tFor some wl_pointer.axis_source types, a wl_pointer.axis_stop event\n\tis sent to notify a client that the axis sequence has terminated.\n\tThis enables the client to implement kinetic scrolling.\n\tSee the wl_pointer.axis_source documentation for information on when\n\tthis event may be generated.\n\n\tAny wl_pointer.axis events with the same axis_source after this\n\tevent should be considered as the start of a new axis motion.\n\n\tThe timestamp is to be interpreted identical to the timestamp in the\n\twl_pointer.axis event. The timestamp value may be the same as a\n\tpreceding wl_pointer.axis event.\n      ",
         "summary": "axis stop event",
         "args": [
@@ -2245,6 +2300,7 @@
       },
       {
         "name": "axis_discrete",
+        "since": 5,
         "description": "\n\tDiscrete step information for scroll and other axes.\n\n\tThis event carries the axis value of the wl_pointer.axis event in\n\tdiscrete steps (e.g. mouse wheel clicks).\n\n\tThis event does not occur on its own, it is coupled with a\n\twl_pointer.axis event that represents this axis value on a\n\tcontinuous scale. The protocol guarantees that each axis_discrete\n\tevent is always followed by exactly one axis event with the same\n\taxis number within the same wl_pointer.frame. Note that the protocol\n\tallows for other events to occur between the axis_discrete and\n\tits coupled axis event, including other axis_discrete or axis\n\tevents.\n\n\tThis event is optional; continuous scrolling devices\n\tlike two-finger scrolling on touchpads do not have discrete\n\tsteps and do not generate this event.\n\n\tThe discrete value carries the directional information. e.g. a value\n\tof -2 is two steps towards the negative direction of this axis.\n\n\tThe axis number is identical to the axis number in the associated\n\taxis event.\n\n\tThe order of wl_pointer.axis_discrete and wl_pointer.axis_source is\n\tnot guaranteed.\n      ",
         "summary": "axis click event",
         "args": [
@@ -2263,59 +2319,67 @@
       }
     ],
     "enums": {
-      "error": [
-        {
-          "name": "role",
-          "value": 0,
-          "summary": "given wl_surface has another role"
-        }
-      ],
-      "button_state": [
-        {
-          "name": "released",
-          "value": 0,
-          "summary": "the button is not pressed"
-        },
-        {
-          "name": "pressed",
-          "value": 1,
-          "summary": "the button is pressed"
-        }
-      ],
-      "axis": [
-        {
-          "name": "vertical_scroll",
-          "value": 0,
-          "summary": "vertical axis"
-        },
-        {
-          "name": "horizontal_scroll",
-          "value": 1,
-          "summary": "horizontal axis"
-        }
-      ],
-      "axis_source": [
-        {
-          "name": "wheel",
-          "value": 0,
-          "summary": "a physical wheel rotation"
-        },
-        {
-          "name": "finger",
-          "value": 1,
-          "summary": "finger on a touch surface"
-        },
-        {
-          "name": "continuous",
-          "value": 2,
-          "summary": "continuous coordinate space"
-        },
-        {
-          "name": "wheel_tilt",
-          "value": 3,
-          "summary": "a physical wheel tilt"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "role",
+            "value": 0,
+            "summary": "given wl_surface has another role"
+          }
+        ]
+      },
+      "button_state": {
+        "entries": [
+          {
+            "name": "released",
+            "value": 0,
+            "summary": "the button is not pressed"
+          },
+          {
+            "name": "pressed",
+            "value": 1,
+            "summary": "the button is pressed"
+          }
+        ]
+      },
+      "axis": {
+        "entries": [
+          {
+            "name": "vertical_scroll",
+            "value": 0,
+            "summary": "vertical axis"
+          },
+          {
+            "name": "horizontal_scroll",
+            "value": 1,
+            "summary": "horizontal axis"
+          }
+        ]
+      },
+      "axis_source": {
+        "entries": [
+          {
+            "name": "wheel",
+            "value": 0,
+            "summary": "a physical wheel rotation"
+          },
+          {
+            "name": "finger",
+            "value": 1,
+            "summary": "finger on a touch surface"
+          },
+          {
+            "name": "continuous",
+            "value": 2,
+            "summary": "continuous coordinate space"
+          },
+          {
+            "name": "wheel_tilt",
+            "value": 3,
+            "summary": "a physical wheel tilt"
+          }
+        ]
+      }
     }
   },
   {
@@ -2326,6 +2390,8 @@
     "requests": [
       {
         "name": "release",
+        "type": "destructor",
+        "since": 3,
         "summary": "release the keyboard object",
         "args": []
       }
@@ -2457,6 +2523,7 @@
       },
       {
         "name": "repeat_info",
+        "since": 4,
         "description": "\n\tInforms the client about the keyboard's repeat rate and delay.\n\n\tThis event is sent as soon as the wl_keyboard object has been created,\n\tand is guaranteed to be received by the client before any key press\n\tevent.\n\n\tNegative values for either rate or delay are illegal. A rate of zero\n\twill disable any repeating (regardless of the value of delay).\n\n\tThis event can be sent later on as well with a new value if necessary,\n\tso clients should continue listening for the event past the creation\n\tof wl_keyboard.\n      ",
         "summary": "repeat rate and delay",
         "args": [
@@ -2474,30 +2541,34 @@
       }
     ],
     "enums": {
-      "keymap_format": [
-        {
-          "name": "no_keymap",
-          "value": 0,
-          "summary": "no keymap; client must understand how to interpret the raw keycode"
-        },
-        {
-          "name": "xkb_v1",
-          "value": 1,
-          "summary": "libxkbcommon compatible; to determine the xkb keycode, clients must add 8 to the key event keycode"
-        }
-      ],
-      "key_state": [
-        {
-          "name": "released",
-          "value": 0,
-          "summary": "key is not pressed"
-        },
-        {
-          "name": "pressed",
-          "value": 1,
-          "summary": "key is pressed"
-        }
-      ]
+      "keymap_format": {
+        "entries": [
+          {
+            "name": "no_keymap",
+            "value": 0,
+            "summary": "no keymap; client must understand how to interpret the raw keycode"
+          },
+          {
+            "name": "xkb_v1",
+            "value": 1,
+            "summary": "libxkbcommon compatible; to determine the xkb keycode, clients must add 8 to the key event keycode"
+          }
+        ]
+      },
+      "key_state": {
+        "entries": [
+          {
+            "name": "released",
+            "value": 0,
+            "summary": "key is not pressed"
+          },
+          {
+            "name": "pressed",
+            "value": 1,
+            "summary": "key is pressed"
+          }
+        ]
+      }
     }
   },
   {
@@ -2508,6 +2579,8 @@
     "requests": [
       {
         "name": "release",
+        "type": "destructor",
+        "since": 3,
         "summary": "release the touch object",
         "args": []
       }
@@ -2614,6 +2687,7 @@
       },
       {
         "name": "shape",
+        "since": 6,
         "description": "\n\tSent when a touchpoint has changed its shape.\n\n\tThis event does not occur on its own. It is sent before a\n\twl_touch.frame event and carries the new shape information for\n\tany previously reported, or new touch points of that frame.\n\n\tOther events describing the touch point such as wl_touch.down,\n\twl_touch.motion or wl_touch.orientation may be sent within the\n\tsame wl_touch.frame. A client should treat these events as a single\n\tlogical touch point update. The order of wl_touch.shape,\n\twl_touch.orientation and wl_touch.motion is not guaranteed.\n\tA wl_touch.down event is guaranteed to occur before the first\n\twl_touch.shape event for this touch ID but both events may occur within\n\tthe same wl_touch.frame.\n\n\tA touchpoint shape is approximated by an ellipse through the major and\n\tminor axis length. The major axis length describes the longer diameter\n\tof the ellipse, while the minor axis length describes the shorter\n\tdiameter. Major and minor are orthogonal and both are specified in\n\tsurface-local coordinates. The center of the ellipse is always at the\n\ttouchpoint location as reported by wl_touch.down or wl_touch.move.\n\n\tThis event is only sent by the compositor if the touch device supports\n\tshape reports. The client has to make reasonable assumptions about the\n\tshape if it did not receive this event.\n      ",
         "summary": "update shape of touch point",
         "args": [
@@ -2636,6 +2710,7 @@
       },
       {
         "name": "orientation",
+        "since": 6,
         "description": "\n\tSent when a touchpoint has changed its orientation.\n\n\tThis event does not occur on its own. It is sent before a\n\twl_touch.frame event and carries the new shape information for\n\tany previously reported, or new touch points of that frame.\n\n\tOther events describing the touch point such as wl_touch.down,\n\twl_touch.motion or wl_touch.shape may be sent within the\n\tsame wl_touch.frame. A client should treat these events as a single\n\tlogical touch point update. The order of wl_touch.shape,\n\twl_touch.orientation and wl_touch.motion is not guaranteed.\n\tA wl_touch.down event is guaranteed to occur before the first\n\twl_touch.orientation event for this touch ID but both events may occur\n\twithin the same wl_touch.frame.\n\n\tThe orientation describes the clockwise angle of a touchpoint's major\n\taxis to the positive surface y-axis and is normalized to the -180 to\n\t+180 degree range. The granularity of orientation depends on the touch\n\tdevice, some devices only support binary rotation values between 0 and\n\t90 degrees.\n\n\tThis event is only sent by the compositor if the touch device supports\n\torientation reports.\n      ",
         "summary": "update orientation of touch point",
         "args": [
@@ -2662,6 +2737,8 @@
     "requests": [
       {
         "name": "release",
+        "type": "destructor",
+        "since": 3,
         "description": "\n\tUsing this request a client can tell the server that it is not going to\n\tuse the output object anymore.\n      ",
         "summary": "release the output object",
         "args": []
@@ -2747,12 +2824,14 @@
       },
       {
         "name": "done",
+        "since": 2,
         "description": "\n\tThis event is sent after all other properties have been\n\tsent after binding to the output object and after any\n\tother property changes done after that. This allows\n\tchanges to the output properties to be seen as\n\tatomic, even if they happen via multiple events.\n      ",
         "summary": "sent all information about output",
         "args": []
       },
       {
         "name": "scale",
+        "since": 2,
         "description": "\n\tThis event contains scaling geometry information\n\tthat is not in the geometry event. It may be sent after\n\tbinding the output object or if the output scale changes\n\tlater. If it is not sent, the client should assume a\n\tscale of 1.\n\n\tA scale larger than 1 means that the compositor will\n\tautomatically scale surface buffers by this amount\n\twhen rendering. This is used for very high resolution\n\tdisplays where applications rendering at the native\n\tresolution would be too small to be legible.\n\n\tIt is intended that scaling aware clients track the\n\tcurrent output of a surface, and if it is on a scaled\n\toutput it should use wl_surface.set_buffer_scale with\n\tthe scale of the output. That way the compositor can\n\tavoid scaling the surface, and the client can supply\n\ta higher detail image.\n      ",
         "summary": "output scaling properties",
         "args": [
@@ -2765,92 +2844,98 @@
       }
     ],
     "enums": {
-      "subpixel": [
-        {
-          "name": "unknown",
-          "value": 0,
-          "summary": "unknown geometry"
-        },
-        {
-          "name": "none",
-          "value": 1,
-          "summary": "no geometry"
-        },
-        {
-          "name": "horizontal_rgb",
-          "value": 2,
-          "summary": "horizontal RGB"
-        },
-        {
-          "name": "horizontal_bgr",
-          "value": 3,
-          "summary": "horizontal BGR"
-        },
-        {
-          "name": "vertical_rgb",
-          "value": 4,
-          "summary": "vertical RGB"
-        },
-        {
-          "name": "vertical_bgr",
-          "value": 5,
-          "summary": "vertical BGR"
-        }
-      ],
-      "transform": [
-        {
-          "name": "normal",
-          "value": 0,
-          "summary": "no transform"
-        },
-        {
-          "name": "90",
-          "value": 1,
-          "summary": "90 degrees counter-clockwise"
-        },
-        {
-          "name": "180",
-          "value": 2,
-          "summary": "180 degrees counter-clockwise"
-        },
-        {
-          "name": "270",
-          "value": 3,
-          "summary": "270 degrees counter-clockwise"
-        },
-        {
-          "name": "flipped",
-          "value": 4,
-          "summary": "180 degree flip around a vertical axis"
-        },
-        {
-          "name": "flipped_90",
-          "value": 5,
-          "summary": "flip and rotate 90 degrees counter-clockwise"
-        },
-        {
-          "name": "flipped_180",
-          "value": 6,
-          "summary": "flip and rotate 180 degrees counter-clockwise"
-        },
-        {
-          "name": "flipped_270",
-          "value": 7,
-          "summary": "flip and rotate 270 degrees counter-clockwise"
-        }
-      ],
-      "mode": [
-        {
-          "name": "current",
-          "value": 1,
-          "summary": "indicates this is the current mode"
-        },
-        {
-          "name": "preferred",
-          "value": 2,
-          "summary": "indicates this is the preferred mode"
-        }
-      ]
+      "subpixel": {
+        "entries": [
+          {
+            "name": "unknown",
+            "value": 0,
+            "summary": "unknown geometry"
+          },
+          {
+            "name": "none",
+            "value": 1,
+            "summary": "no geometry"
+          },
+          {
+            "name": "horizontal_rgb",
+            "value": 2,
+            "summary": "horizontal RGB"
+          },
+          {
+            "name": "horizontal_bgr",
+            "value": 3,
+            "summary": "horizontal BGR"
+          },
+          {
+            "name": "vertical_rgb",
+            "value": 4,
+            "summary": "vertical RGB"
+          },
+          {
+            "name": "vertical_bgr",
+            "value": 5,
+            "summary": "vertical BGR"
+          }
+        ]
+      },
+      "transform": {
+        "entries": [
+          {
+            "name": "normal",
+            "value": 0,
+            "summary": "no transform"
+          },
+          {
+            "name": "90",
+            "value": 1,
+            "summary": "90 degrees counter-clockwise"
+          },
+          {
+            "name": "180",
+            "value": 2,
+            "summary": "180 degrees counter-clockwise"
+          },
+          {
+            "name": "270",
+            "value": 3,
+            "summary": "270 degrees counter-clockwise"
+          },
+          {
+            "name": "flipped",
+            "value": 4,
+            "summary": "180 degree flip around a vertical axis"
+          },
+          {
+            "name": "flipped_90",
+            "value": 5,
+            "summary": "flip and rotate 90 degrees counter-clockwise"
+          },
+          {
+            "name": "flipped_180",
+            "value": 6,
+            "summary": "flip and rotate 180 degrees counter-clockwise"
+          },
+          {
+            "name": "flipped_270",
+            "value": 7,
+            "summary": "flip and rotate 270 degrees counter-clockwise"
+          }
+        ]
+      },
+      "mode": {
+        "entries": [
+          {
+            "name": "current",
+            "value": 1,
+            "summary": "indicates this is the current mode"
+          },
+          {
+            "name": "preferred",
+            "value": 2,
+            "summary": "indicates this is the preferred mode"
+          }
+        ]
+      }
     }
   },
   {
@@ -2861,6 +2946,7 @@
     "requests": [
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tDestroy the region.  This will invalidate the object ID.\n      ",
         "summary": "destroy region",
         "args": []
@@ -2931,6 +3017,7 @@
     "requests": [
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tInforms the server that the client will not be using this\n\tprotocol object anymore. This does not affect any other\n\tobjects, wl_subsurface objects included.\n      ",
         "summary": "unbind from the subcompositor interface",
         "args": []
@@ -2963,13 +3050,15 @@
     ],
     "events": [],
     "enums": {
-      "error": [
-        {
-          "name": "bad_surface",
-          "value": 0,
-          "summary": "the to-be sub-surface is invalid"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "bad_surface",
+            "value": 0,
+            "summary": "the to-be sub-surface is invalid"
+          }
+        ]
+      }
     }
   },
   {
@@ -2980,6 +3069,7 @@
     "requests": [
       {
         "name": "destroy",
+        "type": "destructor",
         "description": "\n\tThe sub-surface interface is removed from the wl_surface object\n\tthat was turned into a sub-surface with a\n\twl_subcompositor.get_subsurface request. The wl_surface's association\n\tto the parent is deleted, and the wl_surface loses its role as\n\ta sub-surface. The wl_surface is unmapped immediately.\n      ",
         "summary": "remove sub-surface interface",
         "args": []
@@ -3042,13 +3132,15 @@
     ],
     "events": [],
     "enums": {
-      "error": [
-        {
-          "name": "bad_surface",
-          "value": 0,
-          "summary": "wl_surface is not a sibling or the parent"
-        }
-      ]
+      "error": {
+        "entries": [
+          {
+            "name": "bad_surface",
+            "value": 0,
+            "summary": "wl_surface is not a sibling or the parent"
+          }
+        ]
+      }
     }
   }
 ]

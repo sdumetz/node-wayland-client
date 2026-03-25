@@ -6,12 +6,13 @@ export interface InterfaceDefinition{
   summary: string;
   requests: RequestDefinition[];
   events: EventDefinition[];
-  enums: Record<string, EnumDefinition>;
+  enums: Record<string, EnumEntry>;
 }
 
 export interface RequestDefinition{
   name: string;
   type ?:string;
+  since?: number;
   description: string;
   summary: string;
   args: ArgumentDefinition[];
@@ -46,6 +47,7 @@ export function isDestructorRequest(req: RequestDefinition): req is DestructorRe
 
 export interface EventDefinition{
   name: string;
+  since?: number;
   description: string;
   summary: string;
   args: ArgumentDefinition[];
@@ -83,6 +85,11 @@ export function isCallbackArgument(arg :ArgumentDefinition): arg is CallbackArgu
 }
 
 export type EnumDefinition = EnumValue[];
+
+export interface EnumEntry {
+  since?: number;
+  entries: EnumDefinition;
+}
 
 export interface EnumValue{
   name: string;

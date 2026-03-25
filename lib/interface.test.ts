@@ -230,6 +230,59 @@ const emptyDef: InterfaceDefinition = {
   requests: [], events: [], enums: {},
 };
 
+describe("Wl_interface: version-gated requests", function(){
+  let d: DisplayMock;
+  beforeEach(function(){ d = new DisplayMock(); });
+
+  it("opcode() throws for a version-filtered request", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      version: 1,
+      requests: [
+        {name: "v1_req", description: "", summary: "", args: []},
+        {name: "v2_req", since: 2, description: "", summary: "", args: []},
+      ],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    expect(() => itf.opcode("v2_req")).to.throw();
+  });
+
+  it("opcode() resolves correctly for a request before the filtered slot", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      version: 1,
+      requests: [
+        {name: "v1_req", description: "", summary: "", args: []},
+        {name: "v2_req", since: 2, description: "", summary: "", args: []},
+      ],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    expect(itf.opcode("v1_req")).to.equal(0);
+  });
+
+  it("destructor with since > version is not attached", function(){
+    const req: DestructorRequest = {
+      name: "release", type: "destructor", since: 3,
+      description: "", summary: "", args: [],
+    };
+    const def: InterfaceDefinition = { ...emptyDef, version: 2, requests: [req] };
+    const itf = new Wl_interface(d, 3, def);
+    expect((itf as any).release).to.be.undefined;
+  });
+
+  it("destructor with since <= version is attached and acts as destructor", async function(){
+    const req: DestructorRequest = {
+      name: "release", type: "destructor", since: 3,
+      description: "", summary: "", args: [],
+    };
+    const def: InterfaceDefinition = { ...emptyDef, version: 3, requests: [req] };
+    const itf = new Wl_interface(d, 3, def);
+    expect((itf as any).release).to.be.a("function");
+    await (itf as any).release();
+    expect(d._packets).to.have.length(1);
+  });
+});
+
 describe("Wl_interface.emitError()", function(){
   let d: DisplayMock;
   beforeEach(function(){ d = new DisplayMock(); });
@@ -337,6 +390,39 @@ describe("Wl_interface.aggregate()", function(){
     itf.emit("point", 3, 7);
     const result = end();
     expect(result.point).to.deep.equal([3, 7]);
+  });
+
+  it("does not attach a listener for a version-filtered event", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef, version: 1,
+      events: [
+        {name: "ev_v1",  description: "", summary: "", args: []},
+        {name: "ev_v2",  since: 2, description: "", summary: "", args: []},
+        {name: "ev_v1b", description: "", summary: "", args: []},
+      ],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const before = itf.listenerCount("ev_v2");
+    itf.aggregate();
+    expect(itf.listenerCount("ev_v2")).to.equal(before);
+  });
+
+  it("collects events on either side of a version-filtered slot", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef, version: 1,
+      events: [
+        {name: "ev_v1",  description: "", summary: "", args: []},
+        {name: "ev_v2",  since: 2, description: "", summary: "", args: []},
+        {name: "ev_v1b", description: "", summary: "", args: []},
+      ],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const end = itf.aggregate();
+    itf.emit("ev_v1");
+    itf.emit("ev_v1b");
+    const result = end();
+    expect(result.ev_v1).to.equal(true);
+    expect(result.ev_v1b).to.equal(true);
   });
 
   it("aggregates nested Wl_interface events", function(){

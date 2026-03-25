@@ -1,4 +1,4 @@
-import { ArgumentDefinition, EnumDefinition, EventDefinition, InterfaceDefinition, RequestDefinition, isCallbackArgument, isInterfaceArgument } from "./definitions.js";
+import { ArgumentDefinition, EnumDefinition, EnumEntry, EventDefinition, InterfaceDefinition, RequestDefinition, isCallbackArgument, isInterfaceArgument } from "./definitions.js";
 
 
 
@@ -39,7 +39,7 @@ export interface ${nameToClass(name)} extends Wl_interface{
   name: "${name}";
   version: ${version};
   enums:{
-    ${indent(Object.entries(enums??{}).map(([name, en])=>genEnum(name, en)).join(",\n"), 4)}
+    ${indent(Object.entries(enums??{}).map(([name, en])=>genEnum(name, en.entries)).join(",\n"), 4)}
   }
   
   ${indent(events.map(genEvent).join("\n"), 2)}

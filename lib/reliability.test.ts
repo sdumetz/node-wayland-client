@@ -495,6 +495,23 @@ describe("Display error events: WaylandProtocolError vs socket errors", function
     expect(received!.message).to.include("wl_display");
   });
 
+  it("invalid_method error includes the resolved method name", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    d.registerInterface(1, "wl_display");
+    // Register the faulty object at ID 42 so its request[0] ("sync") can be resolved
+    d.registerInterface(42, "wl_display");
+
+    let received: Error | undefined;
+    d.on("error", (e: Error) => { received = e; });
+
+    // errno=1 is wl_display.error.invalid_method; message matches compositor format
+    d.feedData(makeMsg(1, 0, makeWlDisplayErrorBody(1, 1, "invalid method 0 (since 1 < 2), object wl_display#42")));
+
+    expect(received).to.be.instanceOf(WaylandProtocolError);
+    expect(received!.message).to.include('"sync"');
+  });
+
   it("emitError() on wl_display reaches Display directly without mangling", async function () {
     const d = new MockDisplay();
     await d.load("wayland");
@@ -592,6 +609,113 @@ describe("wl_registry: global_remove removes globals from the registry", functio
     expect(threw).to.be.true;
   });
 
+  it("bind() throws citing server when requested version exceeds server version", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+
+    const registry = d.registerInterface(2, "wl_registry");
+    (d as any)._bindRegistry(registry);
+
+    // Server advertises wl_compositor at v2; def.version is 4
+    registry.emit("global", 5, "wl_compositor", 2);
+
+    let threw = false;
+    try {
+      await d.bind("wl_compositor", 3);
+    } catch (e: any) {
+      threw = true;
+      expect(e.message).to.include("server only supports v2");
+    }
+    expect(threw).to.be.true;
+  });
+
+  it("bind() throws citing definition when requested version exceeds definition but not server", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+
+    const registry = d.registerInterface(2, "wl_registry");
+    (d as any)._bindRegistry(registry);
+
+    // Server supports more than our definition (def.version for wl_compositor is 4)
+    registry.emit("global", 5, "wl_compositor", 99);
+
+    let threw = false;
+    try {
+      await d.bind("wl_compositor", 5);
+    } catch (e: any) {
+      threw = true;
+      expect(e.message).to.include("definition only covers v4");
+    }
+    expect(threw).to.be.true;
+  });
+
+  it("bind() throws citing server when both server and definition are below requested version", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+
+    const registry = d.registerInterface(2, "wl_registry");
+    (d as any)._bindRegistry(registry);
+
+    // Both server (v2) and def (v4) are below requested v5
+    registry.emit("global", 5, "wl_compositor", 2);
+
+    let threw = false;
+    try {
+      await d.bind("wl_compositor", 5);
+    } catch (e: any) {
+      threw = true;
+      expect(e.message).to.include("server only supports v2");
+    }
+    expect(threw).to.be.true;
+  });
+
+  it("bind() auto-negotiates to min(def.version, serverVersion)", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+
+    const registry = d.registerInterface(2, "wl_registry");
+    (d as any)._bindRegistry(registry);
+
+    // Server advertises wl_compositor at v2; def.version is 4
+    registry.emit("global", 5, "wl_compositor", 2);
+
+    try { await d.bind("wl_compositor"); } catch { /* wire format may fail without full init() */ }
+
+    // The interface is registered in #objects before the wire call
+    expect(d.getObject("wl_compositor")!.version).to.equal(2);
+  });
+
+  it("bind() auto-negotiates to def.version when server advertises higher", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+
+    const registry = d.registerInterface(2, "wl_registry");
+    (d as any)._bindRegistry(registry);
+
+    // Server advertises version higher than our definition (v4 for wl_compositor)
+    registry.emit("global", 5, "wl_compositor", 99);
+
+    try { await d.bind("wl_compositor"); } catch { /* wire format may fail without full init() */ }
+
+    expect(d.getObject("wl_compositor")!.version).to.equal(4);
+  });
+
+  it("bind() does not throw when requested version is within negotiated range", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+
+    const registry = d.registerInterface(2, "wl_registry");
+    (d as any)._bindRegistry(registry);
+
+    registry.emit("global", 5, "wl_compositor", 3);
+
+    let threw = false;
+    try { await d.bind("wl_compositor", 3); } catch (e: any) {
+      if (/Cannot bind/.test(e.message)) threw = true;
+    }
+    expect(threw).to.be.false;
+  });
+
   it("listGlobals() returns all currently advertised global names", async function () {
     const d = new MockDisplay();
     await d.load("wayland");
@@ -605,5 +729,133 @@ describe("wl_registry: global_remove removes globals from the registry", functio
     const globals = [...d.listGlobals()];
     expect(globals).to.include("wl_compositor");
     expect(globals).to.include("wl_shm");
+  });
+});
+
+
+// ── Backward compatibility with pre-since JSON format ────────────────────
+
+describe("Backward compatibility: old JSON format (no since / no type / array enums)", function () {
+  /**
+   * JSON files generated before this version omit `since` on requests/events,
+   * omit `type` on requests, and represent enums as plain arrays rather than
+   * {since?, entries} objects.  The module must handle these gracefully.
+   */
+
+  /** Minimal old-format InterfaceDefinition — bypasses TS types via `as any`. */
+  function makeOldDef(name: string): InterfaceDefinition {
+    return {
+      name,
+      version: 3,
+      description: "",
+      summary: "",
+      requests: [
+        // no `type` field — was never included before
+        {name: "plain_req",  description: "", summary: "", args: []},
+        {name: "destructor", description: "", summary: "", args: []},
+      ],
+      events: [
+        {name: "ev", description: "", summary: "", args: []},
+      ],
+      // old format: plain array instead of {since?, entries}
+      enums: {error: [{name: "bad", value: 0, summary: "bad thing"}]} as any,
+    };
+  }
+
+  it("all requests are attached when since is absent", function () {
+    const d = new MockDisplay();
+    d.load([makeOldDef("test_iface")]);
+    const itf = d.registerInterface(10, "test_iface");
+    expect((itf as any).plain_req).to.be.a("function");
+    expect((itf as any).destructor).to.be.a("function");
+  });
+
+  it("all events are present when since is absent", function () {
+    const d = new MockDisplay();
+    d.load([makeOldDef("test_iface")]);
+    const itf = d.registerInterface(10, "test_iface");
+    expect(itf.events[0]).to.deep.include({name: "ev"});
+  });
+
+  it("old-format array enum is accessible in this.enums", function () {
+    const d = new MockDisplay();
+    d.load([makeOldDef("test_iface")]);
+    const itf = d.registerInterface(10, "test_iface");
+    expect(itf.enums["error"]).to.be.an("array").with.length(1);
+    expect(itf.enums["error"][0]).to.include({name: "bad", value: 0});
+  });
+
+  it("getEnum() works with old-format array enum", function () {
+    const d = new MockDisplay();
+    d.load([makeOldDef("test_iface")]);
+    const result = d.getEnum("test_iface.error");
+    expect(result).to.deep.equal({bad: 0});
+  });
+});
+
+
+// ── Wl_interface version-gated methods and events ─────────────────────────
+
+describe("Wl_interface: version-gated methods, events, and enums", function () {
+  /**
+   * Methods, events, and enums introduced after the negotiated version must
+   * be invisible on the Wl_interface instance.
+   *
+   * Test cases use real protocol data from wayland.json:
+   *   - wl_surface.set_buffer_transform  (request  since=2, opcode=7)
+   *   - wl_pointer.frame                 (event    since=5, opcode=5)
+   *   - wl_data_device_manager.dnd_action (enum    since=3)
+   */
+
+  it("method with since > bound version is not attached", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    // set_buffer_transform is since=2; binding at v1 must not define it
+    const itf = d.registerInterface(10, "wl_surface", 1);
+    expect((itf as any).set_buffer_transform).to.be.undefined;
+  });
+
+  it("method with since <= bound version is attached", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    const itf = d.registerInterface(10, "wl_surface", 2);
+    expect((itf as any).set_buffer_transform).to.be.a("function");
+  });
+
+  it("event with since > bound version is undefined in this.events", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    // frame is since=5, opcode=5
+    const itf = d.registerInterface(10, "wl_pointer", 4);
+    expect(itf.events[5]).to.be.undefined;
+  });
+
+  it("event with since <= bound version is present in this.events", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    const itf = d.registerInterface(10, "wl_pointer", 5);
+    expect(itf.events[5]).to.deep.include({name: "frame"});
+  });
+
+  it("enum with since > bound version is absent from this.enums", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    // dnd_action is since=3 on wl_data_device_manager
+    const itf = d.registerInterface(10, "wl_data_device_manager", 2);
+    expect(itf.enums["dnd_action"]).to.be.undefined;
+  });
+
+  it("enum with since <= bound version is present in this.enums", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    const itf = d.registerInterface(10, "wl_data_device_manager", 3);
+    expect(itf.enums["dnd_action"]).to.be.an("array");
+  });
+
+  it("inspect() does not show version-gated methods", async function () {
+    const d = new MockDisplay();
+    await d.load("wayland");
+    const itf = d.registerInterface(10, "wl_surface", 1);
+    expect(itf.inspect()).to.not.include("set_buffer_transform");
   });
 });

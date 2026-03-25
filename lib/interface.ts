@@ -3,7 +3,7 @@ import {EventEmitter, once} from "node:events";
 
 import { get_args } from "./args.js";
 import Display from "./display.js";
-import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition, isInterfaceArgument, isCallbackArgument as isCallbackArgument, isCallbackRequest, isInterfaceCreationRequest, isDestructorRequest, wl_arg_as_number } from "./definitions.js";
+import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition, isInterfaceArgument, isCallbackRequest, isInterfaceCreationRequest, isDestructorRequest, wl_arg_as_number } from "./definitions.js";
 
 
 
@@ -21,8 +21,8 @@ export default class Wl_interface extends EventEmitter{
   /** Interface version number */
   public readonly version: number;
   public readonly id: number;
-  public readonly events: EventDefinition[];
-  public readonly requests: RequestDefinition[];
+  public readonly events: (EventDefinition | undefined)[];
+  public readonly requests: (RequestDefinition | undefined)[];
   public readonly enums: Record<string, EnumDefinition>;
 
 
@@ -38,10 +38,17 @@ export default class Wl_interface extends EventEmitter{
     this.name = name;
     this.version = version
     //FIXME: make this non enumerable to have a more compact util.inspect() output?
-    this.events = events;
-    this.requests = requests;
-    this.enums = enums;
-    for (let [opcode, op] of requests.entries()){
+    this.requests = requests.map(r => (!r.since || r.since <= version) ? r : undefined);
+    this.events   = events.map(e => (!e.since || e.since <= version) ? e : undefined);
+    // JSON files generated before the EnumEntry format change stored enums as
+    // plain arrays.  Accept both shapes for backward compatibility.
+    this.enums    = Object.fromEntries(
+      Object.entries(enums)
+        .filter(([, e]) => Array.isArray(e) || !e.since || e.since <= version)
+        .map(([k, e]) => [k, Array.isArray(e) ? e : e.entries])
+    );
+    for (let [opcode, op] of this.requests.entries()){
+      if (!op) continue;
       if(isCallbackRequest(op)){
         const first_arg = op.args[0];
         //Make a special case for wl_callback
@@ -137,18 +144,19 @@ export default class Wl_interface extends EventEmitter{
    * Throws if an invalid name is provided
    */
   opcode(rName :RequestDefinition["name"]){
-    const opcode = this.requests.findIndex(r=>r.name == rName);
+    const opcode = this.requests.findIndex(r=>r?.name == rName);
     if(opcode == -1) throw new Error(`no operation named ${rName} in interface ${this.name}`);
     return opcode
   }
 
   toString(){
-    return `${this.name}(${this.events.map(e=>e.name).join(", ")})`;
+    return `${this.name}(${this.events.filter(e=>e).map(e=>e!.name).join(", ")})`;
   }
 
   inspect(){
-    return this.toString()+(this.requests.length? "\n" :"")
-      +this.requests.map(r=>`  ${r.name}(${r.args.map(a=>`${a.name} :${a.type}`).join(", ")})`).join("\n");
+    const reqs = this.requests.filter(r=>r) as RequestDefinition[];
+    return this.toString()+(reqs.length? "\n" :"")
+      +reqs.map(r=>`  ${r.name}(${r.args.map(a=>`${a.name} :${a.type}`).join(", ")})`).join("\n");
   }
 
   /**
@@ -172,7 +180,7 @@ export default class Wl_interface extends EventEmitter{
     const cancellations:(()=>void)[] = [];
 
     const listeners = new Map<string, (...args: any[]) => void>();
-    for (let {name} of this.events){
+    for (const e of this.events){ if (!e) continue; const {name} = e;
       const listener = (...args: any[]) => {
         const res = (infos[name] ??= []) as any[];
         if(args[0] instanceof Wl_interface){

@@ -1,7 +1,7 @@
 'use strict';
 
 import { ElementCompact } from "xml-js";
-import { ArgumentDefinition, EnumDefinition, EnumReduction, EnumValue, EventDefinition, InterfaceDefinition, RequestDefinition } from "./definitions.js";
+import { ArgumentDefinition, EnumEntry, EnumReduction, EnumValue, EventDefinition, InterfaceDefinition, RequestDefinition } from "./definitions.js";
 import { InterfaceElement } from "./elements.js";
 
 
@@ -30,9 +30,11 @@ export function parseRequest(request:ElementCompact) :RequestDefinition{
   if(!has("name", request)){
     throw new Error("Request has no name");
   }
-  const {_attributes:{name}, description, arg} = request;
+  const {_attributes:{name, type, since}, description, arg} = request;
   return {
     name,
+    ...(type ? {type} : {}),
+    ...(since ? {since: parseInt(since)} : {}),
     description: description?._text,
     summary: description?._attributes?.summary,
     args: to_a(arg, parseArg),
@@ -44,9 +46,10 @@ export function parseEvent(event :ElementCompact) :EventDefinition{
   if(!has("name",event)){
     throw new Error("event has no name");
   }
-  const {_attributes:{name}, description, arg} = event;
+  const {_attributes:{name, since}, description, arg} = event;
   return {
     name,
+    ...(since ? {since: parseInt(since)} : {}),
     description: description?._text,
     summary: description?._attributes?.summary,
     args: to_a(arg, parseArg),
@@ -57,15 +60,15 @@ export function parseEvent(event :ElementCompact) :EventDefinition{
  * 
  */
 export function parseEnums(enums :ElementCompact | ElementCompact[]){
-  let out :Record<string, EnumDefinition> = {};
+  let out :Record<string, EnumEntry> = {};
   if(!enums) return out;
 
   for (let en of (Array.isArray(enums)?enums: [enums])){
     if(!has("name",en)){
       throw new Error("Enum has no name");
     }
-    let {_attributes:{name}, entry} = en;
-    out[name] = to_a(entry, (e:ElementCompact) :EnumValue=>{
+    let {_attributes:{name, since}, entry} = en;
+    const entries = to_a(entry, (e:ElementCompact) :EnumValue=>{
       if(!has("name", e)){
         throw new Error("Enum member has no name");
       }
@@ -76,6 +79,10 @@ export function parseEnums(enums :ElementCompact | ElementCompact[]){
       const {_attributes:{name, value, summary}} = e;
       return ({name, value:parseInt(value), summary})
     });
+    out[name] = {
+      ...(since ? {since: parseInt(since)} : {}),
+      entries,
+    };
   }
   return out;
 }

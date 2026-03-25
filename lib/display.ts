@@ -31,7 +31,7 @@ export default class Display extends EventEmitter{
 
   // Registers of interfaces, globals, objects to keep track of resources
   #interfaces = new Map<string, InterfaceDefinition>();
-  #globals = new Map<string, number>();
+  #globals = new Map<string, {id: number, version: number}>();
   #objects = new Map<wl_object, Wl_interface>();
 
   #s :Socket;
@@ -55,7 +55,7 @@ export default class Display extends EventEmitter{
      * Patch wl_registry.bind to match special case :
      * It's first argument is split into 3.
      */
-    (this.#interfaces.get("wl_registry") as any as Wl_interface).requests[0].args = [
+    (this.#interfaces.get("wl_registry") as any as Wl_interface).requests[0]!.args = [
       {
         "name": "id",
         "type": "uint",
@@ -122,7 +122,17 @@ export default class Display extends EventEmitter{
         const srcErrors = src.enums["error"];
         if (srcErrors) {
           const e = srcErrors[errno as number];
-          err = new WaylandProtocolError(`in ${src.name} (${e.name}): ${e.summary}\n${message}`);
+          let resolvedMessage = message as string;
+          if (e.name === "invalid_method") {
+            const match = (message as string).match(/invalid method (\d+)[^,]*, object \w+#(\d+)/);
+            if (match) {
+              const methodName = this.#objects.get(parseInt(match[2]) as wl_object)?.requests[parseInt(match[1])]?.name;
+              if (methodName) {
+                resolvedMessage = (message as string).replace(/invalid method (\d+)/, `invalid method "${methodName}" ($1)`);
+              }
+            }
+          }
+          err = new WaylandProtocolError(`in ${src.name} (${e.name}): ${e.summary}\n${resolvedMessage}`);
         } else {
           err = new WaylandProtocolError(`in ${src.name} (${errno}): ${message}`);
         }
@@ -135,12 +145,12 @@ export default class Display extends EventEmitter{
   }
 
   protected _bindRegistry(registry: Wl_interface) {
-    registry.on("global", (id: number, iName: string) => {
-      this.#globals.set(iName, id);
+    registry.on("global", (id: number, iName: string, version: number) => {
+      this.#globals.set(iName, {id, version});
     });
     registry.on("global_remove", (id: number) => {
-      for (const [name, gid] of this.#globals) {
-        if (gid === id) { this.#globals.delete(name); break; }
+      for (const [name, g] of this.#globals) {
+        if (g.id === id) { this.#globals.delete(name); break; }
       }
     });
   }
@@ -227,17 +237,24 @@ export default class Display extends EventEmitter{
    * Binds a global. see the [Wayland handbook](https://wayland-book.com/registry/binding.html) to learn how this works.
    * @see Wl_registry.bind()
    */
-  async bind<T extends Wl_interface = Wl_interface>(iname :T["name"], version:T["version"] = 1) :Promise<T>{
+  async bind<T extends Wl_interface = Wl_interface>(iname :T["name"], version?: number) :Promise<T>{
     const def = this.getDefinition(iname);
-    const gid = this.#globals.get(iname);
-    if(!gid) throw new Error(` No global named ${iname}. Available globals : ${[...this.#globals.keys()].join(", ")}`);
-    if(def.version < version){
-      console.warn(`Version mismatch: user requests ${iname} v${version}, but v${def.version} is defined`);
+    const entry = this.#globals.get(iname);
+    if(!entry) throw new Error(` No global named ${iname}. Available globals : ${[...this.#globals.keys()].join(", ")}`);
+    const {id: gid, version: serverVersion} = entry;
+    const maxVersion = Math.min(def.version, serverVersion);
+    const negotiatedVersion = version ?? maxVersion;
+    if(version !== undefined && version > maxVersion){
+      if(version > serverVersion){
+        throw new Error(`Cannot bind ${iname} at v${version}: server only supports v${serverVersion}`);
+      }else{
+        throw new Error(`Cannot bind ${iname} at v${version}: definition only covers v${def.version}`);
+      }
     }
-    const itf = this.createInterface<T>(iname);
+    const itf = this.createInterface<T>(iname, negotiatedVersion);
     //console.log(`Bind globals#${iname}(${gid}) to id: ${itf.id}`);
     // @ts-ignore : bind is (intentionally) ill-defined in the protocol file, this reflects here.
-    await this.wl_registry.bind(gid, def.name, version, itf.id);
+    await this.wl_registry.bind(gid, def.name, negotiatedVersion, itf.id);
 
     //FIXME : We might want to wait for wl_display.sync() while catching errors to handle protocol errors here instead of in Display.error
     // This is not very high priority because protocol errors are fatal anyways and this would slow us down.
@@ -249,9 +266,9 @@ export default class Display extends EventEmitter{
    * Create a new interface, allocating it's ID automatically.
    * @internal It is normally not used directly, but through Display.bind that creates globals, then through the globals' requests that will call it as needed
    */
-  createInterface<T extends Wl_interface = Wl_interface>(name :string) :T{
+  createInterface<T extends Wl_interface = Wl_interface>(name :string, version?: number) :T{
     let id = this.nextId();
-    return this.registerInterface(id, name);
+    return this.registerInterface(id, name, version);
   }
 
 
@@ -261,10 +278,11 @@ export default class Display extends EventEmitter{
  * Used internally and for server-created objects
  * @internal there is normally no use case for a user to call this directly
  */
-  registerInterface<T extends Wl_interface = Wl_interface>(id :number, name :string) :T{
+  registerInterface<T extends Wl_interface = Wl_interface>(id :number, name :string, version?: number) :T{
     const def = typeof name ==="string"?this.#interfaces.get(name): name;
+    const resolvedDef = version !== undefined ? {...def, version} : def;
     /* @ts-ignore */
-    let itf = new Wl_interface(this, id, def);
+    let itf = new Wl_interface(this, id, resolvedDef);
     this.#objects.set(id, itf);
     return itf as T;
   }
@@ -307,7 +325,10 @@ export default class Display extends EventEmitter{
     let [iName, eName] = name.split(".");
     let def = this.getDefinition(iName);
     let e = def.enums[eName];
-    return e.reduce((acc, v)=>{acc[v.name] = v.value; return acc;}, {} as EnumReduction);
+    // JSON files generated before the EnumEntry format change stored enums as
+    // plain arrays.  Accept both shapes for backward compatibility.
+    const entries = Array.isArray(e) ? e : e.entries;
+    return entries.reduce((acc, v)=>{acc[v.name] = v.value; return acc;}, {} as EnumReduction);
   }
 
   /**List the name of all known globals */

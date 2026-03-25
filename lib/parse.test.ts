@@ -166,11 +166,13 @@ describe("parsers", function(){
           }
         }
       })).to.deep.equal({
-        error: [{
-          name: "bad_surface",
-          value: 0,
-          summary: "wl_surface is not a sibling or the parent",
-        }]
+        error: {
+          entries: [{
+            name: "bad_surface",
+            value: 0,
+            summary: "wl_surface is not a sibling or the parent",
+          }]
+        }
       });
     });
     it("throw if enum has no name", function(){
