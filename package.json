@@ -8,7 +8,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "mocha",
-    "prepack": "npm run build && node convert.js internal",
+    "prepack": "npm run build && npx convert-xml --types protocol",
     "build": "tsc -b ."
   },
   "bin": {

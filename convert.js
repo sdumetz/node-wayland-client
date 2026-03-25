@@ -2,21 +2,49 @@
 'use strict';
 import fs from "fs/promises";
 import path from "path";
+import { parseArgs } from "util";
 
 import {xml2js} from "xml-js";
 import { parseInterface } from "./dist/parse.js";
 import makeTypes from "./dist/makeTypes.js";
 
-let [src] = process.argv.slice(-1);
-let internal = false;
-if(src == "internal"){
-  src = "protocol";
-  internal = true;
-}
+const {positionals, values: opts} = parseArgs({
+  allowPositionals: true,
+  options: {
+    types: {
+      type:"boolean",
+      default: false,
+    },
+    help: {
+      type: "boolean",
+      short: "h",
+      default: false,
+    }
+  }
+});
 
-if(!src){
-  console.error("No path provided");
+const usage = `npx convert-xml [--types] ...paths
+paths can be any number of XML files or directories containing a collection of XML files
+
+Options:
+  --types    : Output ".d.ts" types declaration alongside the JSON definitions
+  --help, -h : print this help string
+`;
+
+if(opts.help){
+  console.log(usage);
+  process.exit(0);
+} else if(!positionals.length){
+  console.log(usage);
+  console.error("Error: No path provided");
   process.exit(1);
+}
+/**
+ * Convert a file (or every xml file in a directory) to a pre-parsed json array of interfaces
+ */
+
+for(let src of positionals){
+  await convert(src);
 }
 
 /**
@@ -51,7 +79,7 @@ async function convert(filepath){
       const jsInterfaces = interfaces.map(parseInterface);
       const json = JSON.stringify(jsInterfaces, null, 2);
       await fs.writeFile(filepath.replace(".xml", ".json"), json);
-      await fs.writeFile(filepath.replace(".xml", ".d.ts"), makeTypes(jsInterfaces, internal));
+      await fs.writeFile(filepath.replace(".xml", ".d.ts"), makeTypes(jsInterfaces, opts.types));
     }catch(e){
       console.error(e);
       console.warn("Source file : ", interfaces);
@@ -67,10 +95,3 @@ async function convert(filepath){
   }
 
 }
-
-/**
- * Convert a file (or every xml file in a directory) to a pre-parsed json array of interfaces
- */
-
-
-await convert(src);
