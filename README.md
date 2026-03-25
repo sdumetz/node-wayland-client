@@ -180,7 +180,7 @@ Generally, it's `/run/user/$(id -u)/`.
 
 ### [ERR_MODULE_NOT_FOUND]: Cannot find package 'xml-js'
 
-xml-js is required to import protocol extensions from XML files.
+xml-js is required to import protocol extensions from XML files. Either add it along this package or import only pre-compiled JSON files instead.
 
 ### Protocol errors
 
