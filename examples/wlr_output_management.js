@@ -3,10 +3,13 @@ import timers from "timers/promises";
 import path from "path";
 import { fileURLToPath } from 'url';
 
-import open_display from "../index.js";
+import open_display from "../dist/index.js";
 
 const thisDir = path.dirname(fileURLToPath(import.meta.url));
-
+/**
+ * Uses wlr_output_management protocol to get currently attached displays.
+ * It would then be possible to rearrange displays (on wlroots-based compositor)
+ */
 open_display().then(async (display)=>{
   display.on("warning", console.warn);
   display.on("error", console.error.bind(console, "display ERROR: "));
