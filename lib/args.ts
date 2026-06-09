@@ -3,29 +3,33 @@ import { endianness } from "os";
 import { ArgumentDefinition, wl_arg } from "./definitions.js";
 
 
-const os_en = endianness();
+// The Wayland wire protocol always uses the host's native byte order (client
+// and server share the machine over a unix socket). Resolve the right Buffer
+// methods once, at module load, rather than branching on every read/write.
+const LE = endianness() === "LE";
 
+type Reader = (b :Buffer, offset :number) => number;
+type Writer = (b :Buffer, value :number, offset :number) => number;
 
+/** read an uint32 in host byte order */
+export const readUInt :Reader = LE
+  ? (b, offset) => b.readUInt32LE(offset)
+  : (b, offset) => b.readUInt32BE(offset);
 
-/**
- * read an uint32 using native system's endianess
- */
-export const readUInt = (b :Buffer, offset :number, en:"LE"|"BE" = os_en) :number => ((en == "LE")? b.readUInt32LE : b.readUInt32BE).call(b, offset);
+/** write an uint32 in host byte order. @returns the offset past the written value */
+export const writeUInt :Writer = LE
+  ? (b, value, offset) => b.writeUInt32LE(value, offset)
+  : (b, value, offset) => b.writeUInt32BE(value, offset);
 
-/**
- * write an uint32 using native system's endianess
- */
-export const writeUInt = (b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number => ((en == "LE")? b.writeUInt32LE : b.writeUInt32BE).call(b, value, offset);
+/** read an int32 in host byte order */
+export const readInt :Reader = LE
+  ? (b, offset) => b.readInt32LE(offset)
+  : (b, offset) => b.readInt32BE(offset);
 
-/**
- * read an int32 using native system's endianess
- */
-export const readInt = (b :Buffer, offset :number, en:"LE"|"BE" = os_en)=> ((en == "LE")? b.readInt32LE : b.readInt32BE).call(b, offset);
-
-/**
- * write an int32 using native system's endianess
- */
-export const writeInt = (b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number => ((en == "LE")? b.writeInt32LE : b.writeInt32BE).call(b, value, offset);
+/** write an int32 in host byte order. @returns the offset past the written value */
+export const writeInt :Writer = LE
+  ? (b, value, offset) => b.writeInt32LE(value, offset)
+  : (b, value, offset) => b.writeInt32BE(value, offset);
 
 /**
  * Write a 24.8 signed fixed point value (wl_fixed_t).
@@ -35,16 +39,16 @@ export const writeInt = (b :Buffer, value :number, offset :number, en:"LE"|"BE" 
  * sign-magnitude number, so negative values must use the regular int32
  * representation (e.g. -1.0 -> -256 -> 0xFFFFFF00 on the wire).
  */
-export function writeFixed(b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number{
-  return writeInt(b, Math.round(value * 256), offset, en);
+export function writeFixed(b :Buffer, value :number, offset :number) :number{
+  return writeInt(b, Math.round(value * 256), offset);
 }
 
 /**
  * Read a 24.8 signed fixed point value (wl_fixed_t).
  * @see writeFixed
  */
-export function readFixed(b :Buffer, offset :number, en:"LE"|"BE" = os_en) :number{
-  return readInt(b, offset, en) / 256;
+export function readFixed(b :Buffer, offset :number) :number{
+  return readInt(b, offset) / 256;
 }
 
 /**
@@ -54,9 +58,8 @@ export function readFixed(b :Buffer, offset :number, en:"LE"|"BE" = os_en) :numb
 export function readArray(
   b: Buffer,
   offset: number,
-  en: "LE" | "BE" = os_en,
 ): [data: Uint8Array, newOffset: number] {
-  const arrayLength = readUInt(b, offset, en);
+  const arrayLength = readUInt(b, offset);
   offset += 4;
   const arrayData = new Uint8Array(b.subarray(offset, offset + arrayLength));
   const padding = (4 - (arrayLength % 4)) % 4;
@@ -71,9 +74,8 @@ export function writeArray(
   b: Buffer,
   array: Uint8Array,
   offset: number,
-  en: "LE" | "BE" = os_en,
 ): number {
-  offset = writeUInt(b, array.length, offset, en);
+  offset = writeUInt(b, array.length, offset);
   b.set(array, offset);
   const padding = (4 - (array.length % 4)) % 4;
   if (padding > 0) {
