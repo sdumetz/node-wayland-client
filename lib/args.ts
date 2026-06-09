@@ -28,22 +28,23 @@ export const readInt = (b :Buffer, offset :number, en:"LE"|"BE" = os_en)=> ((en 
 export const writeInt = (b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number => ((en == "LE")? b.writeInt32LE : b.writeInt32BE).call(b, value, offset);
 
 /**
- * write a 24.8 fixed point value.
+ * Write a 24.8 signed fixed point value (wl_fixed_t).
+ *
+ * wl_fixed_t is a plain two's-complement `int32_t` holding `value * 256`
+ * (see wayland-util.h: `wl_fixed_from_int(i) = i * 256`). It is NOT a
+ * sign-magnitude number, so negative values must use the regular int32
+ * representation (e.g. -1.0 -> -256 -> 0xFFFFFF00 on the wire).
  */
 export function writeFixed(b :Buffer, value :number, offset :number, en:"LE"|"BE" = os_en) :number{
-  const fixed = Math.round(value * 256);
-  const sign = ((fixed < 0) ? 0x80000000 : 0);
-  return writeInt(b, sign | Math.abs(fixed), offset, en);
+  return writeInt(b, Math.round(value * 256), offset, en);
 }
 
 /**
- * Read a 24.8 fixed point value.
+ * Read a 24.8 signed fixed point value (wl_fixed_t).
+ * @see writeFixed
  */
 export function readFixed(b :Buffer, offset :number, en:"LE"|"BE" = os_en) :number{
-  const fixed = readInt(b, offset, en);
-  const sign = fixed & (1 << 31);
-  const num = fixed & ~(1 << 31);
-	return (sign? -1:1) * num / 256;
+  return readInt(b, offset, en) / 256;
 }
 
 /**
