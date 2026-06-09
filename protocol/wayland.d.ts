@@ -24,7 +24,7 @@ export interface Wl_display extends Wl_interface{
     error: [
       
       /**
-       * @summary server couldn't find object
+     * @summary server couldn't find object
        */
       {
         name: "invalid_object",
@@ -34,7 +34,7 @@ export interface Wl_display extends Wl_interface{
     
     
       /**
-       * @summary method doesn't exist on the specified interface or malformed request
+     * @summary method doesn't exist on the specified interface or malformed request
        */
       {
         name: "invalid_method",
@@ -44,7 +44,7 @@ export interface Wl_display extends Wl_interface{
     
     
       /**
-       * @summary server is out of memory
+     * @summary server is out of memory
        */
       {
         name: "no_memory",
@@ -54,7 +54,7 @@ export interface Wl_display extends Wl_interface{
     
     
       /**
-       * @summary implementation error in compositor
+     * @summary implementation error in compositor
        */
       {
         name: "implementation",
@@ -383,7 +383,7 @@ export interface Wl_shm extends Wl_interface{
     error: [
       
       /**
-       * @summary buffer format is not known
+     * @summary buffer format is not known
        */
       {
         name: "invalid_format",
@@ -393,7 +393,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary invalid size or stride during pool or buffer creation
+     * @summary invalid size or stride during pool or buffer creation
        */
       {
         name: "invalid_stride",
@@ -403,7 +403,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary mmapping the file descriptor failed
+     * @summary mmapping the file descriptor failed
        */
       {
         name: "invalid_fd",
@@ -417,7 +417,7 @@ export interface Wl_shm extends Wl_interface{
     format: [
       
       /**
-       * @summary 32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian
+     * @summary 32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian
        */
       {
         name: "argb8888",
@@ -427,7 +427,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit RGB format, [31:0] x:R:G:B 8:8:8:8 little endian
+     * @summary 32-bit RGB format, [31:0] x:R:G:B 8:8:8:8 little endian
        */
       {
         name: "xrgb8888",
@@ -437,7 +437,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 8-bit color index format, [7:0] C
+     * @summary 8-bit color index format, [7:0] C
        */
       {
         name: "c8",
@@ -447,7 +447,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 8-bit RGB format, [7:0] R:G:B 3:3:2
+     * @summary 8-bit RGB format, [7:0] R:G:B 3:3:2
        */
       {
         name: "rgb332",
@@ -457,7 +457,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 8-bit BGR format, [7:0] B:G:R 2:3:3
+     * @summary 8-bit BGR format, [7:0] B:G:R 2:3:3
        */
       {
         name: "bgr233",
@@ -467,7 +467,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit xRGB format, [15:0] x:R:G:B 4:4:4:4 little endian
+     * @summary 16-bit xRGB format, [15:0] x:R:G:B 4:4:4:4 little endian
        */
       {
         name: "xrgb4444",
@@ -477,7 +477,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit xBGR format, [15:0] x:B:G:R 4:4:4:4 little endian
+     * @summary 16-bit xBGR format, [15:0] x:B:G:R 4:4:4:4 little endian
        */
       {
         name: "xbgr4444",
@@ -487,7 +487,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit RGBx format, [15:0] R:G:B:x 4:4:4:4 little endian
+     * @summary 16-bit RGBx format, [15:0] R:G:B:x 4:4:4:4 little endian
        */
       {
         name: "rgbx4444",
@@ -497,7 +497,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit BGRx format, [15:0] B:G:R:x 4:4:4:4 little endian
+     * @summary 16-bit BGRx format, [15:0] B:G:R:x 4:4:4:4 little endian
        */
       {
         name: "bgrx4444",
@@ -507,7 +507,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit ARGB format, [15:0] A:R:G:B 4:4:4:4 little endian
+     * @summary 16-bit ARGB format, [15:0] A:R:G:B 4:4:4:4 little endian
        */
       {
         name: "argb4444",
@@ -517,7 +517,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit ABGR format, [15:0] A:B:G:R 4:4:4:4 little endian
+     * @summary 16-bit ABGR format, [15:0] A:B:G:R 4:4:4:4 little endian
        */
       {
         name: "abgr4444",
@@ -527,7 +527,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian
+     * @summary 16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian
        */
       {
         name: "rgba4444",
@@ -537,7 +537,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit BGRA format, [15:0] B:G:R:A 4:4:4:4 little endian
+     * @summary 16-bit BGRA format, [15:0] B:G:R:A 4:4:4:4 little endian
        */
       {
         name: "bgra4444",
@@ -547,7 +547,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit xRGB format, [15:0] x:R:G:B 1:5:5:5 little endian
+     * @summary 16-bit xRGB format, [15:0] x:R:G:B 1:5:5:5 little endian
        */
       {
         name: "xrgb1555",
@@ -557,7 +557,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit xBGR 1555 format, [15:0] x:B:G:R 1:5:5:5 little endian
+     * @summary 16-bit xBGR 1555 format, [15:0] x:B:G:R 1:5:5:5 little endian
        */
       {
         name: "xbgr1555",
@@ -567,7 +567,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit RGBx 5551 format, [15:0] R:G:B:x 5:5:5:1 little endian
+     * @summary 16-bit RGBx 5551 format, [15:0] R:G:B:x 5:5:5:1 little endian
        */
       {
         name: "rgbx5551",
@@ -577,7 +577,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit BGRx 5551 format, [15:0] B:G:R:x 5:5:5:1 little endian
+     * @summary 16-bit BGRx 5551 format, [15:0] B:G:R:x 5:5:5:1 little endian
        */
       {
         name: "bgrx5551",
@@ -587,7 +587,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit ARGB 1555 format, [15:0] A:R:G:B 1:5:5:5 little endian
+     * @summary 16-bit ARGB 1555 format, [15:0] A:R:G:B 1:5:5:5 little endian
        */
       {
         name: "argb1555",
@@ -597,7 +597,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit ABGR 1555 format, [15:0] A:B:G:R 1:5:5:5 little endian
+     * @summary 16-bit ABGR 1555 format, [15:0] A:B:G:R 1:5:5:5 little endian
        */
       {
         name: "abgr1555",
@@ -607,7 +607,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit RGBA 5551 format, [15:0] R:G:B:A 5:5:5:1 little endian
+     * @summary 16-bit RGBA 5551 format, [15:0] R:G:B:A 5:5:5:1 little endian
        */
       {
         name: "rgba5551",
@@ -617,7 +617,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit BGRA 5551 format, [15:0] B:G:R:A 5:5:5:1 little endian
+     * @summary 16-bit BGRA 5551 format, [15:0] B:G:R:A 5:5:5:1 little endian
        */
       {
         name: "bgra5551",
@@ -627,7 +627,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit RGB 565 format, [15:0] R:G:B 5:6:5 little endian
+     * @summary 16-bit RGB 565 format, [15:0] R:G:B 5:6:5 little endian
        */
       {
         name: "rgb565",
@@ -637,7 +637,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 16-bit BGR 565 format, [15:0] B:G:R 5:6:5 little endian
+     * @summary 16-bit BGR 565 format, [15:0] B:G:R 5:6:5 little endian
        */
       {
         name: "bgr565",
@@ -647,7 +647,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 24-bit RGB format, [23:0] R:G:B little endian
+     * @summary 24-bit RGB format, [23:0] R:G:B little endian
        */
       {
         name: "rgb888",
@@ -657,7 +657,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 24-bit BGR format, [23:0] B:G:R little endian
+     * @summary 24-bit BGR format, [23:0] B:G:R little endian
        */
       {
         name: "bgr888",
@@ -667,7 +667,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit xBGR format, [31:0] x:B:G:R 8:8:8:8 little endian
+     * @summary 32-bit xBGR format, [31:0] x:B:G:R 8:8:8:8 little endian
        */
       {
         name: "xbgr8888",
@@ -677,7 +677,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit RGBx format, [31:0] R:G:B:x 8:8:8:8 little endian
+     * @summary 32-bit RGBx format, [31:0] R:G:B:x 8:8:8:8 little endian
        */
       {
         name: "rgbx8888",
@@ -687,7 +687,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit BGRx format, [31:0] B:G:R:x 8:8:8:8 little endian
+     * @summary 32-bit BGRx format, [31:0] B:G:R:x 8:8:8:8 little endian
        */
       {
         name: "bgrx8888",
@@ -697,7 +697,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit ABGR format, [31:0] A:B:G:R 8:8:8:8 little endian
+     * @summary 32-bit ABGR format, [31:0] A:B:G:R 8:8:8:8 little endian
        */
       {
         name: "abgr8888",
@@ -707,7 +707,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit RGBA format, [31:0] R:G:B:A 8:8:8:8 little endian
+     * @summary 32-bit RGBA format, [31:0] R:G:B:A 8:8:8:8 little endian
        */
       {
         name: "rgba8888",
@@ -717,7 +717,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit BGRA format, [31:0] B:G:R:A 8:8:8:8 little endian
+     * @summary 32-bit BGRA format, [31:0] B:G:R:A 8:8:8:8 little endian
        */
       {
         name: "bgra8888",
@@ -727,7 +727,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit xRGB format, [31:0] x:R:G:B 2:10:10:10 little endian
+     * @summary 32-bit xRGB format, [31:0] x:R:G:B 2:10:10:10 little endian
        */
       {
         name: "xrgb2101010",
@@ -737,7 +737,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit xBGR format, [31:0] x:B:G:R 2:10:10:10 little endian
+     * @summary 32-bit xBGR format, [31:0] x:B:G:R 2:10:10:10 little endian
        */
       {
         name: "xbgr2101010",
@@ -747,7 +747,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit RGBx format, [31:0] R:G:B:x 10:10:10:2 little endian
+     * @summary 32-bit RGBx format, [31:0] R:G:B:x 10:10:10:2 little endian
        */
       {
         name: "rgbx1010102",
@@ -757,7 +757,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit BGRx format, [31:0] B:G:R:x 10:10:10:2 little endian
+     * @summary 32-bit BGRx format, [31:0] B:G:R:x 10:10:10:2 little endian
        */
       {
         name: "bgrx1010102",
@@ -767,7 +767,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit ARGB format, [31:0] A:R:G:B 2:10:10:10 little endian
+     * @summary 32-bit ARGB format, [31:0] A:R:G:B 2:10:10:10 little endian
        */
       {
         name: "argb2101010",
@@ -777,7 +777,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit ABGR format, [31:0] A:B:G:R 2:10:10:10 little endian
+     * @summary 32-bit ABGR format, [31:0] A:B:G:R 2:10:10:10 little endian
        */
       {
         name: "abgr2101010",
@@ -787,7 +787,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit RGBA format, [31:0] R:G:B:A 10:10:10:2 little endian
+     * @summary 32-bit RGBA format, [31:0] R:G:B:A 10:10:10:2 little endian
        */
       {
         name: "rgba1010102",
@@ -797,7 +797,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 32-bit BGRA format, [31:0] B:G:R:A 10:10:10:2 little endian
+     * @summary 32-bit BGRA format, [31:0] B:G:R:A 10:10:10:2 little endian
        */
       {
         name: "bgra1010102",
@@ -807,7 +807,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary packed YCbCr format, [31:0] Cr0:Y1:Cb0:Y0 8:8:8:8 little endian
+     * @summary packed YCbCr format, [31:0] Cr0:Y1:Cb0:Y0 8:8:8:8 little endian
        */
       {
         name: "yuyv",
@@ -817,7 +817,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary packed YCbCr format, [31:0] Cb0:Y1:Cr0:Y0 8:8:8:8 little endian
+     * @summary packed YCbCr format, [31:0] Cb0:Y1:Cr0:Y0 8:8:8:8 little endian
        */
       {
         name: "yvyu",
@@ -827,7 +827,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary packed YCbCr format, [31:0] Y1:Cr0:Y0:Cb0 8:8:8:8 little endian
+     * @summary packed YCbCr format, [31:0] Y1:Cr0:Y0:Cb0 8:8:8:8 little endian
        */
       {
         name: "uyvy",
@@ -837,7 +837,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary packed YCbCr format, [31:0] Y1:Cb0:Y0:Cr0 8:8:8:8 little endian
+     * @summary packed YCbCr format, [31:0] Y1:Cb0:Y0:Cr0 8:8:8:8 little endian
        */
       {
         name: "vyuy",
@@ -847,7 +847,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary packed AYCbCr format, [31:0] A:Y:Cb:Cr 8:8:8:8 little endian
+     * @summary packed AYCbCr format, [31:0] A:Y:Cb:Cr 8:8:8:8 little endian
        */
       {
         name: "ayuv",
@@ -857,7 +857,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2 plane YCbCr Cr:Cb format, 2x2 subsampled Cr:Cb plane
+     * @summary 2 plane YCbCr Cr:Cb format, 2x2 subsampled Cr:Cb plane
        */
       {
         name: "nv12",
@@ -867,7 +867,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2 plane YCbCr Cb:Cr format, 2x2 subsampled Cb:Cr plane
+     * @summary 2 plane YCbCr Cb:Cr format, 2x2 subsampled Cb:Cr plane
        */
       {
         name: "nv21",
@@ -877,7 +877,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2 plane YCbCr Cr:Cb format, 2x1 subsampled Cr:Cb plane
+     * @summary 2 plane YCbCr Cr:Cb format, 2x1 subsampled Cr:Cb plane
        */
       {
         name: "nv16",
@@ -887,7 +887,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2 plane YCbCr Cb:Cr format, 2x1 subsampled Cb:Cr plane
+     * @summary 2 plane YCbCr Cb:Cr format, 2x1 subsampled Cb:Cr plane
        */
       {
         name: "nv61",
@@ -897,7 +897,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 4x4 subsampled Cb (1) and Cr (2) planes
+     * @summary 3 plane YCbCr format, 4x4 subsampled Cb (1) and Cr (2) planes
        */
       {
         name: "yuv410",
@@ -907,7 +907,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 4x4 subsampled Cr (1) and Cb (2) planes
+     * @summary 3 plane YCbCr format, 4x4 subsampled Cr (1) and Cb (2) planes
        */
       {
         name: "yvu410",
@@ -917,7 +917,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 4x1 subsampled Cb (1) and Cr (2) planes
+     * @summary 3 plane YCbCr format, 4x1 subsampled Cb (1) and Cr (2) planes
        */
       {
         name: "yuv411",
@@ -927,7 +927,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 4x1 subsampled Cr (1) and Cb (2) planes
+     * @summary 3 plane YCbCr format, 4x1 subsampled Cr (1) and Cb (2) planes
        */
       {
         name: "yvu411",
@@ -937,7 +937,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 2x2 subsampled Cb (1) and Cr (2) planes
+     * @summary 3 plane YCbCr format, 2x2 subsampled Cb (1) and Cr (2) planes
        */
       {
         name: "yuv420",
@@ -947,7 +947,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 2x2 subsampled Cr (1) and Cb (2) planes
+     * @summary 3 plane YCbCr format, 2x2 subsampled Cr (1) and Cb (2) planes
        */
       {
         name: "yvu420",
@@ -957,7 +957,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 2x1 subsampled Cb (1) and Cr (2) planes
+     * @summary 3 plane YCbCr format, 2x1 subsampled Cb (1) and Cr (2) planes
        */
       {
         name: "yuv422",
@@ -967,7 +967,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, 2x1 subsampled Cr (1) and Cb (2) planes
+     * @summary 3 plane YCbCr format, 2x1 subsampled Cr (1) and Cb (2) planes
        */
       {
         name: "yvu422",
@@ -977,7 +977,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, non-subsampled Cb (1) and Cr (2) planes
+     * @summary 3 plane YCbCr format, non-subsampled Cb (1) and Cr (2) planes
        */
       {
         name: "yuv444",
@@ -987,7 +987,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 3 plane YCbCr format, non-subsampled Cr (1) and Cb (2) planes
+     * @summary 3 plane YCbCr format, non-subsampled Cr (1) and Cb (2) planes
        */
       {
         name: "yvu444",
@@ -997,7 +997,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [7:0] R
+     * @summary [7:0] R
        */
       {
         name: "r8",
@@ -1007,7 +1007,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [15:0] R little endian
+     * @summary [15:0] R little endian
        */
       {
         name: "r16",
@@ -1017,7 +1017,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [15:0] R:G 8:8 little endian
+     * @summary [15:0] R:G 8:8 little endian
        */
       {
         name: "rg88",
@@ -1027,7 +1027,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [15:0] G:R 8:8 little endian
+     * @summary [15:0] G:R 8:8 little endian
        */
       {
         name: "gr88",
@@ -1037,7 +1037,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [31:0] R:G 16:16 little endian
+     * @summary [31:0] R:G 16:16 little endian
        */
       {
         name: "rg1616",
@@ -1047,7 +1047,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [31:0] G:R 16:16 little endian
+     * @summary [31:0] G:R 16:16 little endian
        */
       {
         name: "gr1616",
@@ -1057,7 +1057,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] x:R:G:B 16:16:16:16 little endian
+     * @summary [63:0] x:R:G:B 16:16:16:16 little endian
        */
       {
         name: "xrgb16161616f",
@@ -1067,7 +1067,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] x:B:G:R 16:16:16:16 little endian
+     * @summary [63:0] x:B:G:R 16:16:16:16 little endian
        */
       {
         name: "xbgr16161616f",
@@ -1077,7 +1077,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] A:R:G:B 16:16:16:16 little endian
+     * @summary [63:0] A:R:G:B 16:16:16:16 little endian
        */
       {
         name: "argb16161616f",
@@ -1087,7 +1087,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] A:B:G:R 16:16:16:16 little endian
+     * @summary [63:0] A:B:G:R 16:16:16:16 little endian
        */
       {
         name: "abgr16161616f",
@@ -1097,7 +1097,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [31:0] X:Y:Cb:Cr 8:8:8:8 little endian
+     * @summary [31:0] X:Y:Cb:Cr 8:8:8:8 little endian
        */
       {
         name: "xyuv8888",
@@ -1107,7 +1107,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [23:0] Cr:Cb:Y 8:8:8 little endian
+     * @summary [23:0] Cr:Cb:Y 8:8:8 little endian
        */
       {
         name: "vuy888",
@@ -1117,7 +1117,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary Y followed by U then V, 10:10:10. Non-linear modifier only
+     * @summary Y followed by U then V, 10:10:10. Non-linear modifier only
        */
       {
         name: "vuy101010",
@@ -1127,7 +1127,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 10:6:10:6:10:6:10:6 little endian per 2 Y pixels
+     * @summary [63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 10:6:10:6:10:6:10:6 little endian per 2 Y pixels
        */
       {
         name: "y210",
@@ -1137,7 +1137,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 12:4:12:4:12:4:12:4 little endian per 2 Y pixels
+     * @summary [63:0] Cr0:0:Y1:0:Cb0:0:Y0:0 12:4:12:4:12:4:12:4 little endian per 2 Y pixels
        */
       {
         name: "y212",
@@ -1147,7 +1147,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] Cr0:Y1:Cb0:Y0 16:16:16:16 little endian per 2 Y pixels
+     * @summary [63:0] Cr0:Y1:Cb0:Y0 16:16:16:16 little endian per 2 Y pixels
        */
       {
         name: "y216",
@@ -1157,7 +1157,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [31:0] A:Cr:Y:Cb 2:10:10:10 little endian
+     * @summary [31:0] A:Cr:Y:Cb 2:10:10:10 little endian
        */
       {
         name: "y410",
@@ -1167,7 +1167,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] A:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian
+     * @summary [63:0] A:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian
        */
       {
         name: "y412",
@@ -1177,7 +1177,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] A:Cr:Y:Cb 16:16:16:16 little endian
+     * @summary [63:0] A:Cr:Y:Cb 16:16:16:16 little endian
        */
       {
         name: "y416",
@@ -1187,7 +1187,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [31:0] X:Cr:Y:Cb 2:10:10:10 little endian
+     * @summary [31:0] X:Cr:Y:Cb 2:10:10:10 little endian
        */
       {
         name: "xvyu2101010",
@@ -1197,7 +1197,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] X:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian
+     * @summary [63:0] X:0:Cr:0:Y:0:Cb:0 12:4:12:4:12:4:12:4 little endian
        */
       {
         name: "xvyu12_16161616",
@@ -1207,7 +1207,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] X:Cr:Y:Cb 16:16:16:16 little endian
+     * @summary [63:0] X:Cr:Y:Cb 16:16:16:16 little endian
        */
       {
         name: "xvyu16161616",
@@ -1217,7 +1217,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0]   A3:A2:Y3:0:Cr0:0:Y2:0:A1:A0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian
+     * @summary [63:0]   A3:A2:Y3:0:Cr0:0:Y2:0:A1:A0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian
        */
       {
         name: "y0l0",
@@ -1227,7 +1227,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0]   X3:X2:Y3:0:Cr0:0:Y2:0:X1:X0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian
+     * @summary [63:0]   X3:X2:Y3:0:Cr0:0:Y2:0:X1:X0:Y1:0:Cb0:0:Y0:0  1:1:8:2:8:2:8:2:1:1:8:2:8:2:8:2 little endian
        */
       {
         name: "x0l0",
@@ -1237,7 +1237,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0]   A3:A2:Y3:Cr0:Y2:A1:A0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian
+     * @summary [63:0]   A3:A2:Y3:Cr0:Y2:A1:A0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian
        */
       {
         name: "y0l2",
@@ -1247,7 +1247,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0]   X3:X2:Y3:Cr0:Y2:X1:X0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian
+     * @summary [63:0]   X3:X2:Y3:Cr0:Y2:X1:X0:Y1:Cb0:Y0  1:1:10:10:10:1:1:10:10:10 little endian
        */
       {
         name: "x0l2",
@@ -1257,107 +1257,97 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       *
        */
       {
         name: "yuv420_8bit",
         value: 942691673,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "yuv420_10bit",
         value: 808539481,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "xrgb8888_a8",
         value: 943805016,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "xbgr8888_a8",
         value: 943800920,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "rgbx8888_a8",
         value: 943806546,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "bgrx8888_a8",
         value: 943806530,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "rgb888_a8",
         value: 943798354,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "bgr888_a8",
         value: 943798338,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "rgb565_a8",
         value: 943797586,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "bgr565_a8",
         value: 943797570,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       * @summary non-subsampled Cr:Cb plane
+     * @summary non-subsampled Cr:Cb plane
        */
       {
         name: "nv24",
@@ -1367,7 +1357,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary non-subsampled Cb:Cr plane
+     * @summary non-subsampled Cb:Cr plane
        */
       {
         name: "nv42",
@@ -1377,7 +1367,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2x1 subsampled Cr:Cb plane, 10 bit per channel
+     * @summary 2x1 subsampled Cr:Cb plane, 10 bit per channel
        */
       {
         name: "p210",
@@ -1387,7 +1377,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2x2 subsampled Cr:Cb plane 10 bits per channel
+     * @summary 2x2 subsampled Cr:Cb plane 10 bits per channel
        */
       {
         name: "p010",
@@ -1397,7 +1387,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2x2 subsampled Cr:Cb plane 12 bits per channel
+     * @summary 2x2 subsampled Cr:Cb plane 12 bits per channel
        */
       {
         name: "p012",
@@ -1407,7 +1397,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2x2 subsampled Cr:Cb plane 16 bits per channel
+     * @summary 2x2 subsampled Cr:Cb plane 16 bits per channel
        */
       {
         name: "p016",
@@ -1417,7 +1407,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary [63:0] A:x:B:x:G:x:R:x 10:6:10:6:10:6:10:6 little endian
+     * @summary [63:0] A:x:B:x:G:x:R:x 10:6:10:6:10:6:10:6 little endian
        */
       {
         name: "axbxgxrx106106106106",
@@ -1427,7 +1417,7 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       * @summary 2x2 subsampled Cr:Cb plane
+     * @summary 2x2 subsampled Cr:Cb plane
        */
       {
         name: "nv15",
@@ -1437,22 +1427,20 @@ export interface Wl_shm extends Wl_interface{
     
     
       /**
-       *
        */
       {
         name: "q410",
         value: 808531025,
-        summary: "undefined",
+        summary: "",
       },
     
     
       /**
-       *
        */
       {
         name: "q401",
         value: 825242705,
-        summary: "undefined",
+        summary: "",
       },
     
     ]
@@ -1562,7 +1550,7 @@ export interface Wl_data_offer extends Wl_interface{
     error: [
       
       /**
-       * @summary finish request was called untimely
+     * @summary finish request was called untimely
        */
       {
         name: "invalid_finish",
@@ -1572,7 +1560,7 @@ export interface Wl_data_offer extends Wl_interface{
     
     
       /**
-       * @summary action mask contains invalid values
+     * @summary action mask contains invalid values
        */
       {
         name: "invalid_action_mask",
@@ -1582,7 +1570,7 @@ export interface Wl_data_offer extends Wl_interface{
     
     
       /**
-       * @summary action argument has an invalid value
+     * @summary action argument has an invalid value
        */
       {
         name: "invalid_action",
@@ -1592,7 +1580,7 @@ export interface Wl_data_offer extends Wl_interface{
     
     
       /**
-       * @summary offer doesn't accept this request
+     * @summary offer doesn't accept this request
        */
       {
         name: "invalid_offer",
@@ -1816,7 +1804,7 @@ export interface Wl_data_source extends Wl_interface{
     error: [
       
       /**
-       * @summary action mask contains invalid values
+     * @summary action mask contains invalid values
        */
       {
         name: "invalid_action_mask",
@@ -1826,7 +1814,7 @@ export interface Wl_data_source extends Wl_interface{
     
     
       /**
-       * @summary source doesn't accept this request
+     * @summary source doesn't accept this request
        */
       {
         name: "invalid_source",
@@ -2021,7 +2009,7 @@ export interface Wl_data_device extends Wl_interface{
     error: [
       
       /**
-       * @summary given wl_surface has another role
+     * @summary given wl_surface has another role
        */
       {
         name: "role",
@@ -2216,7 +2204,7 @@ export interface Wl_data_device_manager extends Wl_interface{
     dnd_action: [
       
       /**
-       * @summary no action
+     * @summary no action
        */
       {
         name: "none",
@@ -2226,7 +2214,7 @@ export interface Wl_data_device_manager extends Wl_interface{
     
     
       /**
-       * @summary copy action
+     * @summary copy action
        */
       {
         name: "copy",
@@ -2236,7 +2224,7 @@ export interface Wl_data_device_manager extends Wl_interface{
     
     
       /**
-       * @summary move action
+     * @summary move action
        */
       {
         name: "move",
@@ -2246,7 +2234,7 @@ export interface Wl_data_device_manager extends Wl_interface{
     
     
       /**
-       * @summary ask action
+     * @summary ask action
        */
       {
         name: "ask",
@@ -2305,7 +2293,7 @@ export interface Wl_shell extends Wl_interface{
     error: [
       
       /**
-       * @summary given wl_surface has another role
+     * @summary given wl_surface has another role
        */
       {
         name: "role",
@@ -2360,7 +2348,7 @@ export interface Wl_shell_surface extends Wl_interface{
     resize: [
       
       /**
-       * @summary no edge
+     * @summary no edge
        */
       {
         name: "none",
@@ -2370,7 +2358,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary top edge
+     * @summary top edge
        */
       {
         name: "top",
@@ -2380,7 +2368,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary bottom edge
+     * @summary bottom edge
        */
       {
         name: "bottom",
@@ -2390,7 +2378,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary left edge
+     * @summary left edge
        */
       {
         name: "left",
@@ -2400,7 +2388,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary top and left edges
+     * @summary top and left edges
        */
       {
         name: "top_left",
@@ -2410,7 +2398,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary bottom and left edges
+     * @summary bottom and left edges
        */
       {
         name: "bottom_left",
@@ -2420,7 +2408,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary right edge
+     * @summary right edge
        */
       {
         name: "right",
@@ -2430,7 +2418,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary top and right edges
+     * @summary top and right edges
        */
       {
         name: "top_right",
@@ -2440,7 +2428,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary bottom and right edges
+     * @summary bottom and right edges
        */
       {
         name: "bottom_right",
@@ -2454,7 +2442,7 @@ export interface Wl_shell_surface extends Wl_interface{
     transient: [
       
       /**
-       * @summary do not set keyboard focus
+     * @summary do not set keyboard focus
        */
       {
         name: "inactive",
@@ -2468,7 +2456,7 @@ export interface Wl_shell_surface extends Wl_interface{
     fullscreen_method: [
       
       /**
-       * @summary no preference, apply default policy
+     * @summary no preference, apply default policy
        */
       {
         name: "default",
@@ -2478,7 +2466,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary scale, preserve the surface's aspect ratio and center on output
+     * @summary scale, preserve the surface's aspect ratio and center on output
        */
       {
         name: "scale",
@@ -2488,7 +2476,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary switch output mode to the smallest mode that can fit the surface, add black borders to compensate size mismatch
+     * @summary switch output mode to the smallest mode that can fit the surface, add black borders to compensate size mismatch
        */
       {
         name: "driver",
@@ -2498,7 +2486,7 @@ export interface Wl_shell_surface extends Wl_interface{
     
     
       /**
-       * @summary no upscaling, center on output and add black borders to compensate size mismatch
+     * @summary no upscaling, center on output and add black borders to compensate size mismatch
        */
       {
         name: "fill",
@@ -2831,7 +2819,7 @@ export interface Wl_surface extends Wl_interface{
     error: [
       
       /**
-       * @summary buffer scale value is invalid
+     * @summary buffer scale value is invalid
        */
       {
         name: "invalid_scale",
@@ -2841,7 +2829,7 @@ export interface Wl_surface extends Wl_interface{
     
     
       /**
-       * @summary buffer transform value is invalid
+     * @summary buffer transform value is invalid
        */
       {
         name: "invalid_transform",
@@ -2851,7 +2839,7 @@ export interface Wl_surface extends Wl_interface{
     
     
       /**
-       * @summary buffer size is invalid
+     * @summary buffer size is invalid
        */
       {
         name: "invalid_size",
@@ -3268,7 +3256,7 @@ export interface Wl_seat extends Wl_interface{
     capability: [
       
       /**
-       * @summary the seat has pointer devices
+     * @summary the seat has pointer devices
        */
       {
         name: "pointer",
@@ -3278,7 +3266,7 @@ export interface Wl_seat extends Wl_interface{
     
     
       /**
-       * @summary the seat has one or more keyboards
+     * @summary the seat has one or more keyboards
        */
       {
         name: "keyboard",
@@ -3288,7 +3276,7 @@ export interface Wl_seat extends Wl_interface{
     
     
       /**
-       * @summary the seat has touch devices
+     * @summary the seat has touch devices
        */
       {
         name: "touch",
@@ -3302,7 +3290,7 @@ export interface Wl_seat extends Wl_interface{
     error: [
       
       /**
-       * @summary get_pointer, get_keyboard or get_touch called on seat without the matching capability
+     * @summary get_pointer, get_keyboard or get_touch called on seat without the matching capability
        */
       {
         name: "missing_capability",
@@ -3447,7 +3435,7 @@ export interface Wl_pointer extends Wl_interface{
     error: [
       
       /**
-       * @summary given wl_surface has another role
+     * @summary given wl_surface has another role
        */
       {
         name: "role",
@@ -3461,7 +3449,7 @@ export interface Wl_pointer extends Wl_interface{
     button_state: [
       
       /**
-       * @summary the button is not pressed
+     * @summary the button is not pressed
        */
       {
         name: "released",
@@ -3471,7 +3459,7 @@ export interface Wl_pointer extends Wl_interface{
     
     
       /**
-       * @summary the button is pressed
+     * @summary the button is pressed
        */
       {
         name: "pressed",
@@ -3485,7 +3473,7 @@ export interface Wl_pointer extends Wl_interface{
     axis: [
       
       /**
-       * @summary vertical axis
+     * @summary vertical axis
        */
       {
         name: "vertical_scroll",
@@ -3495,7 +3483,7 @@ export interface Wl_pointer extends Wl_interface{
     
     
       /**
-       * @summary horizontal axis
+     * @summary horizontal axis
        */
       {
         name: "horizontal_scroll",
@@ -3509,7 +3497,7 @@ export interface Wl_pointer extends Wl_interface{
     axis_source: [
       
       /**
-       * @summary a physical wheel rotation
+     * @summary a physical wheel rotation
        */
       {
         name: "wheel",
@@ -3519,7 +3507,7 @@ export interface Wl_pointer extends Wl_interface{
     
     
       /**
-       * @summary finger on a touch surface
+     * @summary finger on a touch surface
        */
       {
         name: "finger",
@@ -3529,7 +3517,7 @@ export interface Wl_pointer extends Wl_interface{
     
     
       /**
-       * @summary continuous coordinate space
+     * @summary continuous coordinate space
        */
       {
         name: "continuous",
@@ -3539,7 +3527,7 @@ export interface Wl_pointer extends Wl_interface{
     
     
       /**
-       * @summary a physical wheel tilt
+     * @summary a physical wheel tilt
        */
       {
         name: "wheel_tilt",
@@ -3843,7 +3831,7 @@ export interface Wl_keyboard extends Wl_interface{
     keymap_format: [
       
       /**
-       * @summary no keymap; client must understand how to interpret the raw keycode
+     * @summary no keymap; client must understand how to interpret the raw keycode
        */
       {
         name: "no_keymap",
@@ -3853,7 +3841,7 @@ export interface Wl_keyboard extends Wl_interface{
     
     
       /**
-       * @summary libxkbcommon compatible; to determine the xkb keycode, clients must add 8 to the key event keycode
+     * @summary libxkbcommon compatible; to determine the xkb keycode, clients must add 8 to the key event keycode
        */
       {
         name: "xkb_v1",
@@ -3867,7 +3855,7 @@ export interface Wl_keyboard extends Wl_interface{
     key_state: [
       
       /**
-       * @summary key is not pressed
+     * @summary key is not pressed
        */
       {
         name: "released",
@@ -3877,7 +3865,7 @@ export interface Wl_keyboard extends Wl_interface{
     
     
       /**
-       * @summary key is pressed
+     * @summary key is pressed
        */
       {
         name: "pressed",
@@ -4167,7 +4155,7 @@ export interface Wl_output extends Wl_interface{
     subpixel: [
       
       /**
-       * @summary unknown geometry
+     * @summary unknown geometry
        */
       {
         name: "unknown",
@@ -4177,7 +4165,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary no geometry
+     * @summary no geometry
        */
       {
         name: "none",
@@ -4187,7 +4175,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary horizontal RGB
+     * @summary horizontal RGB
        */
       {
         name: "horizontal_rgb",
@@ -4197,7 +4185,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary horizontal BGR
+     * @summary horizontal BGR
        */
       {
         name: "horizontal_bgr",
@@ -4207,7 +4195,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary vertical RGB
+     * @summary vertical RGB
        */
       {
         name: "vertical_rgb",
@@ -4217,7 +4205,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary vertical BGR
+     * @summary vertical BGR
        */
       {
         name: "vertical_bgr",
@@ -4231,7 +4219,7 @@ export interface Wl_output extends Wl_interface{
     transform: [
       
       /**
-       * @summary no transform
+     * @summary no transform
        */
       {
         name: "normal",
@@ -4241,7 +4229,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary 90 degrees counter-clockwise
+     * @summary 90 degrees counter-clockwise
        */
       {
         name: "90",
@@ -4251,7 +4239,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary 180 degrees counter-clockwise
+     * @summary 180 degrees counter-clockwise
        */
       {
         name: "180",
@@ -4261,7 +4249,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary 270 degrees counter-clockwise
+     * @summary 270 degrees counter-clockwise
        */
       {
         name: "270",
@@ -4271,7 +4259,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary 180 degree flip around a vertical axis
+     * @summary 180 degree flip around a vertical axis
        */
       {
         name: "flipped",
@@ -4281,7 +4269,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary flip and rotate 90 degrees counter-clockwise
+     * @summary flip and rotate 90 degrees counter-clockwise
        */
       {
         name: "flipped_90",
@@ -4291,7 +4279,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary flip and rotate 180 degrees counter-clockwise
+     * @summary flip and rotate 180 degrees counter-clockwise
        */
       {
         name: "flipped_180",
@@ -4301,7 +4289,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary flip and rotate 270 degrees counter-clockwise
+     * @summary flip and rotate 270 degrees counter-clockwise
        */
       {
         name: "flipped_270",
@@ -4315,7 +4303,7 @@ export interface Wl_output extends Wl_interface{
     mode: [
       
       /**
-       * @summary indicates this is the current mode
+     * @summary indicates this is the current mode
        */
       {
         name: "current",
@@ -4325,7 +4313,7 @@ export interface Wl_output extends Wl_interface{
     
     
       /**
-       * @summary indicates this is the preferred mode
+     * @summary indicates this is the preferred mode
        */
       {
         name: "preferred",
@@ -4541,7 +4529,7 @@ export interface Wl_subcompositor extends Wl_interface{
     error: [
       
       /**
-       * @summary the to-be sub-surface is invalid
+     * @summary the to-be sub-surface is invalid
        */
       {
         name: "bad_surface",
@@ -4658,7 +4646,7 @@ export interface Wl_subsurface extends Wl_interface{
     error: [
       
       /**
-       * @summary wl_surface is not a sibling or the parent
+     * @summary wl_surface is not a sibling or the parent
        */
       {
         name: "bad_surface",
