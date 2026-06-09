@@ -55,7 +55,9 @@ function makeMsg(objectId: number, opcode: number, body?: Buffer): Buffer {
   const b = body ?? Buffer.alloc(0);
   const header = Buffer.alloc(8);
   header.writeUInt32LE(objectId, 0);
-  header.writeUInt32LE(((8 + b.length) << 16) | (opcode & 0xFFFF), 4);
+  // length lives in the high 16 bits; compose via multiplication so lengths
+  // >= 32768 don't overflow the signed int32 that `<<16` would produce.
+  header.writeUInt32LE((8 + b.length) * 0x10000 + (opcode & 0xFFFF), 4);
   return Buffer.concat([header, b]);
 }
 
@@ -221,6 +223,67 @@ describe("onData: fragmented socket data is buffered and dispatched correctly", 
     d.feedData(msg2.subarray(3));
     expect(messages).to.have.length(2); // msg2 now complete
     expect(messages[1]).to.include({ id: 2, opcode: 1 });
+  });
+
+  // The message length sits in the high 16 bits of a u32. For a total length
+  // >= 32768 bytes, bit 31 of that word is set, so a signed `>> 16` would read
+  // a negative length and break framing. These cover the boundary and beyond.
+  ([32768, 40008, 65532] as const).forEach((total) => {
+    it(`frames a ${total}-byte message whose length sets the u32 sign bit`, function () {
+      const body = Buffer.alloc(total - 8).fill(0x5A);
+      body.writeUInt32LE(0xC0FFEE, 0);
+      d.feedData(makeMsg(7, 3, body));
+
+      expect(messages).to.have.length(1);
+      expect(messages[0]).to.include({ id: 7, opcode: 3 });
+      expect(messages[0].msg).to.have.length(total - 8, "body length must be decoded from an unsigned u32");
+      expect(messages[0].msg.readUInt32LE(0)).to.equal(0xC0FFEE);
+    });
+  });
+
+  it("frames a large message that arrives split across two chunks", function () {
+    const body = Buffer.alloc(50000).fill(0x5A);
+    const msg = makeMsg(8, 1, body);
+    d.feedData(msg.subarray(0, 20000));
+    expect(messages).to.have.length(0); // incomplete: must buffer, not mis-frame
+    d.feedData(msg.subarray(20000));
+    expect(messages).to.have.length(1);
+    expect(messages[0].msg).to.have.length(50000);
+  });
+});
+
+
+// ── Outgoing large request length encoding ────────────────────────────────
+
+describe("request(): encodes the length of a >= 32768-byte message correctly", function () {
+  /**
+   * The length is packed into the high 16 bits of a u32. Composing it with
+   * `<<16` overflows the signed int32 for messages of 32768..65535 bytes,
+   * which made writeUInt throw. request() must encode such a message and the
+   * header must round-trip through onData's framing.
+   */
+  it("sends a large request without throwing and with a recoverable length", async function () {
+    const d = new MockDisplay();
+    const def = {
+      name: "big", description: "", summary: "",
+      args: [{ name: "blob", type: "array", summary: "" }],
+    } as any;
+    // 4 (id) + 4 (header opcode/len) + 4 (array length prefix) + 40000 = 40012 bytes
+    const blob = new Uint8Array(40000).fill(0xAB);
+
+    await d.request(9, 2, def, blob);
+
+    expect(d.packets).to.have.length(1);
+    const packet = d.packets[0] as Buffer;
+    expect(packet).to.have.length(40012);
+
+    // Feed our own packet back through framing to confirm the header is valid.
+    const seen: { id: number; opcode: number; msg: Buffer }[] = [];
+    (d as any).onMessage = (id: number, opcode: number, msg: Buffer) => seen.push({ id, opcode, msg });
+    (d as any).onData(packet);
+    expect(seen).to.have.length(1);
+    expect(seen[0]).to.include({ id: 9, opcode: 2 });
+    expect(seen[0].msg).to.have.length(40004); // body = array prefix + 40000 payload
   });
 });
 
