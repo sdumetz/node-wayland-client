@@ -181,7 +181,10 @@ export default class Display extends EventEmitter{
   protected onData = (d :Buffer)=>{
     d = this.#recv.length ? Buffer.concat([this.#recv, d]) : d;
     while(d.length >= 8){
-      const length = (readUInt(d, 4)>>16);
+      // Use an unsigned shift: the length lives in the high 16 bits of a u32,
+      // so messages of 32768..65535 bytes set bit 31 and a signed `>>` would
+      // yield a negative length, corrupting the framing loop.
+      const length = (readUInt(d, 4)>>>16);
       if(d.length < length) break;
       const id = readUInt(d, 0);
       const opcode = (readUInt(d, 4) &0xFFFF);
@@ -353,8 +356,11 @@ export default class Display extends EventEmitter{
     }
     debug("Wayland request: ", srcId, opcode, args, b2.length);
     writeUInt(b1, srcId, 0);
-    //16 most significant bits are the message length. 16 next bits are the message opcode
-    writeUInt(b1, (b1.length + b2.length) << 16 | opcode & 0xFFFF, 4);
+    //16 most significant bits are the message length. 16 next bits are the message opcode.
+    //Compose with multiplication/addition rather than `<<16`: a message of
+    //32768..65535 bytes would overflow the signed int32 that `<<` produces and
+    //make writeUInt throw (or write a corrupt length).
+    writeUInt(b1, (b1.length + b2.length) * 0x10000 + (opcode & 0xFFFF), 4);
     await this.write(Buffer.concat([b1, b2]));
   }
 
