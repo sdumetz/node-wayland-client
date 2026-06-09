@@ -23,7 +23,14 @@ function indent(str :string, spaces :number) :string{
 
 function comment(str :string|string[]){
   let lines = Array.isArray(str)?str.map(s=>s.replace(/\n$/, "")): str?.split("\n");
-  return lines? lines.map(l=>l.replace(/^\s+/, " ")).join("\n * "): "";
+  if(!lines) return "";
+  // Escape "*/" so a description/summary can't close the surrounding JSDoc block early.
+  return lines.map(l=>l.replace(/^\s+/, " ")).join("\n * ").replace(/\*\//g, "*\\/");
+}
+
+/** Render a one-line `@summary` JSDoc fragment, collapsing newlines and neutralising comment closers. */
+function summaryLine(summary :string|undefined){
+  return summary? `\n * @summary ${summary.replace(/\s*\n\s*/g, " ").replace(/\*\//g, "*\\/")}`: "";
 }
 
 
@@ -32,7 +39,7 @@ function nameToClass(name :string){
 }
 
 export const genInterface = ({name, version, description, summary, requests, events, enums} :InterfaceDefinition)=>`
-/**${summary? `\n * @summary ${summary}`:""}
+/**${summaryLine(summary)}
  * ${comment(description)}
  */
 export interface ${nameToClass(name)} extends Wl_interface{
@@ -58,7 +65,7 @@ const genEvent = ({name, description, summary, args} :EventDefinition)=>{
   }
   params.push(...args.map(a=> `${a.name}: wl_${a.type}`));
   return `
-/**${summary? `\n * @summary ${summary}`:""}
+/**${summaryLine(summary)}
  * ${comment(description)}
  */
 on(eventName: "${name}", listener: (${params.join(", ")})=>void): this;
@@ -77,9 +84,9 @@ const genRequest = ({name, description, summary, args} :RequestDefinition)=>{
     returnType = nameToClass(first_arg.interface);
   }
   return `
-/**${summary? `\n * @summary ${summary}`:""}
+/**${summaryLine(summary)}
  * ${comment(description)}
- * ${args.map(a=> `@param ${a.name} ${a.summary}`).join("\n * ")}
+ * ${args.map(a=> `@param ${a.name} ${comment(a.summary ?? "")}`).join("\n * ")}
  */
 ${name} (${args.map(a=> `${a.name}: wl_${a.type}`).join(", ")}) :Promise<${returnType}>;
 
@@ -88,13 +95,12 @@ ${name} (${args.map(a=> `${a.name}: wl_${a.type}`).join(", ")}) :Promise<${retur
 const genEnum = (name :string, en :EnumDefinition) :string =>`
 ${name}: [
   ${en.map(({name, value, summary})=>`
-  /**
-   *${summary? ` @summary ${summary}`:""}
+  /**${summaryLine(summary)}
    */
   {
     name: "${name}",
     value: ${value},
-    summary: "${summary?.replace(/\n/,"")}",
+    summary: ${JSON.stringify(summary ?? "")},
   },
 `).join("\n")}
 ]
