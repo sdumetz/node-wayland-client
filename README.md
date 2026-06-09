@@ -79,10 +79,10 @@ One major use case is to listen to some events until the server is done sending 
 ```js
   await display.load(path.join(thisDir, "protocol", "wlr_output_management_unstable_v1.xml"));
   let wlr_output = await display.bind("zwlr_output_manager_v1");
-  let {head: heads, done: serial} = await wlr_output.drain(() => once(wlr_output, "done"));
+  let {head: heads = [], done: [serial] = []} = await wlr_output.drain(() => once(wlr_output, "done"));
 ```
 
-Way better than manually wiring every event recursively. The `drain()` call collects all events until the `"done"` event fires, including `"done"` itself — so `serial` and `heads` are both available in the result.
+Way better than manually wiring every event recursively. The `drain()` call collects all events until the `"done"` event fires, including `"done"` itself — so `serial` and `heads` are both available in the result. Every event key is an **array** with one entry per emission (`heads` is one entry per `"head"` event, `done` is `[serial]`), so the shape is the same whether an event fired once or many times.
 
 ### compile a protocol file
 
@@ -157,8 +157,13 @@ Prefer passing a **factory function** so the `until` listener is registered *aft
 
 ```js
 const result = await itf.drain(() => once(itf, "done"));
-// result.done  — args from the "done" event
-// result.mode  — args from any "mode" events (array if fired multiple times)
+// Every event key is an array with one entry per emission (only `id` is scalar):
+//   no-arg event    -> [true, ...]
+//   single-arg event-> [value, ...]
+//   multi-arg event -> [[a, b], ...]
+//   child interface -> [nestedResult, ...]
+const [serial] = result.done;        // single "done" event
+for (const mode of result.mode ?? []) { /* one entry per "mode" event */ }
 ```
 
 Passing a bare promise also works when the promise is independent of this interface's events.
