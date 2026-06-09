@@ -7,6 +7,8 @@ import {
   readInt,
   get_args,
   writeInt,
+  readArray,
+  writeArray,
 } from "./args.js";
 import { expect } from "chai";
 import { ArgumentDefinition, ArgumentType } from "./definitions.js";
@@ -326,3 +328,65 @@ describe("get_args()", function(){
     ]);
   })
 })
+
+describe("string encoding round-trips", function(){
+  const strDef :ArgumentDefinition[] = [{ name: "s", type: "string" }];
+  [
+    "",            // empty: 0 bytes + NUL -> padded to 4
+    "a",
+    "abc",         // 3 + NUL = 4 (already aligned)
+    "abcd",        // 4 + NUL = 5 -> padded to 8
+    "héllo",       // 'é' is 2 UTF-8 bytes
+    "日本語",       // 3 chars x 3 bytes = 9 bytes
+    "🚀 go",        // rocket is a surrogate pair / 4 UTF-8 bytes
+  ].forEach((s)=>{
+    it(`round-trips ${JSON.stringify(s)}`, function(){
+      const buf = format_args([s], strDef);
+      expect(buf.length % 4, "encoded message must be 32-bit aligned").to.equal(0);
+      const [out] = get_args(buf, strDef);
+      expect(out).to.equal(s);
+    });
+
+    it(`prefixes the UTF-8 byte length (not char length) for ${JSON.stringify(s)}`, function(){
+      const buf = format_args([s], strDef);
+      // length prefix counts UTF-8 bytes plus the NUL terminator
+      expect(readUInt(buf, 0)).to.equal(Buffer.byteLength(s, "utf-8") + 1);
+    });
+  });
+
+  it("does not leak terminator/padding bytes into a decoded string that needs padding", function(){
+    // "abcd" is 4 bytes + NUL = 5, padded to 8 — three trailing bytes the decoder
+    // must not surface (format_args allocates the message body with allocUnsafe).
+    const s = "abcd";
+    const [out] = get_args(format_args([s], strDef), strDef);
+    expect(out).to.equal(s);
+    expect(out).to.have.length(4);
+  });
+});
+
+describe("writeArray() / readArray() round-trips", function(){
+  [0, 1, 2, 3, 4, 5, 7, 8, 9].forEach((len)=>{
+    it(`round-trips a ${len}-byte array and advances past the padding`, function(){
+      const data = new Uint8Array(len);
+      for(let i = 0; i < len; i++) data[i] = (i * 37) & 0xFF;
+      const padded = len + ((4 - (len % 4)) % 4);
+
+      const b = Buffer.alloc(4 + padded);
+      const writeEnd = writeArray(b, data, 0);
+      expect(writeEnd, "write offset includes length prefix + padded data").to.equal(4 + padded);
+
+      const [out, readEnd] = readArray(b, 0);
+      expect(Array.from(out)).to.deep.equal(Array.from(data));
+      expect(readEnd, "read offset matches write offset").to.equal(4 + padded);
+    });
+  });
+
+  it("reads a uint placed immediately after a non-aligned array at the correct offset", function(){
+    const data = new Uint8Array([0x11, 0x22, 0x33]); // 3 bytes -> 1 byte padding
+    const b = Buffer.alloc(4 + 4 + 4);               // len prefix + padded data + trailing uint
+    const off = writeArray(b, data, 0);
+    writeUInt(b, 0xCAFE, off);
+    const [, after] = readArray(b, 0);
+    expect(readUInt(b, after)).to.equal(0xCAFE);
+  });
+});
