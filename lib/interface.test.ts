@@ -360,7 +360,23 @@ describe("Wl_interface.aggregate()", function(){
     const end = itf.aggregate();
     itf.emit("done");
     const result = end();
-    expect(result.done).to.equal(true);
+    expect(result.done).to.deep.equal([true]);
+  });
+
+  it("records every occurrence of a repeated event as separate array entries", function(){
+    const def: InterfaceDefinition = {
+      ...emptyDef,
+      events: [{ name: "tick", description: "", summary: "", args: [
+        { name: "n", type: "uint", summary: "" },
+      ]}],
+    };
+    const itf = new Wl_interface(d, 3, def);
+    const end = itf.aggregate();
+    itf.emit("tick", 1);
+    itf.emit("tick", 2);
+    itf.emit("tick", 3);
+    const result = end();
+    expect(result.tick).to.deep.equal([1, 2, 3]);
   });
 
   it("records the value for single-arg events", function(){
@@ -374,7 +390,7 @@ describe("Wl_interface.aggregate()", function(){
     const end = itf.aggregate();
     itf.emit("size", 42);
     const result = end();
-    expect(result.size).to.equal(42);
+    expect(result.size).to.deep.equal([42]);
   });
 
   it("records array for multi-arg events", function(){
@@ -389,7 +405,8 @@ describe("Wl_interface.aggregate()", function(){
     const end = itf.aggregate();
     itf.emit("point", 3, 7);
     const result = end();
-    expect(result.point).to.deep.equal([3, 7]);
+    // one emission of a multi-arg event -> a single entry that is the args array
+    expect(result.point).to.deep.equal([[3, 7]]);
   });
 
   it("does not attach a listener for a version-filtered event", function(){
@@ -421,8 +438,8 @@ describe("Wl_interface.aggregate()", function(){
     itf.emit("ev_v1");
     itf.emit("ev_v1b");
     const result = end();
-    expect(result.ev_v1).to.equal(true);
-    expect(result.ev_v1b).to.equal(true);
+    expect(result.ev_v1).to.deep.equal([true]);
+    expect(result.ev_v1b).to.deep.equal([true]);
   });
 
   it("aggregates nested Wl_interface events", function(){
@@ -440,7 +457,8 @@ describe("Wl_interface.aggregate()", function(){
     const end = itf.aggregate();
     itf.emit("child", child);
     const result = end();
-    expect(result.child).to.be.an("object").with.property("id", 4);
+    expect(result.child).to.be.an("array").with.length(1);
+    expect((result.child as any[])[0]).to.be.an("object").with.property("id", 4);
   });
 });
 

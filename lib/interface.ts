@@ -7,9 +7,20 @@ import { EventDefinition, RequestDefinition, EnumDefinition, InterfaceDefinition
 
 
 
+/**
+ * One recorded occurrence of an event:
+ *  - a no-arg event records `true`
+ *  - a single-arg event records the argument value
+ *  - a multi-arg event records the arguments as an array
+ *  - an interface-creation event records the child's nested {@link AggregateResult}
+ */
+type AggregateEntry = boolean | number | string | (number|string)[] | AggregateResult;
+
 interface AggregateResult{
+  /** This interface's object id. Scalar metadata — not an aggregated event. */
   id: number;
-  [e :string]: number|string|boolean|AggregateResult|number[]|string[]|AggregateResult[];
+  /** For each event that fired, an array with one {@link AggregateEntry} per emission. */
+  [event :string]: number | AggregateEntry[];
 }
 
 
@@ -164,6 +175,11 @@ export default class Wl_interface extends EventEmitter{
    * received by this interface over a period of time
    * into a single object.
    *
+   * Each event that fires is recorded under its own key as an **array** with one
+   * entry per emission (see {@link AggregateEntry}). The shape never depends on how
+   * many times an event fired, so a single occurrence is `[entry]`, not `entry`.
+   * Only `id` is a scalar.
+   *
    * **Prefer `drain()` for most use cases** — it handles cleanup automatically.
    *
    * The returned function also implements `Disposable`, so automatic cleanup is
@@ -205,9 +221,9 @@ export default class Wl_interface extends EventEmitter{
         this.off(name, listener);
       }
       cancellations.forEach((c)=>c());
-      for(let key in infos){
-        if((infos[key] as any).length == 1) infos[key] = (infos[key] as any)[0];
-      }
+      // Every event key is an array with one entry per emission. We intentionally
+      // do NOT unwrap single occurrences to a scalar: that made the result shape
+      // depend on how many times an event happened, which callers can't predict.
       return infos;
     };
     (end as any)[Symbol.dispose] = end;
@@ -222,6 +238,9 @@ export default class Wl_interface extends EventEmitter{
    * so that the `until` listener is registered *after* aggregation begins (no race window):
    * ```javascript
    *   const result = await itf.drain(() => once(itf, "done"));
+   *   // every event key is an array, one entry per emission:
+   *   const [serial] = result.done;   // single "done" event
+   *   for (const mode of result.mode ?? []) { ... }
    * ```
    * Passing a bare promise also works when the promise is independent of this interface's events (eg: a timeout or a global interface event).
    */
