@@ -283,6 +283,9 @@ export default class Display extends EventEmitter{
  */
   registerInterface<T extends Wl_interface = Wl_interface>(id :number, name :string, version?: number) :T{
     const def = typeof name ==="string"?this.#interfaces.get(name): name;
+    if(!def){
+      throw new Error(`Cannot register interface "${name}": no protocol definition loaded. Load the protocol that defines it (e.g. display.load("wayland")) before binding or creating it.`);
+    }
     const resolvedDef = version !== undefined ? {...def, version} : def;
     /* @ts-ignore */
     let itf = new Wl_interface(this, id, resolvedDef);
@@ -326,8 +329,10 @@ export default class Display extends EventEmitter{
 
   getEnum(name :string)  :EnumReduction{
     let [iName, eName] = name.split(".");
+    if(!eName) throw new Error(`Invalid enum reference "${name}": expected the form "<interface>.<enum>"`);
     let def = this.getDefinition(iName);
     let e = def.enums[eName];
+    if(!e) throw new Error(`No enum named "${eName}" in interface "${iName}". Known enums: ${Object.keys(def.enums).join(", ") || "(none)"}`);
     // JSON files generated before the EnumEntry format change stored enums as
     // plain arrays.  Accept both shapes for backward compatibility.
     const entries = Array.isArray(e) ? e : e.entries;
