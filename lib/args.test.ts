@@ -45,19 +45,18 @@ describe("Buffer read/write", function(){
 
   });
 
-  ["LE", "BE"].forEach((en)=>{
-    it(`works in ${en == "LE"? "Little":"Big"} Endian systems`, function(){
-      let b = Buffer.alloc(4);
-      writeUInt(b, 1, 0, en as any);
-      expect(readUInt(b, 0, en as any)).to.equal(1);
+  // The helpers always use host byte order (both read and write), so a
+  // round-trip is consistent on any platform without an endianness argument.
+  it("round-trips integers and fixed-points in host byte order", function(){
+    let b = Buffer.alloc(4);
+    writeUInt(b, 1, 0);
+    expect(readUInt(b, 0)).to.equal(1);
 
-      
-      writeInt(b, -1, 0, en as any);
-      expect(readInt(b, 0, en as any)).to.equal(-1);
+    writeInt(b, -1, 0);
+    expect(readInt(b, 0)).to.equal(-1);
 
-      writeFixed(b, 1.5, 0, en as any);
-      expect(readFixed(b, 0, en as any)).to.equal(1.5);
-    });
+    writeFixed(b, 1.5, 0);
+    expect(readFixed(b, 0)).to.equal(1.5);
   });
 
 });
