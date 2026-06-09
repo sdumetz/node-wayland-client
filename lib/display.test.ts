@@ -52,6 +52,40 @@ describe("class Wl_display", function(){
       expect(e).to.be.an("object");
       expect(e).to.have.property("invalid_object").that.is.a("number");
     });
+
+    it("throws a clear error for an unknown enum on a known interface", async function(){
+      const d = new Display(sMock);
+      await d.load("wayland");
+      expect(()=>d.getEnum("wl_display.nope"))
+        .to.throw(/No enum named "nope" in interface "wl_display"/);
+    });
+
+    it("throws for an unknown interface", async function(){
+      const d = new Display(sMock);
+      await d.load("wayland");
+      expect(()=>d.getEnum("wl_nonexistent.error"))
+        .to.throw(/No interface definition for wl_nonexistent/);
+    });
+
+    it("throws when the reference is not of the form <interface>.<enum>", async function(){
+      const d = new Display(sMock);
+      await d.load("wayland");
+      expect(()=>d.getEnum("wl_display")).to.throw(/expected the form/);
+    });
+  });
+
+  describe("registerInterface()", function(){
+    it("throws a clear error when the interface definition was never loaded", function(){
+      const d = new Display(sMock);
+      expect(()=>d.registerInterface(1, "wl_never_loaded"))
+        .to.throw(/Cannot register interface "wl_never_loaded": no protocol definition loaded/);
+    });
+
+    it("does not throw a cryptic 'reading map' error", function(){
+      const d = new Display(sMock);
+      expect(()=>d.registerInterface(1, "wl_never_loaded"))
+        .to.not.throw(/Cannot read properties of undefined/);
+    });
   });
 
   describe("request()", function(){
