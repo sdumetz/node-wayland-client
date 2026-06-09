@@ -160,6 +160,10 @@ export function format_args(args:any[], def:ArgumentDefinition[]) :Buffer{
         const strlen =  Buffer.byteLength(arg, "utf-8")+1;
         writeUInt(b, strlen, offset);
         b.write(arg+'\x00', offset + 4, "utf-8");
+        // Zero the alignment padding: the body is allocUnsafe'd, so the bytes
+        // between the NUL terminator and the 32-bit boundary would otherwise
+        // leak uninitialised heap memory onto the wire.
+        b.fill(0, offset + 4 + strlen, offset + argLengths[i]);
         offset += argLengths[i]; //account for 32bits padding when necessary
         break;
       case "array":

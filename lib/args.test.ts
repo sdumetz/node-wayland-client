@@ -362,6 +362,19 @@ describe("string encoding round-trips", function(){
     expect(out).to.equal(s);
     expect(out).to.have.length(4);
   });
+
+  // format_args uses allocUnsafe; the bytes between the NUL terminator and the
+  // 32-bit boundary must be explicitly zeroed so we never put uninitialised
+  // heap memory on the wire.
+  ["abcd", "héllo", "🚀 go", "a"].forEach((s)=>{
+    it(`zero-fills alignment padding after ${JSON.stringify(s)}`, function(){
+      const buf = format_args([s], strDef);
+      const strlen = Buffer.byteLength(s, "utf-8") + 1; // payload + NUL terminator
+      for(let i = 4 + strlen; i < buf.length; i++){
+        expect(buf[i], `padding byte at offset ${i} must be zero`).to.equal(0);
+      }
+    });
+  });
 });
 
 describe("writeArray() / readArray() round-trips", function(){
