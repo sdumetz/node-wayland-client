@@ -20,10 +20,15 @@ describe("Buffer read/write", function(){
   describe("read / write fixed-points", function(){
     this.bail();
     [
-      //Those hex values and correspondances were verified through wayland queries dump 
-      [0x0100,      1],
-      [0x80000100, -1],
-      [0x0180,      1.5],
+      // wl_fixed_t is a two's-complement int32 holding value*256 (wayland-util.h:
+      // `typedef int32_t wl_fixed_t`, `wl_fixed_from_int(i) = i * 256`).
+      // The wire words below match the reference wl_fixed_from_double()/to_double().
+      [0x00000100,  1],
+      [0xFFFFFF00, -1],   // -256 two's complement (NOT sign-magnitude 0x80000100)
+      [0x00000180,  1.5],
+      [0xFFFFFE80, -1.5],
+      [0x00000080,  0.5],
+      [0xFFFFFF80, -0.5],
     ].forEach(([hex, value])=>{
       const b = Buffer.alloc(4);
       it(`read 0x${hex.toString(16)} as ${value}`, function(){
